@@ -1,1 +1,120 @@
-make-moonlight.vercel.app
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>달빛도구</title>
+  <style>
+    /* 전체 레이아웃 */
+    body {
+      margin: 0;
+      font-family: 'Noto Sans KR', sans-serif;
+      background: linear-gradient(to bottom, #0d1b2a, #1b263b, #415a77);
+      color: #f1f1f1;
+      text-align: center;
+    }
+
+    header {
+      padding: 40px 20px;
+      background: rgba(0, 0, 0, 0.4);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    header h1 {
+      font-size: 3rem;
+      margin: 0;
+      color: #e0eaff;
+      text-shadow: 0 0 10px rgba(200, 220, 255, 0.8);
+    }
+
+    header p {
+      margin-top: 10px;
+      font-size: 1.2rem;
+      color: #cfd8dc;
+    }
+
+    /* 버튼 스타일 */
+    .btn-container {
+      margin: 60px auto;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 15px 30px;
+      background: linear-gradient(135deg, #007bff, #00c6ff);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      background: linear-gradient(135deg, #0056b3, #0096c7);
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    }
+
+    /* 구분선 */
+    .divider {
+      margin: 50px auto;
+      width: 60%;
+      border-top: 1px dashed rgba(255,255,255,0.4);
+    }
+
+    /* 푸터 */
+    footer {
+      margin-top: 60px;
+      padding: 20px;
+      font-size: 0.9rem;
+      color: #b0bec5;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    footer a {
+      color: #90caf9;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌙 달빛도구</h1>
+    <p>작은 도구들이 모여 당신의 하루를 더 편리하게 만들어줍니다.</p>
+  </header>
+
+  <main>
+    <div class="btn-container">
+      <a href="/make/calender.html" class="btn">📅 캘린더</a>
+      <a href="/make/metronome.html" class="btn">⏱ 메트로놈</a>
+      <a href="/make/sample.html" class="btn">🧩 샘플</a>
+      <a href="/make/메신저.html" class="btn">로컬메신저</a>
+      <a href="/make/storage-space.html" class="btn">저장공간 마스터</a>
+    </div>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>✨ 달빛도구 소개</h2>
+      <p>
+        달빛도구는 일상에서 자주 쓰이는 간단한 기능들을 모아둔 작은 툴 모음입니다.<br>
+        복잡하지 않고, 누구나 쉽게 사용할 수 있도록 디자인되었습니다.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 달빛도구 | <a href="#">문의하기</a></p>
+  </footer>
+</body>
+</html>
+
