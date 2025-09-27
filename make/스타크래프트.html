@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="스타크래프트 전략, 잘하는 법, 빌드오더, 연습 루틴까지 총망라한 고수용 전략 홈페이지"/>
+  <title>스타크래프트 고수 전략 아카데미</title>
+  <style>
+    /* 기본 리셋 */
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; background: #0c0f14; color: #e5e7eb; font-family: "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    }
+
+    /* 컬러 팔레트 */
+    :root {
+      --bg: #0c0f14;
+      --panel: #12161e;
+      --panel-2: #1a1f29;
+      --accent: #35a0ff;
+      --accent-2: #7b61ff;
+      --accent-3: #2dd4bf;
+      --text: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border: #293241;
+      --danger: #ff5263;
+      --protoss: #ffd54f;
+      --terran: #7aa2ff;
+      --zerg: #a56eff;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* 레이아웃 */
+    header {
+      position: sticky; top: 0; z-index: 1000;
+      background: linear-gradient(180deg, rgba(26,31,41,0.9), rgba(26,31,41,0.85));
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav {
+      max-width: 1200px; margin: 0 auto; padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-logo {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, var(--accent-2), var(--accent), #0c0f14);
+      border: 1px solid var(--border);
+      box-shadow: 0 0 18px rgba(53,160,255,0.35);
+    }
+    .brand-title { font-weight: 800; letter-spacing: 0.4px; }
+    .nav-links { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .nav-links a {
+      padding: 8px 12px; border-radius: 8px; border: 1px solid transparent;
+    }
+    .nav-links a:hover { border-color: var(--border); background: var(--panel-2); }
+
+    .hero {
+      max-width: 1200px; margin: 0 auto; padding: 36px 20px 28px;
+      display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 24px;
+    }
+    .hero-card {
+      background: linear-gradient(180deg, var(--panel), #0f141d);
+      border: 1px solid var(--border);
+      border-radius: 14px; padding: 24px;
+      box-shadow: 0 6px 30px rgba(0,0,0,0.35);
+    }
+    .hero h1 {
+      margin: 0 0 10px 0; font-size: 28px; font-weight: 900;
+    }
+    .hero p { margin: 0 0 16px 0; color: var(--text-muted); }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .chip {
+      padding: 8px 12px; border-radius: 999px; font-size: 13px; border: 1px solid var(--border);
+      background: linear-gradient(180deg, #111722, #0d121a);
+    }
+    .chip.protoss { color: var(--protoss); border-color: #3e3a1f; }
+    .chip.terran { color: var(--terran); border-color: #1f3359; }
+    .chip.zerg { color: var(--zerg); border-color: #382751; }
+
+    .search {
+      display: flex; gap: 8px; margin-top: 14px;
+    }
+    .search input {
+      flex: 1; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border);
+      background: #0f141d; color: var(--text);
+    }
+    .search button {
+      padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--accent-2), var(--accent)); color: #0c0f14; font-weight: 700;
+      box-shadow: 0 8px 20px rgba(53,160,255,0.35);
+      cursor: pointer;
+    }
+    .search button:hover { filter: brightness(1.05); }
+
+    .grid {
+      max-width: 1200px; margin: 0 auto; padding: 12px 20px 40px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+    .section {
+      background: linear-gradient(180deg, var(--panel), #0f141d);
+      border: 1px solid var(--border); border-radius: 12px; padding: 20px;
+    }
+    .section h2 {
+      margin: 0 0 12px 0; font-size: 22px; font-weight: 800;
+      border-bottom: 1px solid var(--border); padding-bottom: 10px;
+    }
+
+    /* 탭 */
+    .tabs { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .tab {
+      padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border);
+      background: #101522; color: var(--text-muted); cursor: pointer; font-weight: 700;
+    }
+    .tab.active { color: var(--text); border-color: var(--accent); box-shadow: 0 0 14px rgba(53,160,255,0.25); }
+
+    /* 표 */
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px; text-align: left; vertical-align: top; font-size: 14px;
+    }
+    th { background: #0f141d; color: var(--text); font-weight: 800; }
+    tbody tr:nth-child(odd) { background: #0e131c; }
+    tbody tr:nth-child(even) { background: #101622; }
+
+    /* 아코디언 */
+    .accordion { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .accordion-item + .accordion-item { border-top: 1px solid var(--border); }
+    .accordion-header {
+      background: #121827; padding: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+      font-weight: 700;
+    }
+    .accordion-header:hover { background: #131a2b; }
+    .accordion-content {
+      display: none; padding: 14px; background: #0f141d; color: var(--text);
+    }
+    .accordion-item.open .accordion-content { display: block; }
+
+    /* 카드 */
+    .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .card {
+      border: 1px solid var(--border); border-radius: 10px; background: #101522; padding: 12px;
+    }
+    .card h4 { margin: 6px 0 8px; font-size: 16px; }
+    .tag {
+      display: inline-block; padding: 4px 8px; font-size: 12px; border-radius: 999px; border: 1px solid var(--border);
+      color: var(--text-muted); margin-right: 6px; margin-bottom: 6px; background: #0f141d;
+    }
+    .tag.protoss { color: var(--protoss); }
+    .tag.terran { color: var(--terran); }
+    .tag.zerg { color: var(--zerg); }
+
+    /* 사이드 노트 */
+    .note {
+      border-left: 3px solid var(--accent); background: #0e131c; padding: 10px 12px; color: var(--text-muted); margin: 8px 0 12px; font-size: 14px;
+    }
+
+    /* 버튼 */
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border);
+      background: #111725; color: var(--text); cursor: pointer; font-weight: 700;
+    }
+    .btn.primary { background: linear-gradient(180deg, var(--accent-3), var(--accent)); color: #07111a; border-color: transparent; }
+    .btn:hover { filter: brightness(1.05); }
+
+    /* 콜아웃 */
+    .callout {
+      border: 1px dashed var(--border); border-radius: 12px; background: #0d121a; padding: 14px;
+    }
+    .callout h3 { margin: 0 0 8px 0; font-size: 18px; }
+    .callout p { margin: 0; color: var(--text-muted); }
+
+    /* 푸터 */
+    footer {
+      margin-top: 24px; padding: 24px 20px; border-top: 1px solid var(--border); background: #0a0e13;
+    }
+    .footer-inner {
+      max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px;
+    }
+    .footer-inner h4 { margin-bottom: 10px; }
+
+    /* 반응형 */
+    @media (max-width: 1024px) {
+      .hero { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .card-grid { grid-template-columns: 1fr 1fr; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .card-grid { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="nav">
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true"></div>
+        <div>
+          <div class="brand-title">스타크래프트 고수 전략 아카데미</div>
+          <div style="color: var(--text-muted); font-size: 12px;">빌드오더 · 미크로 · 매크로 · 타이밍 어택 · 연습 루틴</div>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="#intro">개요</a>
+        <a href="#races">종족 전략</a>
+        <a href="#builds">빌드오더</a>
+        <a href="#mechanics">잘하는 법</a>
+        <a href="#practice">연습 루틴</a>
+        <a href="#glossary">용어 사전</a>
+      </div>
+    </nav>
+  </header>
+
+  <section class="hero" id="intro">
+    <div class="hero-card">
+      <h1>이기는 플레이는 구조에서 나온다</h1>
+      <p>고수들은 운에 기대지 않는다. 체계화된 빌드오더, 정확한 타이밍, 반복 숙련으로 상대를 압도한다. 이 페이지는 전략의 핵심을 실전 언어로 풀고, 종족별 빌드와 연습법을 연결해준다.</p>
+      <div class="chip-row">
+        <span class="chip protoss">프로토스 타이밍 어택</span>
+        <span class="chip terran">테란 생존·견제 루프</span>
+        <span class="chip zerg">저그 라린·드론 밸런싱</span>
+        <span class="chip">핫키 맵핑</span>
+        <span class="chip">APM 효율화</span>
+        <span class="chip">정찰 루틴</span>
+      </div>
+      <div class="search">
+        <input id="searchInput" type="search" placeholder="예: 테란 2팩 벌처, 프로토스 다크 템플러, 저그 973..." />
+        <button id="searchBtn">검색</button>
+      </div>
+      <div class="note">검색은 페이지 내 섹션 제목과 카드의 키워드를 빠르게 찾도록 설계되어 있다. 키워드를 입력하고 결과 하이라이트로 이동하자.</div>
+      <div class="btn-row">
+        <button class="btn primary" data-scroll="#builds">추천 빌드 보기</button>
+        <button class="btn" data-scroll="#mechanics">잘하는 법 핵심</button>
+        <button class="btn" data-scroll="#practice">연습 루틴 다운</button>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="callout">
+        <h3>빠른 가이드</h3>
+        <p><strong>정찰 → 의사결정 → 생산 큐 → 컨트롤</strong>을 반복 루프로 묶어라. 빌드를 외우는 목적은 루프가 끊기지 않게 하기 위함이다.</p>
+      </div>
+      <div class="accordion" id="quickAccordion">
+        <div class="accordion-item open">
+          <div class="accordion-header">
+            <span>핫키 맵핑 원칙</span><span>▼</span>
+          </div>
+          <div class="accordion-content">
+            <ul>
+              <li><strong>카메라 위치:</strong> 본진, 앞마당, 주력 교전 예상지, 생산·업그레이드 단축키로 고정.</li>
+              <li><strong>컨트롤 그룹:</strong> 1~3 주력, 4~5 생산, 6 업그레이드·테크, 0 정찰/옵저버·스캔.</li>
+              <li><strong>중복 최소화:</strong> 생산과 컨트롤 키 충돌을 피하려고 생산은 후반 번호로 묶는다.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-header">
+            <span>타이밍 어택 체크리스트</span><span>▼</span>
+          </div>
+          <div class="accordion-content">
+            <ul>
+              <li><strong>조건:</strong> 핵심 업그레이드 완료, 2~3생산 라인 가동, 상대 테크·병력 간극 파악.</li>
+              <li><strong>경로:</strong> 교전 유리 지형, 미네랄 라인 도달 경로, 리트릿 라인 확보.</li>
+              <li><strong>리스크:</strong> 카운터 타이밍 가능성, 집결 시간 지연, 보급선(서플·파일런·해처리) 안정성.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-header">
+            <span>정찰 루틴 샘플</span><span>▼</span>
+          </div>
+          <div class="accordion-content">
+            <ol>
+              <li><strong>초기:</strong> 본진 건물 배치·가스 타이밍·생산 건물 수.</li>
+              <li><strong>중반:</strong> 확장 수, 테크 건물 위치, 업그레이드 진행(아머리/코어/스포닝).</li>
+              <li><strong>후반:</strong> 병력 구성 변화, 스펠 유닛 보유, 방어선 세팅.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid" id="races">
+    <div class="section">
+      <h2>종족 전략 개요</h2>
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="protoss">프로토스</button>
+        <button class="tab" data-tab="terran">테란</button>
+        <button class="tab" data-tab="zerg">저그</button>
+      </div>
+      <div id="protoss" class="tab-panel">
+        <div class="note">프로토스는 <strong>파워 타이밍</strong>이 핵심이다. 업그레이드·텍 기동 후 창창한 타이밍 어택으로 승부하라.</div>
+        <ul>
+          <li><strong>정체성:</strong> 유닛 파워·스펠 연계로 중반 한타를 제압.</li>
+          <li><strong>핵심 루프:</strong> 코어→테크→업그레이드→게이트 늘리기→파워 타이밍.</li>
+          <li><strong>리스크 관리:</strong> 파일런·옵저버·캔논 배치로 돼지런(러쉬)·드롭 견제 방지.</li>
+        </ul>
+        <div class="card-grid">
+          <div class="card">
+            <h4>표준 1게이트 코어 → 옵저버</h4>
+            <span class="tag protoss">PvT/PvZ 안정</span>
+            <p>정찰·마인 제거·다크 대응을 동시에 해결. 게이트 확장 전 안정감 확보.</p>
+          </div>
+          <div class="card">
+            <h4>투게이트 압박</h4>
+            <span class="tag protoss">PvZ 초반</span>
+            <p>질럿 타이밍으로 라린 지연. 드론 컷과 크립 방해로 중반 주도권 확보.</p>
+          </div>
+          <div class="card">
+            <h4>리버 셔틀 드롭</h4>
+            <span class="tag protoss">PvT/PvZ 견제</span>
+            <p>미네랄 라인 파괴로 경제 격차. 셔틀 마이크로와 스피드 업 중요.</p>
+          </div>
+        </div>
+      </div>
+      <div id="terran" class="tab-panel" style="display:none;">
+        <div class="note">테란은 <strong>생존·라인·압박 루프</strong>가 핵심이다. 방어선과 타이밍을 유기적으로 연결하라.</div>
+        <ul>
+          <li><strong>정체성:</strong> 포트·탱크 라인으로 지형을 이용한 효율 극대화.</li>
+          <li><strong>핵심 루프:</strong> 생존(벽·마인)→견제(벌처·레이스)→라인 전진→타이밍.</li>
+          <li><strong>리스크 관리:</strong> 스캔·탐지·업그레이드 동기화로 다크·러커 대응.</li>
+        </ul>
+        <div class="card-grid">
+          <div class="card">
+            <h4>2팩 벌처 압박</h4>
+            <span class="tag terran">TvP 견제</span>
+            <p>마인·스피드로 외곽 견제. 프로브 컷과 택시(셔틀) 경로 차단.</p>
+          </div>
+          <div class="card">
+            <h4>메카닉 라인 → 타이밍</h4>
+            <span class="tag terran">TvZ 중반</span>
+            <p>탱크 라인·포탑으로 러커 봉쇄 후 2/1 업 타이밍 어택.</p>
+          </div>
+          <div class="card">
+            <h4>바이오 오프닝</h4>
+            <span class="tag terran">TvZ 초반</span>
+            <p>메딕·마린으로 앞마당 압박, 스팀 타이밍 연계로 멀티 파괴.</p>
+          </div>
+        </div>
+      </div>
+      <div id="zerg" class="tab-panel" style="display:none;">
+        <div class="note">저그는 <strong>드론·라린 밸런싱</strong>이 생명이다. 감시군주·크립으로 정보·지형을 통제하라.</div>
+        <ul>
+          <li><strong>정체성:</strong> 다수 생산 라인과 맵 컨트롤 기반 반응형 플레이.</li>
+          <li><strong>핵심 루프:</strong> 정찰→드론 뽑기→라린 스파이크→테크 전환.</li>
+          <li><strong>리스크 관리:</strong> 감시군주 위치·러커 버로우·스포어로 인비·드롭 대응.</li>
+        </ul>
+        <div class="card-grid">
+          <div class="card">
+            <h4>973 빌드</h4>
+            <span class="tag zerg">ZvP 타이밍</span>
+            <p>히드라 9, 저글링 7, 드론 3 패턴으로 미드 타이밍 압박. 변형에 유연.</p>
+          </div>
+          <div class="card">
+            <h4>뮤탈 컨트롤</h4>
+            <span class="tag zerg">ZvT 견제</span>
+            <p>스택·스탑마이크로로 미네랄 라인 제압, 바이오 타이밍 지연.</p>
+          </div>
+          <div class="card">
+            <h4>러커 컨트롤</h4>
+            <span class="tag zerg">ZvP 라인</span>
+            <p>러커 버로우로 게이트 병력 차단, 옵저버·캐논 타이밍에 맞춘 재배치.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="builds">
+      <h2>추천 빌드오더 컬렉션</h2>
+      <div class="tabs">
+        <button class="tab active" data-tab="build-protoss">프로토스</button>
+        <button class="tab" data-tab="build-terran">테란</button>
+        <button class="tab" data-tab="build-zerg">저그</button>
+      </div>
+
+      <!-- 프로토스 빌드 -->
+      <div id="build-protoss" class="tab-panel">
+        <table>
+          <thead>
+            <tr>
+              <th>빌드명</th>
+              <th>매치업</th>
+              <th>오더 상세</th>
+              <th>키 포인트</th>
+              <th>후속 선택</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="p1gateobs">
+              <td>1게이트 코어 → 옵저버</td>
+              <td>PvT/PvZ</td>
+              <td>
+                - 8 파일런<br/>
+                - 10 게이트웨이<br/>
+                - 12 어시밀레이터(가스)·질럿 취소/유지 상황판단<br/>
+                - 15 사이버네틱스 코어<br/>
+                - 드라군 → 옵저버(로보틱스)<br/>
+                - 앞마당 or 게이트 추가
+              </td>
+              <td>
+                - 초반 정찰 후 다크/리버 변수 대응<br/>
+                - 옵저버로 마인 제거·러커 대비<br/>
+                - 게이트 증설 타이밍을 2~3개로
+              </td>
+              <td>
+                - 리버·셔틀 드롭<br/>
+                - 5~7게이트 파워 타이밍<br/>
+                - 포지 업그레이드 후 장기전
+              </td>
+            </tr>
+            <tr id="p2gate">
+              <td>2게이트 질럿 압박</td>
+              <td>PvZ</td>
+              <td>
+                - 8 파일런<br/>
+                - 10 게이트웨이<br/>
+                - 12 게이트웨이(두 번째)<br/>
+                - 질럿 연속 생산<br/>
+                - 앞마당 타이밍 후 코어
+              </td>
+              <td>
+                - 드론 컷·크립 방해로 라린 늦추기<br/>
+                - 질럿 컨트롤·파일런 전진 위치
+              </td>
+              <td>
+                - 스타게이트로 뮤탈 대비<br/>
+                - 시티델 → 템플러 파워 타이밍
+              </td>
+            </tr>
+            <tr id="pdt">
+              <td>다크 템플러 텍</td>
+              <td>PvT/PvP</td>
+              <td>
+                - 8 파일런<br/>
+                - 10 게이트·12 어시밀레이터<br/>
+                - 15 코어 → 시티델 오브 아둔<br/>
+                - 템플러 아카이브 → 다크 템플러
+              </td>
+              <td>
+                - 오브저버/스캔 유무 체크<br/>
+                - 멀티 타격으로 감지 분산
+              </td>
+              <td>
+                - 하이템·아칸 전환<br/>
+                - 리버 or 드라군 파워
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="note">프로토스는 ‘정보 기반 파워 타이밍’이 정석이다. 옵저버·리버·템플러 중 하나로 입체 압박을 만들자.</div>
+      </div>
+
+      <!-- 테란 빌드 -->
+      <div id="build-terran" class="tab-panel" style="display:none;">
+        <table>
+          <thead>
+            <tr>
+              <th>빌드명</th>
+              <th>매치업</th>
+              <th>오더 상세</th>
+              <th>키 포인트</th>
+              <th>후속 선택</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="t2factvult">
+              <td>2팩 벌처</td>
+              <td>TvP</td>
+              <td>
+                - 8 서플<br/>
+                - 10 배럭스(월/벽 고려)<br/>
+                - 12 정제소<br/>
+                - 팩토리×2<br/>
+                - 마인 → 스피드 업<br/>
+                - 벌처 연속 생산
+              </td>
+              <td>
+                - 마인 라인으로 셔틀 동선 차단<br/>
+                - 외곽 멀티·프로브 컷
+              </td>
+              <td>
+                - 탱크 라인 전환<br/>
+                - 아머리 → 업그레이드 타이밍
+              </td>
+            </tr>
+            <tr id="tbio">
+              <td>바이오 오프닝</td>
+              <td>TvZ</td>
+              <td>
+                - 8 서플<br/>
+                - 10 배럭스×2<br/>
+                - 메딕 테크(아카데미) → 스팀<br/>
+                - 엔베이 → 업그레이드<br/>
+                - 앞마당 타이밍
+              </td>
+              <td>
+                - 크립 제거·선제 압박<br/>
+                - 러커 타이밍 대비 스캔·탱크 준비
+              </td>
+              <td>
+                - 과감 멀티 후 메카닉 전환<br/>
+                - 레이스로 감시군주 컷
+              </td>
+            </tr>
+            <tr id="tmech">
+              <td>메카닉 라인</td>
+              <td>TvZ/TvP</td>
+              <td>
+                - 1팩 → 2팩 → 탱크·벌처 혼합<br/>
+                - 엔베이/아머리 업 동기화<br/>
+                - 터렛·마인·탱크 라인 구축
+              </td>
+              <td>
+                - 지형·초크 활용 극대화<br/>
+                - 스캔 주기적 사용
+              </td>
+              <td>
+                - 2/1 혹은 3/2 업 타이밍 러시<br/>
+                - 멀티 확장 압박
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="note">테란은 ‘라인→업→타이밍’ 삼단 구조로 생각하라. 지형 비효율 싸움으로 이득을 쌓는 종족이다.</div>
+      </div>
+
+      <!-- 저그 빌드 -->
+      <div id="build-zerg" class="tab-panel" style="display:none;">
+        <table>
+          <thead>
+            <tr>
+              <th>빌드명</th>
+              <th>매치업</th>
+              <th>오더 상세</th>
+              <th>키 포인트</th>
+              <th>후속 선택</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="z12hatch">
+              <td>12 앞마당 해처리</td>
+              <td>ZvT/ZvP</td>
+              <td>
+                - 9 오버로드<br/>
+                - 12 해처리(앞마당)<br/>
+                - 11 스포닝 풀<br/>
+                - 12 가스 → 스피드<br/>
+                - 라바 관리로 드론/저글링 균형
+              </td>
+              <td>
+                - 초반 안정·경제 우위<br/>
+                - 정찰로 상대 압박 대비
+              </td>
+              <td>
+                - 히드라 덴 or 레어 테크<br/>
+                - 뮤탈 타이밍 혹은 러커 전환
+              </td>
+            </tr>
+            <tr id="z973">
+              <td>973 타이밍</td>
+              <td>ZvP</td>
+              <td>
+                - 라바 운용: 히드라 9 → 링 7 → 드론 3 패턴<br/>
+                - 히드라 덴 타이밍 빠르게<br/>
+                - 감시군주 전진 배치
+              </td>
+              <td>
+                - 옵저버·캐논 수 확인<br/>
+                - 멀티 동시 압박
+              </td>
+              <td>
+                - 러커 버로우 라인<br/>
+                - 드론 추가 후 장기전
+              </td>
+            </tr>
+            <tr id="zmutacontrol">
+              <td>뮤탈 컨트롤</td>
+              <td>ZvT</td>
+              <td>
+                - 레어 → 스파이어<br/>
+                - 뮤탈 9~11기 스택 운영<br/>
+                - 미네랄 라인 멀티 타격
+              </td>
+              <td>
+                - 스탑마이크로·프레임 조절<br/>
+                - 메딕·마린 분산 유도
+              </td>
+              <td>
+                - 러커·히드라 혼합<br/>
+                - 하이브 테크 전환
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="note">저그는 ‘드론→라린→전환’ 호흡을 끊지 않는 것이 승리 조건이다. 감시군주 맵 컨트롤을 습관화하라.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid" id="mechanics">
+    <div class="section">
+      <h2>잘하는 법 핵심 메커닉</h2>
+      <div class="accordion">
+        <div class="accordion-item open">
+          <div class="accordion-header">
+            <span>매크로 루프: 생산 큐가 끊기지 않게</span><span>▼</span>
+          </div>
+          <div class="accordion-content">
+            <ul>
+              <li><strong>주기화:</strong> 6~8초 루프로 생산 건물 점검(컨트롤 그룹 고정).</li>
+              <li><strong>자원 감각:</strong> 미네랄 300/가스 200 임계점에 건물·확장 의사결정.</li>
+              <li><strong>보급:</strong> 보급품(서플·파일런·오버로드) 선제 예약으로 막힘 제거.</li>
+              <li><strong>업그레이드:</strong> 업과 생산을 동기화해 파워 타이밍을 만든다.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-header">
+            <span>마이크로: 위치·각·스펠</span><span>▼</span>
+          </div>
+          <div class="accordion-content">
+            <ul>
+              <li><strong>위치:</strong> 교전 시작 각을 유리 지형에서 잡아라(언덕·초크·라인).</li>
+              <li><strong>각:</strong> 파이어 포커싱과 플랭크로 DPS를 극대화.</li>
+              <li><strong>스펠:</strong> 스톰·웹·디파일러·스캔·옵저버 타이밍을 교전에 맞춘다.</li>
+              <li><strong>리트릿:</strong> 후퇴 경로 사전 확보, 미니맵로테이션으로 낙오 방지.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-header">
+            <span>정찰·정보: 의사결정의 연료</span><span>▼</span>
+          </div>
+          <div class="accordion-content">
+            <ul>
+              <li><strong>초기 정보:</strong> 테크 방향, 가스 타이밍, 생산 건물 수.</li>
+              <li><strong>중반 정보:</strong> 업그레이드 진행, 멀티 수, 유닛 조합 변화.</li>
+              <li><strong>탐지:</strong> 옵저버·스캔·감시군주 배치 루틴 고정.</li>
+              <li><strong>페이크 판독:</strong> 일부 건물/유닛 미끼에 속지 않게 멀티 소스 확인.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-header">
+            <span>타이밍 어택: 업과 라인이 만나야 힘이 난다</span><span>▼</span>
+          </div>
+          <div class="accordion-content">
+            <ul>
+              <li><strong>업 조건:</strong> 핵심 업 완료 시점(스팀·스톰·스피드·웨폰/아머).</li>
+              <li><strong>라인 조건:</strong> 생산 라인 2~3개 동시 가동, 보급 안정.</li>
+              <li><strong>지형:</strong> 유리 지형·언덕·초크·버로우/마인 고려.</li>
+              <li><strong>퇴로:</strong> 실패 시 리셋 가능 루트 확보.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>핫키·카메라·컨트롤 그룹 설계</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>영역</th>
+            <th>권장 설정</th>
+            <th>효과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>컨트롤 그룹</td>
+            <td>1~3 주력, 4~5 생산, 6 업/테크, 0 정찰/탐지</td>
+            <td>생산과 교전 동시관리, 루프 단순화</td>
+          </tr>
+          <tr>
+            <td>카메라 위치</td>
+            <td>본진/앞마당/주요 교전지/테크 단지</td>
+            <td>탭 전환 최소화, 반응속도 향상</td>
+          </tr>
+          <tr>
+            <td>스펠 전용 그룹</td>
+            <td>하이템·디파일러·옵저버/스캔 슬롯 고정</td>
+            <td>스펠 타이밍 정확도 상승</td>
+          </tr>
+          <tr>
+            <td>빌드 큐 라우팅</td>
+            <td>업그레이드와 생산을 같은 루프에 배치</td>
+            <td>파워 타이밍 손실 최소화</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="note">설정은 개인화가 중요하다. 다만 ‘역할 고정’ 원칙을 지키면 실전에서 흔들리지 않는다.</div>
+    </div>
+  </section>
+
+  <section class="grid" id="practice">
+    <div class="section">
+      <h2>연습 루틴: 4주 프로그램</h2>
+      <div class="accordion">
+        <div class="accordion-item open">
+          <div class="accordion-header">
+            <span>1주차: 루프 고정</span><span>▼</span>
+          </div>
+          <div class="accordion-content">
+            <ul>
+              <li><strong>목표:</strong> 생산 루프와 보급 예약 습관화.</li>
+              <li><strong>과제:</strong> 10판 연속 빌드 끊김 0회 도전(리플로 체크).</li>
+              <li><strong>도구:</strong> 컨트롤 그룹·카메라 위치 고정 셋업.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-header">
+            <span>2주차: 정찰·의사결정</span><span>▼</span>
+          </div>
+          <div class="accordion-content">
+            <ul>
+              <li><strong>목표:</strong> 정찰 이벤트 3회/5분, 즉시 빌드 전환 훈련.</li>
+              <li><strong>과제:</strong> 상대 테크에 맞춘 업·생산 조정 기록.</li>
+              <li><strong>도구:</strong> 핫키로 탐지·정찰 루틴 실행.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-header">
+            <span>3주차: 마이크로·타이밍</span><span>▼</span>
+          </div>
+          <div class="accordion-content">
+            <ul>
+              <li><strong>목표:</strong> 한타 승률↑, 타이밍 러시 성공률 60% 이상.</li>
+              <li><strong>과제:</strong> 스펠 타이밍·포커싱·플랭크 반복 훈련.</li>
+              <li><strong>도구:</strong> 사용자 지도에서 교전 시뮬레이션.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-header">
+            <span>4주차: 종합·적응</span><span>▼</span>
+          </div>
+          <div class="accordion-content">
+            <ul>
+              <li><strong>목표:</strong> 빌드 다변화·상대별 카운터 플랜 준비.</li>
+              <li><strong>과제:</strong> 3가지 빌드 셋을 상황 대응으로 운용.</li>
+              <li><strong>도구:</strong> 리플 분석·메모라이즈·피드백 루프.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:10px;">
+        <h3>측정 지표</h3>
+        <p>자원 부유 시간, 보급 막힘 횟수, 정찰 이벤트/5분, 타이밍 러시 성공률, 한타 포커싱 정확도.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>맵·지형·라인 공략</h2>
+      <ul>
+        <li><strong>언덕·초크:</strong> 테란 라인·프로토스 드라군·저그 러커 배치 핵심 포인트.</li>
+        <li><strong>멀티 동선:</strong> 주 멀티·히든 멀티를 동시 압박/방어하는 카메라 경로 설계.</li>
+        <li><strong>시야:</strong> 옵저버·감시군주·터렛으로 시야 겹치기. 빈틈 제거.</li>
+        <li><strong>길목:</strong> 마인/버로우로 카운터 차단, 리트릿 라인 확보.</li>
+      </ul>
+      <div class="note">맵은 승률의 절반이다. 빌드와 지형을 함께 외워라.</div>
+    </div>
+  </section>
+
+  <section class="grid" id="glossary">
+    <div class="section">
+      <h2>용어 사전</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>용어</th>
+            <th>의미</th>
+            <th>실전 활용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>라린(러시 링)</td>
+            <td>저글링 러시 타이밍·수량을 의미</td>
+            <td>드론 비율과 교차해 압박 강도 조절</td>
+          </tr>
+          <tr>
+            <td>파워 타이밍</td>
+            <td>업·생산 라인이 맞물려 전투력이 최고인 구간</td>
+            <td>타이밍 러시·멀티 파괴·라인 전진</td>
+          </tr>
+          <tr>
+            <td>라인</td>
+            <td>탱크·마인·터렛·러커 같은 지형 고정 전력</td>
+            <td>지형 활용·진격/퇴로 통제</td>
+          </tr>
+          <tr>
+            <td>스택</td>
+            <td>뮤탈을 겹쳐 공격하는 컨트롤 기술</td>
+            <td>미네랄 라인 타격·대공 회피</td>
+          </tr>
+          <tr>
+            <td>정찰 이벤트</td>
+            <td>의사결정을 유발하는 정보 획득 행동</td>
+            <td>업·생산·확장 전환 트리거</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>리플레이 분석 체크리스트</h2>
+      <ul>
+        <li><strong>타임라인:</strong> 빌드 끊김·보급 막힘·업 타이밍 기록.</li>
+        <li><strong>의사결정:</strong> 정찰→전환에 지연이 있었는지.</li>
+        <li><strong>교전:</strong> 시작 위치·플랭크·스펠 타이밍 품질.</li>
+        <li><strong>경제:</strong> 드론/SCV/프로브 생산 공백 시간.</li>
+        <li><strong>맵 컨트롤:</strong> 시야·라인·멀티 동시 관리.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <h4>스타크래프트 고수 전략 아카데미</h4>
+        <p style="color: var(--text-muted);">이 페이지는 전략을 ‘루프’로 구조화해 실전에서 흔들리지 않도록 설계되었다. 빌드는 외우는 게 아니라, 의사결정에 연결하는 관점으로 접근하자.</p>
+      </div>
+      <div>
+        <h4>빠른 이동</h4>
+        <ul style="list-style: none; padding: 0;">
+          <li><a href="#builds">추천 빌드</a></li>
+          <li><a href="#mechanics">핵심 메커닉</a></li>
+          <li><a href="#practice">연습 루틴</a></li>
+          <li><a href="#glossary">용어 사전</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>연락·업데이트</h4>
+        <p style="color: var(--text-muted);">버전 1.0 · 커뮤니티 피드백 환영. 개선 아이디어가 있다면 알려줘.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // 간단한 탭 시스템
+    const tabButtons = document.querySelectorAll('.tab');
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const parentSection = btn.closest('.section');
+        const target = btn.dataset.tab;
+        // 버튼 상태
+        const siblings = parentSection.querySelectorAll('.tab');
+        siblings.forEach(s => s.classList.remove('active'));
+        btn.classList.add('active');
+        // 패널 표시
+        const panels = parentSection.querySelectorAll('.tab-panel');
+        panels.forEach(p => p.style.display = 'none');
+        const panel = parentSection.querySelector('#' + target);
+        if (panel) panel.style.display = '';
+      });
+    });
+
+    // 아코디언
+    const accordionHeaders = document.querySelectorAll('.accordion-header');
+    accordionHeaders.forEach(h => {
+      h.addEventListener('click', () => {
+        const item = h.parentElement;
+        const open = item.classList.contains('open');
+        item.parentElement.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('open'));
+        if (!open) item.classList.add('open');
+      });
+    });
+
+    // 스크롤 버튼
+    document.querySelectorAll('[data-scroll]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-scroll');
+        const el = document.querySelector(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    // 검색: 섹션/카드/표에서 키워드 하이라이트
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+
+    function clearHighlights() {
+      document.querySelectorAll('.highlight').forEach(el => {
+        el.outerHTML = el.textContent;
+      });
+    }
+
+    function highlightKeyword(root, keyword) {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+      const nodes = [];
+      while (walker.nextNode()) {
+        nodes.push(walker.currentNode);
+      }
+      nodes.forEach(node => {
+        const text = node.nodeValue;
+        const idx = text.toLowerCase().indexOf(keyword.toLowerCase());
+        if (idx !== -1 && keyword.trim() !== '') {
+          const before = text.slice(0, idx);
+          const match = text.slice(idx, idx + keyword.length);
+          const after = text.slice(idx + keyword.length);
+          const span = document.createElement('span');
+          span.innerHTML = `${before}<mark class="highlight" style="background: rgba(53,160,255,0.35); color: #fff; border-radius: 3px;">${match}</mark>${after}`;
+          node.parentNode.replaceChild(span, node);
+        }
+      });
+    }
+
+    searchBtn.addEventListener('click', () => {
+      clearHighlights();
+      const keyword = searchInput.value.trim();
+      if (!keyword) return;
+      highlightKeyword(document.body, keyword);
+      // 첫 하이라이트로 스크롤
+      const first = document.querySelector('.highlight');
+      if (first) {
+        first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+
+    // 키보드 엔터 검색
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') searchBtn.click();
+    });
+
+    // 접근성: 탭 키보드 네비게이션(간단)
+    tabButtons.forEach(btn => {
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('tabindex', '0');
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') btn.click();
+      });
+    });
+  </script>
+</body>
+</html>
