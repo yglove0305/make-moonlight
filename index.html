@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
+ <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -30,121 +30,469 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
  <link rel="icon" href="/img/Copilot_20250927_135650.png" type="image/x-icon">
 
- <title>달빛도구</title>
+  <title>달빛도구 — 디자인 강화</title>
+ 
+  <link rel="icon" href="/img/Copilot_20250927_135650.png" type="image/png">
+
+  <!-- 웹폰트 (Noto Sans KR) -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet">
 
   <style>
-    /* 전체 레이아웃 */
-    body {
-      margin: 0;
-      font-family: 'Noto Sans KR', sans-serif;
-      background: linear-gradient(to bottom, #0d1b2a, #1b263b, #415a77);
-      color: #f1f1f1;
-      text-align: center;
+    :root{
+      --bg-1: #071026;
+      --bg-2: #0f2340;
+      --bg-3: #2b3e66;
+      --glass: rgba(255,255,255,0.04);
+      --card-bg: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      --accent-a: #4dd0e1;
+      --accent-b: #8c9eff;
+      --text: #eef6ff;
+      --muted: #b9c7d6;
+      --radius: 14px;
+      --shadow-soft: 0 6px 20px rgba(2,8,23,0.6);
+      --glass-border: rgba(255,255,255,0.05);
+      --glass-2: rgba(255,255,255,0.02);
     }
 
-    header {
-      padding: 40px 20px;
-      background: rgba(0, 0, 0, 0.4);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    /* Dark/Light theme tokens (switch via [data-theme="light"]) */
+    :root[data-theme="light"]{
+      --bg-1: #f6fbff;
+      --bg-2: #eaf2ff;
+      --bg-3: #dfeeff;
+      --card-bg: linear-gradient(180deg, #ffffff, #f6fbff);
+      --glass: rgba(2,8,23,0.03);
+      --text: #07203a;
+      --muted: #5a6b7a;
+      --shadow-soft: 0 8px 28px rgba(16,40,60,0.06);
+      --glass-border: rgba(2,8,23,0.04);
+      --glass-2: rgba(2,8,23,0.02);
     }
 
-    header h1 {
-      font-size: 3rem;
-      margin: 0;
-      color: #e0eaff;
-      text-shadow: 0 0 10px rgba(200, 220, 255, 0.8);
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: 'Noto Sans KR', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background:
+        radial-gradient(1200px 600px at 10% 10%, rgba(140,158,255,0.08), transparent 8%),
+        radial-gradient(900px 400px at 90% 90%, rgba(77,208,225,0.06), transparent 8%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-2), var(--bg-3));
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      text-align:center;
+      overflow-y:scroll;
     }
 
-    header p {
-      margin-top: 10px;
-      font-size: 1.2rem;
-      color: #cfd8dc;
+    /* 별 효과 (퍼포먼스 고려: 단순 원형 그림자) */
+    .starfield{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:0;
+      mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1), rgba(0,0,0,0.2));
+    }
+    .starfield::before, .starfield::after{
+      content:'';
+      position:absolute;
+      inset: -10%;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(255,255,255,0.09) 0.5px, transparent 1px),
+        radial-gradient(circle at 80% 40%, rgba(255,255,255,0.07) 0.6px, transparent 1px),
+        radial-gradient(circle at 50% 80%, rgba(255,255,255,0.05) 0.4px, transparent 1px);
+      opacity:0.9;
+      filter: blur(0.6px);
+      transform: translateZ(0);
     }
 
-    /* 버튼 스타일 */
-    .btn-container {
-      margin: 60px auto;
-      display: flex;
-      justify-content: center;
-      gap: 30px;
-      flex-wrap: wrap;
+    header{
+      position:relative;
+      z-index:10;
+      padding:48px 20px 28px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:18px;
+      flex-direction:column;
+      backdrop-filter: blur(6px);
+    }
+    .brand{
+      display:flex;
+      gap:14px;
+      align-items:center;
+    }
+    .logo{
+      width:72px;
+      height:72px;
+      border-radius:18px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      display:inline-grid;
+      place-items:center;
+      box-shadow: var(--shadow-soft);
+      border:1px solid var(--glass-border);
+      font-size:1.9rem;
+    }
+    h1{
+      margin:0;
+      font-size:clamp(1.25rem, 3.5vw, 1.8rem);
+      letter-spacing:-0.02em;
+      font-weight:900;
+      color:var(--text);
+    }
+    header p{
+      margin:8px 0 0;
+      font-size:0.98rem;
+      color:var(--muted);
+      max-width:880px;
+      line-height:1.45;
     }
 
-    .btn {
-      display: inline-block;
-      padding: 15px 30px;
-      background: linear-gradient(135deg, #007bff, #00c6ff);
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      transition: all 0.3s ease;
+    /* Controls: theme toggle */
+    .controls{
+      position: absolute;
+      right: 18px;
+      top: 18px;
+      z-index:20;
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .theme-toggle{
+      background:var(--card-bg);
+      border:1px solid var(--glass-border);
+      color:var(--text);
+      padding:8px 10px;
+      border-radius:10px;
+      cursor:pointer;
+      box-shadow: var(--shadow-soft);
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      font-weight:700;
+      font-size:0.95rem;
     }
 
-    .btn:hover {
-      background: linear-gradient(135deg, #0056b3, #0096c7);
-      transform: translateY(-5px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    main{position:relative; z-index:5; padding:28px 20px 80px;}
+
+    /* 툴 카드 그리드 */
+    .grid{
+      margin:26px auto 10px;
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap:18px;
+      width:min(1100px, 94%);
+      align-items:stretch;
     }
 
-    /* 구분선 */
-    .divider {
-      margin: 50px auto;
-      width: 60%;
-      border-top: 1px dashed rgba(255,255,255,0.4);
+    .card{
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+      gap:12px;
+      box-shadow: var(--shadow-soft);
+      border:1px solid var(--glass-border);
+      transition: transform .28s cubic-bezier(.16,.9,.3,1), box-shadow .28s ease, background .28s ease;
+      min-height:120px;
+      overflow:hidden;
     }
 
-    /* 푸터 */
-    footer {
-      margin-top: 60px;
-      padding: 20px;
-      font-size: 0.9rem;
-      color: #b0bec5;
-      background: rgba(0, 0, 0, 0.3);
+    .card:hover{
+      transform: translateY(-8px) scale(1.01);
+      box-shadow: 0 22px 60px rgba(2,8,23,0.45);
     }
 
-    footer a {
-      color: #90caf9;
-      text-decoration: none;
+    .card .meta{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .card .icon{
+      width:56px;
+      height:56px;
+      border-radius:12px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01));
+      display:inline-grid;
+      place-items:center;
+      font-size:1.4rem;
+      border:1px solid var(--glass-2);
     }
 
-    footer a:hover {
-      text-decoration: underline;
+    .card h3{
+      margin:0;
+      font-size:1.02rem;
+      font-weight:800;
+      color:var(--text);
+    }
+    .card p{
+      margin:0;
+      color:var(--muted);
+      font-size:0.95rem;
+      line-height:1.4;
+    }
+
+    .card .actions{
+      margin-top:auto;
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .btn-soft{
+      padding:10px 12px;
+      border-radius:10px;
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.06);
+      color:var(--text);
+      text-decoration:none;
+      font-weight:700;
+      font-size:0.92rem;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      transition: background .18s ease, transform .12s ease;
+    }
+    .btn-soft:hover{ background: rgba(255,255,255,0.03); transform:translateY(-3px) }
+
+    /* 강조 버튼 */
+    .btn-cta{
+      padding:10px 14px;
+      border-radius:10px;
+      background:linear-gradient(90deg, var(--accent-a), var(--accent-b));
+      color:#042033;
+      font-weight:800;
+      text-decoration:none;
+      border:none;
+      box-shadow: 0 10px 30px rgba(79,109,255,0.12);
+    }
+
+    /* 소개 카드 */
+    .intro{
+      margin-top:22px;
+      display:flex;
+      gap:16px;
+      align-items:flex-start;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+    .intro .lead{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding:18px;
+      border-radius:12px;
+      max-width:760px;
+      color:var(--muted);
+      border:1px solid var(--glass-border);
+    }
+
+    /* 작은 디테일: 태그, 배지 */
+    .badge{
+      display:inline-block;
+      font-size:0.78rem;
+      padding:6px 8px;
+      border-radius:999px;
+      background: rgba(255,255,255,0.03);
+      color:var(--muted);
+      border:1px solid rgba(255,255,255,0.02);
+      font-weight:700;
+    }
+
+    footer{
+      margin-top:42px;
+      padding:22px;
+      color:var(--muted);
+      font-size:0.92rem;
+      display:flex;
+      justify-content:center;
+      gap:10px;
+      align-items:center;
+      z-index:5;
+    }
+
+    /* 반응성 */
+    @media (max-width:640px){
+      .logo{width:56px;height:56px}
+      .card .icon{width:48px;height:48px}
+      header{padding:22px 12px}
+      .controls{position:static; margin-top:12px; justify-content:center}
+    }
+
+    /* 미세 애니메이션: 부드러운 입장 */
+    .card, .intro, header h1{
+      will-change: transform, opacity;
+      transform-origin:center;
+      opacity:0;
+      transform: translateY(8px);
+      animation: rise .6s ease forwards;
+    }
+    .card:nth-child(1){ animation-delay: 0.06s }
+    .card:nth-child(2){ animation-delay: 0.12s }
+    .card:nth-child(3){ animation-delay: 0.18s }
+    .card:nth-child(4){ animation-delay: 0.24s }
+    .card:nth-child(5){ animation-delay: 0.30s }
+    .card:nth-child(6){ animation-delay: 0.36s }
+    @keyframes rise{
+      to{ transform:none; opacity:1 }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>🌙 달빛도구</h1>
-    <p>작은 도구들이 모여 당신의 하루를 더 편리하게 만들어줍니다.</p>
-  </header>
+  <div class="starfield" aria-hidden="true"></div>
 
-  <main>
-    <div class="btn-container">
-      <a href="/make/calender.html" class="btn">📅 캘린더</a>
-      <a href="/make/metronome.html" class="btn">⏱ 메트로놈</a>
-      <a href="/make/sample.html" class="btn">🧩 샘플</a>
-      <a href="/make/메신저.html" class="btn">로컬메신저</a>
-      <a href="/make/storage-space.html" class="btn">저장공간 마스터</a>
-  
-      <a href="/make/스타크래프트.html" class="btn">스타 1 게임 팁</a>
+  <header role="banner">
+    <div class="brand" aria-hidden="false">
+      <div class="logo" aria-hidden="true">🌙</div>
+      <div style="text-align:left">
+        <h1>달빛도구</h1>
+        <div style="font-size:0.9rem; color:var(--muted); margin-top:6px; max-width:660px">
+          작은 도구들이 모여 당신의 하루를 더 편리하고 아름답게 만들어줍니다.
+        </div>
+      </div>
     </div>
 
-    <div class="divider"></div>
+    <div class="controls" role="toolbar" aria-label="환경 설정">
+      <button id="themeToggle" class="theme-toggle" aria-pressed="false" title="테마 전환">🌙 테마</button>
+    </div>
+  </header>
 
-    <section>
-      <h2>✨ 달빛도구 소개</h2>
-      <p>
-        달빛도구는 일상에서 자주 쓰이는 간단한 기능들을 모아둔 작은 툴 모음입니다.<br>
-        복잡하지 않고, 누구나 쉽게 사용할 수 있도록 디자인되었습니다.
-      </p>
+  <main role="main">
+    <section class="grid" aria-label="도구 카드 목록">
+      <!-- 카드 1: 캘린더 -->
+      <article class="card" role="article" aria-labelledby="card-calendar">
+        <div class="meta">
+          <div class="icon" aria-hidden="true">📅</div>
+          <div>
+            <h3 id="card-calendar">캘린더</h3>
+            <p>월간/주간 보기, 일정 추가 및 간단한 메모 기능을 제공합니다.</p>
+          </div>
+        </div>
+        <div class="actions">
+          <a class="btn-soft" href="/make/calendar.html" rel="noopener">열기</a>
+          <a class="btn-cta" href="/make/calendar.html" rel="noopener">사용하기</a>
+        </div>
+      </article>
+
+      <!-- 카드 2: 메트로놈 -->
+      <article class="card" role="article" aria-labelledby="card-metronome">
+        <div class="meta">
+          <div class="icon" aria-hidden="true">⏱</div>
+          <div>
+            <h3 id="card-metronome">메트로놈</h3>
+            <p>템포, 박자 설정과 시각적 비트 표시로 연주 연습에 최적화되어 있습니다.</p>
+          </div>
+        </div>
+        <div class="actions">
+          <a class="btn-soft" href="/make/metronome.html" rel="noopener">열기</a>
+          <a class="btn-cta" href="/make/metronome.html" rel="noopener">연습 시작</a>
+        </div>
+      </article>
+
+      <!-- 카드 3: 샘플 -->
+      <article class="card" role="article" aria-labelledby="card-sample">
+        <div class="meta">
+          <div class="icon" aria-hidden="true">🧩</div>
+          <div>
+            <h3 id="card-sample">샘플</h3>
+            <p>프로젝트 샘플과 템플릿 모음으로 빠르게 시작하세요.</p>
+          </div>
+        </div>
+        <div class="actions">
+          <a class="btn-soft" href="/make/sample.html" rel="noopener">열기</a>
+          <a class="btn-cta" href="/make/sample.html" rel="noopener">템플릿</a>
+        </div>
+      </article>
+
+      <!-- 카드 4: 로컬메신저 -->
+      <article class="card" role="article" aria-labelledby="card-messenger">
+        <div class="meta">
+          <div class="icon" aria-hidden="true">💬</div>
+          <div>
+            <h3 id="card-messenger">로컬메신저</h3>
+            <p>같은 네트워크에서 간단히 메시지를 주고받을 수 있는 도구입니다.</p>
+          </div>
+        </div>
+        <div class="actions">
+          <a class="btn-soft" href="/make/local-messenger.html" rel="noopener">열기</a>
+          <a class="btn-cta" href="/make/local-messenger.html" rel="noopener">채팅</a>
+        </div>
+      </article>
+
+      <!-- 카드 5: 저장공간 마스터 -->
+      <article class="card" role="article" aria-labelledby="card-storage">
+        <div class="meta">
+          <div class="icon" aria-hidden="true">🗄</div>
+          <div>
+            <h3 id="card-storage">저장공간 마스터</h3>
+            <p>파일 정리, 용량 시각화, 간단한 백업 도구를 제공합니다.</p>
+          </div>
+        </div>
+        <div class="actions">
+          <a class="btn-soft" href="/make/storage-space.html" rel="noopener">열기</a>
+          <a class="btn-cta" href="/make/storage-space.html" rel="noopener">관리</a>
+        </div>
+      </article>
+
+      <!-- 카드 6: 스타 1 게임 팁 -->
+      <article class="card" role="article" aria-labelledby="card-starcraft">
+        <div class="meta">
+          <div class="icon" aria-hidden="true">🎮</div>
+          <div>
+            <h3 id="card-starcraft">스타 1 게임 팁</h3>
+            <p>오프닝 빌드, 맵별 전략, 키 바인딩 팁을 정리해 둔 공간입니다.</p>
+          </div>
+        </div>
+        <div class="actions">
+          <a class="btn-soft" href="/make/starcraft-tips.html" rel="noopener">열기</a>
+          <a class="btn-cta" href="/make/starcraft-tips.html" rel="noopener">팁 보기</a>
+        </div>
+      </article>
+    </section>
+
+    <section class="intro" aria-labelledby="intro-title">
+      <div class="lead" id="intro-title">
+        <strong class="badge">✨ 새 디자인</strong>
+        <p style="margin-top:10px">
+          카드 기반 인터페이스, 시각적 강조 버튼, 마우스 오버 애니메이션, 별빛 배경 효과, 라이트/다크 테마를 추가했습니다.
+          레이아웃은 반응형이며 작은 화면에서도 읽기 쉽도록 조정되어 있습니다.
+        </p>
+      </div>
     </section>
   </main>
 
-  <footer>
-    <p>© 2025 달빛도구 | <a href="#">문의하기</a></p>
+  <footer role="contentinfo">
+    <div>© 2025 달빛도구</div>
+    <div style="opacity:0.7">|</div>
+    <a href="/contact.html" rel="noopener" style="color:var(--muted); text-decoration:none">문의하기</a>
   </footer>
+
+  <script>
+    // 테마 토글: 사용자 선택을 로컬스토리지에 저장
+    (function(){
+      const root = document.documentElement;
+      const key = 'ml-tools-theme';
+      const btn = document.getElementById('themeToggle');
+
+      function applyTheme(theme){
+        if(theme === 'light') root.setAttribute('data-theme','light');
+        else root.removeAttribute('data-theme');
+        btn.setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
+        btn.textContent = theme === 'light' ? '🌤 라이트' : '🌙 다크';
+      }
+
+      // 초기: 로컬 스토리지 또는 미디어 쿼리 기반
+      const saved = localStorage.getItem(key);
+      if(saved) applyTheme(saved);
+      else {
+        const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+        applyTheme(prefersLight ? 'light' : 'dark');
+      }
+
+      btn.addEventListener('click', function(){
+        const current = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+        const next = current === 'light' ? 'dark' : 'light';
+        applyTheme(next);
+        localStorage.setItem(key, next);
+      });
+    })();
+  </script>
 </body>
 </html>
