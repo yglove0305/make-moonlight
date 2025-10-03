@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>웃음 이모티콘 게임 😄</title>
+  <style>
+    :root{
+      --bg:#0f1021;
+      --panel:#1b1d3a;
+      --accent:#ffcc00;
+      --accent2:#ff6584;
+      --text:#e7e7fb;
+      --muted:#9aa0c6;
+      --good:#2ecc71;
+      --bad:#e74c3c;
+    }
+
+    *{box-sizing:border-box}
+    html,body{
+      margin:0; padding:0;
+      background: radial-gradient(1000px 500px at 20% 10%, #181a3a, #0b0c1a);
+      background-color:var(--bg);
+      color:var(--text);
+      font-family: "Pretendard", system-ui, -apple-system, Segoe UI, Roboto, Noto Sans KR, Apple SD Gothic Neo, sans-serif;
+      height:100%;
+    }
+
+    .container{
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
+    }
+
+    header{
+      padding:16px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.0));
+      border-bottom:1px solid rgba(255,255,255,0.06);
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(8px);
+    }
+
+    .brand{
+      display:flex; align-items:center; gap:12px;
+    }
+    .brand .logo{
+      width:36px; height:36px; border-radius:50%;
+      display:grid; place-items:center;
+      background: radial-gradient(100px 100px at 50% 30%, #ffe07a, #ff8e53);
+      box-shadow: 0 6px 20px rgba(255, 142, 83, 0.5), inset 0 0 18px rgba(255,255,255,0.5);
+      font-size:22px;
+    }
+    .brand .title{
+      font-weight:800; letter-spacing:0.3px; font-size:18px;
+    }
+
+    .controls{
+      display:flex; gap:10px; align-items:center;
+    }
+
+    .btn{
+      background:var(--panel);
+      color:var(--text);
+      border:1px solid rgba(255,255,255,0.12);
+      padding:10px 14px;
+      border-radius:10px;
+      cursor:pointer;
+      transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+      font-weight:600;
+    }
+    .btn:hover{ transform: translateY(-1px); box-shadow:0 6px 18px rgba(0,0,0,0.25) }
+    .btn.primary{
+      background:linear-gradient(135deg, #ffcc00, #ff6584);
+      border:none; color:#181818;
+      box-shadow: 0 8px 22px rgba(255, 101, 132, 0.35);
+    }
+    .btn.ghost{
+      background:transparent;
+      border:1px dashed rgba(255,255,255,0.25);
+      color:var(--muted);
+    }
+    .btn.small{ padding:8px 12px; font-size:14px }
+
+    main{
+      flex:1;
+      display:grid; grid-template-columns: 300px 1fr;
+      gap:16px;
+      padding:16px;
+    }
+
+    @media (max-width: 960px){
+      main{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:16px;
+      overflow:hidden;
+    }
+
+    .sidebar{
+      display:flex; flex-direction:column; gap:12px; padding:14px;
+    }
+
+    .stat{
+      display:flex; align-items:center; justify-content:space-between;
+      background: rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px;
+      padding:12px 14px;
+    }
+    .stat h4{ margin:0; font-size:13px; color:var(--muted); font-weight:700; letter-spacing:.2px }
+    .stat .value{ font-size:20px; font-weight:800 }
+
+    .slider-wrap{
+      display:flex; flex-direction:column; gap:6px;
+      padding:10px 12px; border:1px solid rgba(255,255,255,0.08); border-radius:12px;
+      background: rgba(255,255,255,0.04);
+    }
+    .slider-wrap label{ font-size:13px; color:var(--muted); font-weight:700 }
+    .slider-wrap input[type="range"]{ width:100% }
+
+    .mode-select{
+      display:grid; grid-template-columns:1fr 1fr; gap:8px;
+    }
+    .chip{
+      padding:10px 12px; border-radius:10px; text-align:center;
+      background: rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.08);
+      cursor:pointer;
+      font-weight:700; color:var(--text);
+    }
+    .chip.active{
+      background: linear-gradient(135deg, #7afcff, #b693ff);
+      color:#16222a; border:none;
+    }
+
+    .game{
+      position:relative;
+      min-height: 520px;
+      max-height: 70vh;
+      height: 70vh;
+    }
+    .hud{
+      position:absolute; top:12px; left:12px; right:12px; display:flex; gap:10px; z-index:10;
+    }
+    .hud .pill{
+      background: rgba(0,0,0,0.35);
+      border:1px solid rgba(255,255,255,0.15);
+      color:var(--text);
+      padding:8px 12px;
+      border-radius:999px;
+      display:flex; align-items:center; gap:8px;
+      font-weight:700;
+    }
+    .hud .pill .dot{
+      width:8px; height:8px; border-radius:50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+    }
+
+    .playfield{
+      position:absolute; inset:0; overflow:hidden;
+      background:
+        radial-gradient(400px 200px at 80% 10%, rgba(255, 255, 255, 0.08), rgba(255,255,255,0)),
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><circle cx="20" cy="20" r="1" fill="rgba(255,255,255,0.08)"/></svg>');
+      background-size: auto, 40px 40px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,0.08);
+    }
+
+    .emoji{
+      position:absolute;
+      will-change: transform, opacity;
+      font-size:48px;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,0.35));
+      user-select:none;
+      cursor:pointer;
+      animation: pop .15s ease-out;
+      transition: transform .08s ease;
+    }
+    .emoji.sm{ font-size:36px }
+    .emoji.md{ font-size:48px }
+    .emoji.lg{ font-size:64px }
+    .emoji:hover{ transform: translateY(-2px) scale(1.05) }
+
+    .miss{
+      position:absolute; pointer-events:none; color:var(--bad);
+      font-weight:900; text-shadow:0 2px 12px rgba(231,76,60,.6);
+      animation: floatUp .8s ease-out forwards;
+    }
+    .pop{
+      position:absolute; pointer-events:none; color:var(--good);
+      font-weight:900; text-shadow:0 2px 12px rgba(46,204,113,.6);
+      animation: floatUp .9s ease-out forwards;
+    }
+    @keyframes floatUp{
+      from{ transform: translateY(0); opacity:1 }
+      to{ transform: translateY(-30px); opacity:0 }
+    }
+    @keyframes pop{
+      from{ transform: scale(.6); opacity:.3 }
+      to{ transform: scale(1); opacity:1 }
+    }
+
+    .overlay{
+      position:absolute; inset:0; display:grid; place-items:center; z-index:20;
+      backdrop-filter: blur(4px);
+    }
+    .card{
+      width:min(640px, 92%);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:16px; padding:18px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.35);
+    }
+    .card h1{ margin:0 0 8px 0; font-size:28px }
+    .card p{ margin:4px 0 12px 0; color:var(--muted) }
+    .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap }
+
+    .leader{
+      margin-top:12px;
+      background: rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px;
+      padding:12px;
+    }
+    .leader h3{ margin:0 0 8px 0; font-size:16px }
+    .score-item{
+      display:flex; justify-content:space-between; padding:8px 10px;
+      border-bottom:1px dashed rgba(255,255,255,0.08);
+    }
+    .score-item:last-child{ border-bottom:none }
+    .tag{
+      display:inline-flex; align-items:center; gap:6px;
+      background: rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:999px; padding:6px 10px; font-weight:700; color:var(--text)
+    }
+    .hint{ color:var(--muted); font-size:12px }
+
+    .footer{
+      padding:10px 16px; font-size:12px; color:var(--muted);
+      border-top:1px solid rgba(255,255,255,0.06);
+      background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.0));
+    }
+
+    /* Touch-friendly */
+    .emoji.touch{ filter: drop-shadow(0 4px 8px rgba(0,0,0,0.45)) }
+    .btn:active{ transform: scale(.98) }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">😄</div>
+        <div class="title">웃음 이모티콘 게임</div>
+      </div>
+      <div class="controls">
+        <button class="btn small ghost" id="muteBtn" aria-label="소리 끄기">🔈 사운드</button>
+        <button class="btn small" id="resetBtn">초기화</button>
+        <button class="btn primary" id="startBtn">게임 시작</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Sidebar left -->
+      <div class="panel sidebar">
+        <div class="stat">
+          <h4>점수</h4>
+          <div class="value" id="score">0</div>
+        </div>
+        <div class="stat">
+          <h4>남은 시간</h4>
+          <div class="value" id="time">60s</div>
+        </div>
+        <div class="stat">
+          <h4>콤보</h4>
+          <div class="value" id="combo">x1</div>
+        </div>
+
+        <div class="slider-wrap">
+          <label for="duration">게임 시간 (초)</label>
+          <input type="range" min="20" max="120" value="60" id="duration" />
+          <div class="hint">짧을수록 더 스릴! 길수록 더 여유!</div>
+        </div>
+
+        <div class="slider-wrap">
+          <label for="spawnRate">출현 속도</label>
+          <input type="range" min="300" max="2000" value="900" id="spawnRate" />
+          <div class="hint">값이 낮을수록 더 많이 나타나요.</div>
+        </div>
+
+        <div class="mode-select">
+          <div class="chip active" data-mode="classic">클래식</div>
+          <div class="chip" data-mode="chaos">카오스</div>
+        </div>
+
+        <div class="leader">
+          <h3>로컬 최고 점수</h3>
+          <div id="leaderList"></div>
+          <div class="row">
+            <button class="btn small" id="saveScoreBtn">기록 저장</button>
+            <button class="btn small ghost" id="clearScoreBtn">기록 삭제</button>
+          </div>
+          <p class="hint">브라우저에만 저장됩니다.</p>
+        </div>
+
+        <div class="slider-wrap">
+          <label for="playerName">플레이어 이름</label>
+          <input type="text" id="playerName" placeholder="닉네임 입력" />
+        </div>
+      </div>
+
+      <!-- Game area right -->
+      <div class="panel game">
+        <div class="hud">
+          <div class="pill"><span class="dot"></span> <span id="modeText">모드: 클래식</span></div>
+          <div class="pill">🎯 목표: 웃는 이모티콘을 클릭!</div>
+          <div class="pill">⚠️ 슬픈/화난 이모티콘 클릭 시 감점</div>
+        </div>
+        <div id="playfield" class="playfield" aria-label="게임 필드" role="application"></div>
+
+        <!-- Overlays -->
+        <div id="startOverlay" class="overlay" style="display:grid">
+          <div class="card">
+            <h1>😄 웃음 이모티콘 게임</h1>
+            <p>웃는 얼굴을 빠르게 클릭해서 점수를 올리세요. 콤보를 유지하면 보너스가 커집니다!</p>
+            <ul>
+              <li>😄 +10점 / 콤보 배수 적용</li>
+              <li>😢 -5점 / 콤보 초기화</li>
+              <li>😡 -10점 / 시간 -2초</li>
+            </ul>
+            <div class="row">
+              <button class="btn primary" id="overlayStartBtn">시작하기</button>
+              <button class="btn" id="howBtn">규칙 보기</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="endOverlay" class="overlay" style="display:none">
+          <div class="card">
+            <h1>게임 종료</h1>
+            <p id="finalScoreText">당신의 점수: 0점</p>
+            <div class="row">
+              <button class="btn primary" id="restartBtn">다시 플레이</button>
+              <button class="btn" id="shareBtn">점수 공유</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="rulesOverlay" class="overlay" style="display:none">
+          <div class="card">
+            <h1>게임 규칙</h1>
+            <p>웃는 이모티콘(😄)은 점수를 줍니다. 슬픈(😢) 또는 화난(😡) 이모티콘을 누르면 감점 또는 시간 감소가 있습니다.</p>
+            <ul>
+              <li>콤보는 연속으로 정확히 맞출 때 증가. 1.5초 이상 쉬면 콤보가 떨어집니다.</li>
+              <li>클래식: 비교적 안정적인 출현/이동 패턴.</li>
+              <li>카오스: 난이도 상승, 크기/속도/중력 랜덤.</li>
+            </ul>
+            <div class="row">
+              <button class="btn primary" id="closeRulesBtn">닫기</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div class="footer">
+      만든 사람: 😊 · 팁: 모바일에서는 두 손가락으로 빠르게 탭해보세요!
+    </div>
+  </div>
+
+  <audio id="hitSound" preload="auto">
+    <source src="data:audio/wav;base64,UklGRmQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABZGaWxsZWQ=" type="audio/wav">
+  </audio>
+  <audio id="badSound" preload="auto">
+    <source src="data:audio/wav;base64,UklGRmQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABZGaWxsZWQ=" type="audio/wav">
+  </audio>
+
+  <script>
+    // ---------- 유틸 ----------
+    const rand = (min, max) => Math.random() * (max - min) + min;
+    const randInt = (min, max) => Math.floor(rand(min, max + 1));
+    const choose = (arr) => arr[Math.floor(Math.random() * arr.length)];
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+    const state = {
+      running: false,
+      score: 0,
+      timeLeft: 60,
+      combo: 1,
+      lastHitAt: 0,
+      spawnTimer: null,
+      tickTimer: null,
+      muted: false,
+      mode: 'classic',
+      chaosFactor: 1.0,
+      activeEmojis: new Set(),
+      touchMode: false,
+    };
+
+    const dom = {
+      score: document.getElementById('score'),
+      time: document.getElementById('time'),
+      combo: document.getElementById('combo'),
+      duration: document.getElementById('duration'),
+      spawnRate: document.getElementById('spawnRate'),
+      playfield: document.getElementById('playfield'),
+      startOverlay: document.getElementById('startOverlay'),
+      endOverlay: document.getElementById('endOverlay'),
+      finalScoreText: document.getElementById('finalScoreText'),
+      rulesOverlay: document.getElementById('rulesOverlay'),
+      modeText: document.getElementById('modeText'),
+      leaderList: document.getElementById('leaderList'),
+      playerName: document.getElementById('playerName'),
+      hitSound: document.getElementById('hitSound'),
+      badSound: document.getElementById('badSound'),
+      muteBtn: document.getElementById('muteBtn'),
+      startBtn: document.getElementById('startBtn'),
+      overlayStartBtn: document.getElementById('overlayStartBtn'),
+      resetBtn: document.getElementById('resetBtn'),
+      restartBtn: document.getElementById('restartBtn'),
+      shareBtn: document.getElementById('shareBtn'),
+      howBtn: document.getElementById('howBtn'),
+      closeRulesBtn: document.getElementById('closeRulesBtn'),
+      saveScoreBtn: document.getElementById('saveScoreBtn'),
+      clearScoreBtn: document.getElementById('clearScoreBtn'),
+      chips: Array.from(document.querySelectorAll('.chip')),
+    };
+
+    // 터치 모드 감지
+    state.touchMode = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+    function updateHUD(){
+      dom.score.textContent = state.score;
+      dom.time.textContent = `${Math.max(0, Math.ceil(state.timeLeft))}s`;
+      dom.combo.textContent = `x${state.combo}`;
+      dom.modeText.textContent = `모드: ${state.mode === 'classic' ? '클래식' : '카오스'}`;
+    }
+
+    function resetGame(){
+      state.running = false;
+      state.score = 0;
+      state.combo = 1;
+      state.timeLeft = Number(dom.duration.value);
+      state.lastHitAt = 0;
+      clearTimers();
+      clearEmojis();
+      updateHUD();
+      dom.endOverlay.style.display = 'none';
+      dom.startOverlay.style.display = 'grid';
+    }
+
+    function clearTimers(){
+      if(state.spawnTimer){ clearInterval(state.spawnTimer); state.spawnTimer = null; }
+      if(state.tickTimer){ clearInterval(state.tickTimer); state.tickTimer = null; }
+    }
+
+    function clearEmojis(){
+      state.activeEmojis.forEach(el => el.remove());
+      state.activeEmojis.clear();
+    }
+
+    function startGame(){
+      resetField();
+      state.running = true;
+      state.score = 0;
+      state.combo = 1;
+      state.timeLeft = Number(dom.duration.value);
+      updateHUD();
+      dom.startOverlay.style.display = 'none';
+      dom.endOverlay.style.display = 'none';
+
+      const rate = Number(dom.spawnRate.value);
+      state.spawnTimer = setInterval(spawnEmoji, rate);
+      state.tickTimer = setInterval(tick, 100);
+
+      // 첫 웨이브
+      for(let i=0; i<4; i++) spawnEmoji();
+    }
+
+    function endGame(){
+      state.running = false;
+      clearTimers();
+      dom.finalScoreText.textContent = `당신의 점수: ${state.score}점`;
+      dom.endOverlay.style.display = 'grid';
+    }
+
+    function tick(){
+      if(!state.running) return;
+      state.timeLeft -= 0.1;
+      // 콤보 타임아웃
+      const sinceHit = performance.now() - state.lastHitAt;
+      if(sinceHit > 1500 && state.combo > 1){
+        state.combo = Math.max(1, Math.floor(state.combo * 0.8));
+      }
+
+      // 난이도 스케일
+      const progress = 1 - (state.timeLeft / Number(dom.duration.value));
+      state.chaosFactor = state.mode === 'chaos' ? (1 + progress * 1.2) : (1 + progress * 0.4);
+
+      updateHUD();
+      if(state.timeLeft <= 0) endGame();
+    }
+
+    function resetField(){
+      clearEmojis();
+      const rect = dom.playfield.getBoundingClientRect();
+      // 작은 연출: 시작시 약간의 스파클
+      for(let i=0; i<14; i++){
+        const dot = document.createElement('div');
+        dot.style.position='absolute';
+        dot.style.width = dot.style.height = randInt(2,4)+'px';
+        dot.style.borderRadius='50%';
+        dot.style.left = randInt(0, rect.width)+'px';
+        dot.style.top = randInt(0, rect.height)+'px';
+        dot.style.background = `rgba(255,255,255,${rand(0.05,0.18)})`;
+        dot.style.filter='blur(0.5px)';
+        dom.playfield.appendChild(dot);
+        setTimeout(()=>dot.remove(), randInt(1200, 2400));
+      }
+    }
+
+    const EMOJI_GOOD = ['😄','😁','😆','😊','🙂','🤗','😺','🤣'];
+    const EMOJI_BAD  = ['😢','😭','😡','😠','😒','🥶','👿','💀'];
+
+    function spawnEmoji(){
+      if(!state.running) return;
+
+      const rect = dom.playfield.getBoundingClientRect();
+      const sizeClass = choose(['sm','md','lg']);
+      const isGood = Math.random() < 0.68; // 68% 좋은 이모티콘
+      const emojiChar = choose(isGood ? EMOJI_GOOD : EMOJI_BAD);
+
+      const el = document.createElement('div');
+      el.className = `emoji ${sizeClass} ${state.touchMode ? 'touch' : ''}`;
+      el.setAttribute('role','button');
+      el.setAttribute('aria-label', isGood ? '좋은 이모티콘' : '나쁜 이모티콘');
+      el.textContent = emojiChar;
+
+      // 초기 위치
+      const margin = 40;
+      const x = randInt(margin, rect.width - margin);
+      const y = randInt(margin, rect.height - margin);
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+
+      // 이동 벡터
+      let vx = rand(-1.8, 1.8) * (state.chaosFactor);
+      let vy = rand(-1.8, 1.8) * (state.chaosFactor);
+      const gravity = state.mode === 'chaos' ? rand(0.03, 0.12) * state.chaosFactor : rand(0.01, 0.06);
+
+      // 수명
+      const lifetime = clamp(randInt(900, 2000) / (state.mode==='chaos' ? 0.8 : 1), 700, 2600);
+
+      // 이벤트
+      const onHit = (ev) => {
+        ev.stopPropagation();
+        if(!state.running) return;
+
+        if(isGood){
+          const base = 10;
+          const pts = Math.floor(base * state.combo);
+          state.score += pts;
+          state.combo = clamp(state.combo + 1, 1, 50);
+          state.lastHitAt = performance.now();
+          playPop(el, `+${pts}`);
+          playSound('hit');
+        }else{
+          const penalty = emojiChar === '😡' || emojiChar === '👿' ? 10 : 5;
+          state.score = Math.max(0, state.score - penalty);
+          state.combo = 1;
+          state.timeLeft = Math.max(0, state.timeLeft - (emojiChar === '😡' || emojiChar === '👿' ? 2 : 0));
+          playMiss(el, `-${penalty}`);
+          playSound('bad');
+        }
+        updateHUD();
+        destroyEmoji(el);
+      };
+
+      el.addEventListener('click', onHit);
+      el.addEventListener('touchstart', onHit, {passive:true});
+
+      dom.playfield.appendChild(el);
+      state.activeEmojis.add(el);
+
+      // 움직임 루프
+      const born = performance.now();
+      const moveTimer = setInterval(()=>{
+        const now = performance.now();
+        const dt = Math.min(32, now - born);
+        const px = parseFloat(el.style.left);
+        const py = parseFloat(el.style.top);
+
+        // 경계 반사
+        let nx = px + vx * (dt / 16);
+        let ny = py + vy * (dt / 16);
+
+        // 중력
+        vy += gravity;
+
+        // 경계 처리
+        const w = rect.width, h=rect.height;
+        const pad = 20;
+        if(nx < pad){ nx = pad; vx = Math.abs(vx) }
+        if(nx > w - pad){ nx = w - pad; vx = -Math.abs(vx) }
+        if(ny < pad){ ny = pad; vy = Math.abs(vy) }
+        if(ny > h - pad){ ny = h - pad; vy = -Math.abs(vy) }
+
+        el.style.left = nx + 'px';
+        el.style.top = ny + 'px';
+
+        // 수명 종료
+        if(now - born > lifetime){
+          clearInterval(moveTimer);
+          destroyEmoji(el);
+        }
+      }, 32);
+
+      // 카오스 모드 특수 효과: 크기/회전 랜덤
+      if(state.mode === 'chaos'){
+        el.style.transform = `rotate(${randInt(-12,12)}deg) scale(${rand(0.9,1.15)})`;
+      }
+    }
+
+    function destroyEmoji(el){
+      if(!state.activeEmojis.has(el)) return;
+      state.activeEmojis.delete(el);
+      try{ el.remove(); }catch(e){}
+    }
+
+    function playPop(el, text){
+      const fx = document.createElement('div');
+      fx.className = 'pop';
+      fx.textContent = text;
+      fx.style.left = el.style.left;
+      fx.style.top = (parseFloat(el.style.top) - 10) + 'px';
+      dom.playfield.appendChild(fx);
+      setTimeout(()=>fx.remove(), 900);
+    }
+
+    function playMiss(el, text){
+      const fx = document.createElement('div');
+      fx.className = 'miss';
+      fx.textContent = text;
+      fx.style.left = el.style.left;
+      fx.style.top = (parseFloat(el.style.top) - 10) + 'px';
+      dom.playfield.appendChild(fx);
+      setTimeout(()=>fx.remove(), 800);
+    }
+
+    function playSound(type){
+      if(state.muted) return;
+      const el = type==='hit' ? dom.hitSound : dom.badSound;
+      // 간단한 "beep" 대체 (데이터가 비어있을 수 있으므로 재생 시도)
+      el.currentTime = 0;
+      el.play().catch(()=>{ /* 무음 */ });
+    }
+
+    // ---------- 리더보드 ----------
+    function getScores(){
+      try{
+        const raw = localStorage.getItem('emoji_scores');
+        return raw ? JSON.parse(raw) : [];
+      }catch(e){ return []; }
+    }
+    function setScores(list){
+      try{
+        localStorage.setItem('emoji_scores', JSON.stringify(list));
+      }catch(e){}
+    }
+    function renderScores(){
+      const scores = getScores().sort((a,b)=>b.score-a.score).slice(0,10);
+      dom.leaderList.innerHTML = '';
+      if(scores.length===0){
+        dom.leaderList.innerHTML = '<p class="hint">기록이 없습니다. 멋지게 한 판 해보세요!</p>';
+        return;
+      }
+      scores.forEach((s,i)=>{
+        const row = document.createElement('div');
+        row.className = 'score-item';
+        row.innerHTML = `
+          <div><span class="tag">#${i+1}</span> <strong>${escapeHtml(s.name || '익명')}</strong></div>
+          <div>${s.score}점 <span class="hint">(${s.mode})</span></div>
+        `;
+        dom.leaderList.appendChild(row);
+      });
+    }
+    function saveCurrentScore(){
+      const list = getScores();
+      const name = dom.playerName.value.trim() || '익명';
+      list.push({ name, score: state.score, mode: state.mode, at: Date.now() });
+      setScores(list);
+      renderScores();
+    }
+    function clearScores(){
+      setScores([]);
+      renderScores();
+    }
+    function escapeHtml(s){
+      return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
+    // ---------- 공유 ----------
+    async function shareScore(){
+      const text = `😄 웃음 이모티콘 게임에서 ${state.score}점을 획득! (${state.mode})`;
+      if(navigator.share){
+        try { await navigator.share({ title:'웃음 이모티콘 게임', text }); }
+        catch(e){}
+      }else{
+        try{
+          await navigator.clipboard.writeText(text);
+          toast('점수가 클립보드에 복사되었습니다!');
+        }catch(e){
+          alert(text);
+        }
+      }
+    }
+
+    // ---------- 토스트 ----------
+    function toast(message){
+      const t = document.createElement('div');
+      t.style.position='fixed';
+      t.style.bottom='18px';
+      t.style.left='50%';
+      t.style.transform='translateX(-50%)';
+      t.style.padding='10px 14px';
+      t.style.background='rgba(0,0,0,0.65)';
+      t.style.border='1px solid rgba(255,255,255,0.25)';
+      t.style.borderRadius='12px';
+      t.style.color='white';
+      t.style.fontWeight='700';
+      t.style.zIndex='9999';
+      t.textContent = message;
+      document.body.appendChild(t);
+      setTimeout(()=>{ t.remove(); }, 1600);
+    }
+
+    // ---------- 이벤트 바인딩 ----------
+    dom.startBtn.addEventListener('click', startGame);
+    dom.overlayStartBtn.addEventListener('click', startGame);
+    dom.resetBtn.addEventListener('click', resetGame);
+    dom.restartBtn.addEventListener('click', ()=>{ startGame(); });
+    dom.howBtn.addEventListener('click', ()=>{ dom.rulesOverlay.style.display='grid'; });
+    dom.closeRulesBtn.addEventListener('click', ()=>{ dom.rulesOverlay.style.display='none'; });
+    dom.shareBtn.addEventListener('click', shareScore);
+
+    dom.duration.addEventListener('input', ()=>{
+      state.timeLeft = Number(dom.duration.value);
+      updateHUD();
+    });
+    dom.spawnRate.addEventListener('input', ()=>{
+      if(state.running){
+        clearInterval(state.spawnTimer);
+        state.spawnTimer = setInterval(spawnEmoji, Number(dom.spawnRate.value));
+      }
+    });
+
+    dom.muteBtn.addEventListener('click', ()=>{
+      state.muted = !state.muted;
+      dom.muteBtn.textContent = state.muted ? '🔇 무음' : '🔈 사운드';
+      toast(state.muted ? '사운드를 끔' : '사운드를 켬');
+    });
+
+    dom.chips.forEach(ch => {
+      ch.addEventListener('click', ()=>{
+        dom.chips.forEach(c => c.classList.remove('active'));
+        ch.classList.add('active');
+        state.mode = ch.dataset.mode;
+        updateHUD();
+        toast(`모드: ${state.mode === 'classic' ? '클래식' : '카오스'}`);
+      });
+    });
+
+    dom.saveScoreBtn.addEventListener('click', ()=>{
+      if(state.score <= 0){ toast('기록할 점수가 없습니다.'); return; }
+      saveCurrentScore();
+      toast('기록 저장 완료!');
+    });
+
+    dom.clearScoreBtn.addEventListener('click', ()=>{
+      clearScores();
+      toast('기록을 삭제했습니다.');
+    });
+
+    // 필드 클릭 시 "MISS" 표시 (빈 곳 클릭)
+    dom.playfield.addEventListener('click', (ev)=>{
+      if(!state.running) return;
+      const fx = document.createElement('div');
+      fx.className='miss'; fx.textContent='MISS';
+      const rect = dom.playfield.getBoundingClientRect();
+      fx.style.left = (ev.clientX - rect.left) + 'px';
+      fx.style.top = (ev.clientY - rect.top) + 'px';
+      dom.playfield.appendChild(fx);
+      setTimeout(()=>fx.remove(), 800);
+      // 콤보 약화
+      state.combo = Math.max(1, Math.floor(state.combo * 0.7));
+      updateHUD();
+    });
+
+    // 초기 렌더
+    renderScores();
+    resetGame();
+
+    // 키보드 단축키
+    window.addEventListener('keydown', (e)=>{
+      if(e.key.toLowerCase()==='m'){ dom.muteBtn.click(); }
+      if(e.key==='Enter'){ startGame(); }
+      if(e.key.toLowerCase()==='r'){ resetGame(); }
+    });
+  </script>
+</body>
+</html>
+```
