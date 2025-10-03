@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Error | 문제가 발생했습니다</title>
+  <meta name="description" content="요청하신 페이지를 찾을 수 없거나 처리 중 오류가 발생했습니다." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚠️</text></svg>">
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --bg-2: #0f141b;
+      --surface: #121820;
+      --surface-2: #19212b;
+      --text: #e7edf5;
+      --text-muted: #b6c2d1;
+      --primary: #5cc8ff;
+      --primary-contrast: #0a1f2a;
+      --accent: #9a6bff;
+      --warning: #ffc857;
+      --error: #ff6b6b;
+      --success: #46d19a;
+      --border: #23303f;
+      --shadow: 0 20px 40px rgba(0,0,0,.35);
+      --radius-xl: 24px;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --blur: 12px;
+      --grid-gap: clamp(16px, 3vw, 28px);
+      --content-w: min(1100px, 92vw);
+    }
+
+    /* Light theme */
+    :root[data-theme="light"] {
+      --bg: #f6f9fc;
+      --bg-2: #f2f6fb;
+      --surface: #ffffff;
+      --surface-2: #f8fbff;
+      --text: #1b2a3a;
+      --text-muted: #5c6b7a;
+      --primary: #1677ff;
+      --primary-contrast: #f0f6ff;
+      --accent: #7c4dff;
+      --warning: #ffb020;
+      --error: #e94747;
+      --success: #17b978;
+      --border: #e2e8f0;
+      --shadow: 0 18px 38px rgba(17, 38, 66, .12);
+      --blur: 6px;
+    }
+
+    /* Base layout */
+    html, body {
+      height: 100%;
+      background: radial-gradient(1200px 600px at 10% 10%, var(--bg-2), var(--bg)),
+                  radial-gradient(900px 500px at 90% 20%, rgba(92, 200, 255, .08), transparent),
+                  radial-gradient(900px 500px at 20% 90%, rgba(154, 107, 255, .08), transparent);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      margin: 0;
+    }
+
+    .page {
+      min-height: 100%;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      align-items: start;
+    }
+
+    /* Header */
+    .header {
+      width: 100%;
+      position: sticky;
+      top: 0;
+      backdrop-filter: saturate(1.2) blur(var(--blur));
+      background: linear-gradient(180deg, rgba(0,0,0,.25), transparent);
+      z-index: 50;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      width: var(--content-w);
+      margin: 0 auto;
+      padding: 14px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0));
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .logo {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: radial-gradient(80% 80% at 30% 30%, var(--primary), var(--accent));
+      color: var(--primary-contrast);
+      font-weight: 700;
+    }
+
+    .brand-name {
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+
+    .header-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--surface), var(--surface-2));
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
+      box-shadow: var(--shadow);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: color-mix(in oklab, var(--border), var(--primary) 35%);
+      box-shadow: 0 16px 30px rgba(0,0,0,.28);
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, color-mix(in oklab, var(--primary), #fff 12%), var(--primary));
+      color: var(--primary-contrast);
+      border-color: color-mix(in oklab, var(--primary), #000 10%);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border-color: var(--border);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .2px;
+      background: color-mix(in oklab, var(--surface), var(--accent) 12%);
+      border: 1px solid color-mix(in oklab, var(--border), var(--accent) 30%);
+      color: var(--text);
+    }
+
+    .badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent), transparent 90%);
+    }
+
+    /* Main card */
+    .container {
+      width: var(--content-w);
+      margin: 24px auto 28px;
+      display: grid;
+      grid-template-columns: 1.3fr .9fr;
+      gap: var(--grid-gap);
+    }
+
+    @media (max-width: 980px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background:
+        radial-gradient(600px 240px at 10% 10%, rgba(92,200,255,.12), transparent),
+        radial-gradient(600px 240px at 90% 15%, rgba(154,107,255,.12), transparent),
+        linear-gradient(180deg, var(--surface), var(--surface-2));
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+    }
+
+    .status-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(80% 80% at 30% 30%, var(--error), var(--accent));
+      color: var(--primary-contrast);
+      font-size: 28px;
+      box-shadow: inset 0 0 12px rgba(0,0,0,.25), 0 12px 24px rgba(0,0,0,.3);
+      transform: rotate(0deg);
+      animation: swing 6s ease-in-out infinite;
+    }
+
+    @keyframes swing {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(6deg); }
+      50% { transform: rotate(-6deg); }
+      75% { transform: rotate(2deg); }
+    }
+
+    .title-wrap {
+      display: grid;
+      gap: 4px;
+    }
+
+    .title {
+      font-size: clamp(22px, 2.4vw, 28px);
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .lang-toggle {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: color-mix(in oklab, var(--surface), #fff 4%);
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      border-radius: var(--radius-md);
+    }
+
+    .lang-toggle select {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-weight: 700;
+      outline: none;
+    }
+
+    .card-body {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--grid-gap);
+      padding: 24px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: var(--grid-gap);
+      align-items: center;
+    }
+
+    @media (max-width: 980px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .error-code {
+      display: grid;
+      gap: 12px;
+    }
+
+    .code-big {
+      font-size: clamp(56px, 10vw, 120px);
+      font-weight: 900;
+      letter-spacing: -1px;
+      line-height: 1;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.25));
+    }
+
+    .message {
+      font-size: clamp(16px, 2vw, 18px);
+      color: var(--text);
+    }
+
+    .hint {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .illustration {
+      min-height: 220px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-lg);
+      background:
+        radial-gradient(400px 200px at 70% 20%, rgba(92,200,255,.12), transparent),
+        radial-gradient(400px 200px at 20% 80%, rgba(154,107,255,.12), transparent),
+        linear-gradient(180deg, color-mix(in oklab, var(--surface), var(--primary) 4%), var(--surface-2));
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Floating shapes in illustration */
+    .bubble {
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(1px);
+      opacity: .65;
+      will-change: transform;
+      mix-blend-mode: screen;
+      animation: float 14s ease-in-out infinite;
+    }
+
+    .bubble.b1 { width: 120px; height: 120px; left: 12%; top: 18%; background: rgba(92,200,255,.25); animation-delay: 0s; }
+    .bubble.b2 { width: 180px; height: 180px; left: 68%; top: 16%; background: rgba(154,107,255,.25); animation-delay: 1.2s; }
+    .bubble.b3 { width: 80px; height: 80px; left: 24%; top: 64%; background: rgba(255,200,87,.25); animation-delay: 2.4s; }
+    .bubble.b4 { width: 220px; height: 220px; left: 76%; top: 62%; background: rgba(233,71,71,.22); animation-delay: 4s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) translateX(0) scale(1); }
+      25% { transform: translateY(-12px) translateX(8px) scale(1.02); }
+      50% { transform: translateY(6px) translateX(-12px) scale(0.98); }
+      75% { transform: translateY(-10px) translateX(6px) scale(1.01); }
+    }
+
+    /* Diagnostic panel */
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, var(--surface), var(--surface-2));
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-title {
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .panel-body {
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--grid-gap);
+    }
+
+    @media (max-width: 720px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .info {
+      display: grid;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .info strong {
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    .kbd {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: color-mix(in oklab, var(--surface), var(--primary) 4%);
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: .1px;
+    }
+
+    /* Quick links */
+    .links {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--grid-gap);
+    }
+
+    @media (max-width: 980px) {
+      .links {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 600px) {
+      .links {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .link-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, var(--surface), var(--surface-2));
+      padding: 16px;
+      display: grid;
+      gap: 8px;
+      transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    }
+
+    .link-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 40px rgba(0,0,0,.28);
+      border-color: color-mix(in oklab, var(--border), var(--primary) 30%);
+    }
+
+    .link-title {
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .link-desc {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      display: grid;
+      gap: var(--grid-gap);
+    }
+
+    .status-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, var(--surface), var(--surface-2));
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px color-mix(in oklab, var(--success), transparent 80%);
+      background: var(--success);
+    }
+
+    .status-dot.warn {
+      background: var(--warning);
+      box-shadow: 0 0 0 4px color-mix(in oklab, var(--warning), transparent 80%);
+    }
+
+    .status-dot.err {
+      background: var(--error);
+      box-shadow: 0 0 0 4px color-mix(in oklab, var(--error), transparent 82%);
+    }
+
+    .status-label {
+      font-weight: 700;
+    }
+
+    .status-time {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Report form */
+    .form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .input, .textarea, .select {
+      appearance: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: color-mix(in oklab, var(--surface), #fff 4%);
+      color: var(--text);
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color .12s ease, box-shadow .12s ease;
+      box-shadow: inset 0 0 0 1px transparent;
+    }
+
+    .input:focus, .textarea:focus, .select:focus {
+      border-color: color-mix(in oklab, var(--border), var(--primary) 40%);
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary), transparent 85%);
+    }
+
+    .textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    /* Footer */
+    .footer {
+      width: var(--content-w);
+      margin: 0 auto;
+      padding: 18px 0 28px;
+      color: var(--text-muted);
+      display: grid;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+      border-bottom: 1px dashed transparent;
+      transition: color .12s ease, border-color .12s ease;
+    }
+
+    .footer a:hover {
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background: linear-gradient(180deg, var(--surface), var(--surface-2));
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 6px;
+      max-width: 320px;
+      transform: translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+      transition: transform .18s ease, opacity .18s ease;
+    }
+
+    .sr-only {
+      position: absolute !important;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0);
+      white-space: nowrap; border: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="page" data-error="404">
+    <!-- Header -->
+    <header class="header" role="banner">
+      <div class="header-inner">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">!</div>
+          <div class="brand-name">Nimbus</div>
+          <span class="badge" title="Incident active">
+            <span class="dot" aria-hidden="true"></span> Status monitor
+          </span>
+        </div>
+
+        <div class="header-actions">
+          <button id="themeBtn" class="btn btn-ghost" aria-label="테마 전환">
+            <span aria-hidden="true">🌓</span> 테마
+          </button>
+          <button id="retryBtn" class="btn" aria-label="다시 시도">
+            <span aria-hidden="true">↻</span> 다시 시도
+          </button>
+          <button id="homeBtn" class="btn btn-primary" aria-label="홈으로 이동">
+            <span aria-hidden="true">⌂</span> 홈
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="container" role="main">
+      <!-- Left: main error area -->
+      <section class="card" aria-labelledby="error-heading">
+        <div class="card-header">
+          <div class="status-icon" aria-hidden="true">⚠️</div>
+          <div class="title-wrap">
+            <h1 id="error-heading" class="title">페이지를 찾을 수 없어요</h1>
+            <p class="subtitle">요청하신 주소가 바뀌었거나, 삭제되었거나, 잠시 사용할 수 없습니다.</p>
+          </div>
+
+          <div class="lang-toggle" aria-label="언어 선택">
+            <span aria-hidden="true">🌐</span>
+            <label class="sr-only" for="lang">언어</label>
+            <select id="lang">
+              <option value="ko" selected>한국어</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <!-- Hero -->
+          <div class="hero">
+            <div class="error-code">
+              <div class="code-big" id="codeBig">404</div>
+              <div class="message" id="messageMain">요청하신 페이지를 찾을 수 없습니다.</div>
+              <div class="hint" id="hintMain">
+                주소를 다시 확인하거나 아래의 안내를 참고해주세요. 오류가 지속되면 고객센터로 알려주세요.
+              </div>
+
+              <div class="actions">
+                <button class="btn btn-primary" id="goBackBtn">
+                  ⤺ 이전 페이지
+                </button>
+                <button class="btn" id="copyLinkBtn">
+                  🔗 링크 복사
+                </button>
+                <button class="btn btn-ghost" id="detailsBtn">
+                  🧾 오류 상세
+                </button>
+              </div>
+            </div>
+
+            <div class="illustration" aria-hidden="true">
+              <div class="bubble b1"></div>
+              <div class="bubble b2"></div>
+              <div class="bubble b3"></div>
+              <div class="bubble b4"></div>
+            </div>
+          </div>
+
+          <!-- Diagnostics -->
+          <div class="panel" id="diagnosticPanel">
+            <div class="panel-header">
+              <div aria-hidden="true">🔍</div>
+              <div class="panel-title">빠른 진단</div>
+            </div>
+            <div class="panel-body">
+              <div class="grid-2">
+                <div class="info">
+                  <strong>요청 URL</strong>
+                  <span id="reqUrl">-</span>
+                </div>
+                <div class="info">
+                  <strong>요청 ID</strong>
+                  <span id="reqId">-</span>
+                </div>
+                <div class="info">
+                  <strong>클라이언트</strong>
+                  <span id="clientUa">-</span>
+                </div>
+                <div class="info">
+                  <strong>발생 시각</strong>
+                  <span id="occuredAt">-</span>
+                </div>
+              </div>
+
+              <div class="links" aria-label="도움말 링크">
+                <a class="link-card" href="#" id="statusLink">
+                  <div class="link-title">서비스 상태</div>
+                  <div class="link-desc">점검 중인지 확인하세요.</div>
+                </a>
+                <a class="link-card" href="#" id="supportLink">
+                  <div class="link-title">고객센터</div>
+                  <div class="link-desc">문제를 신고하거나 문의하세요.</div>
+                </a>
+                <a class="link-card" href="#" id="docsLink">
+                  <div class="link-title">개발자 문서</div>
+                  <div class="link-desc">API 응답 코드와 복구 방법을 확인하세요.</div>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alternate errors selector -->
+          <div class="panel" id="alternates">
+            <div class="panel-header">
+              <div aria-hidden="true">🧭</div>
+              <div class="panel-title">다른 오류 보기</div>
+            </div>
+            <div class="panel-body">
+              <div class="actions">
+                <button class="btn" data-err="403">🚫 403 금지됨</button>
+                <button class="btn" data-err="401">🔐 401 인증 필요</button>
+                <button class="btn" data-err="500">💥 500 서버 오류</button>
+                <button class="btn" data-err="502">🌐 502 게이트웨이 오류</button>
+                <button class="btn" data-err="503">🛠️ 503 점검 중</button>
+                <button class="btn" data-err="504">⏱️ 504 시간 초과</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: sidebar -->
+      <aside class="sidebar" aria-label="오른쪽 사이드바">
+        <div class="status-card">
+          <div class="status-row">
+            <div class="status-dot"></div>
+            <div class="status-label">API 서비스</div>
+            <div class="status-time">정상</div>
+          </div>
+          <div class="status-row">
+            <div class="status-dot warn"></div>
+            <div class="status-label">이미지 처리</div>
+            <div class="status-time">지연</div>
+          </div>
+          <div class="status-row">
+            <div class="status-dot err"></div>
+            <div class="status-label">인증 서버</div>
+            <div class="status-time">장애</div>
+          </div>
+          <p class="small">서비스 상태는 자동으로 갱신됩니다. 일부 지역에서 지연이 발생할 수 있습니다.</p>
+          <div class="actions">
+            <button class="btn btn-ghost" id="subscribeBtn">🔔 상태 알림</button>
+            <button class="btn" id="refreshStatusBtn">↻ 새로고침</button>
+          </div>
+        </div>
+
+        <div class="status-card">
+          <div class="panel-title">오류 신고</div>
+          <form class="form" id="reportForm" novalidate>
+            <div class="field">
+              <label for="email">이메일</label>
+              <input class="input" type="email" id="email" placeholder="you@example.com" required />
+            </div>
+            <div class="field">
+              <label for="type">오류 유형</label>
+              <select class="select" id="type" required>
+                <option value="404" selected>404 - 페이지 없음</option>
+                <option value="403">403 - 접근 금지</option>
+                <option value="401">401 - 인증 필요</option>
+                <option value="500">500 - 서버 오류</option>
+                <option value="503">503 - 점검 중</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="desc">설명</label>
+              <textarea class="textarea" id="desc" placeholder="무슨 작업을 했는지, 어떤 메시지가 보였는지 자세히 적어주세요." required></textarea>
+            </div>
+            <div class="actions">
+              <button class="btn btn-primary" type="submit">🚀 보내기</button>
+              <button class="btn btn-ghost" type="reset">🧽 초기화</button>
+            </div>
+            <p class="small">Shift + Enter로 빠르게 제출할 수 있어요.</p>
+          </form>
+        </div>
+
+        <div class="status-card">
+          <div class="panel-title">유용한 단축키</div>
+          <div class="info">
+            <div><span class="kbd">R</span> 페이지 다시 시도</div>
+            <div><span class="kbd">H</span> 홈으로 이동</div>
+            <div><span class="kbd">D</span> 진단 열기/닫기</div>
+            <div><span class="kbd">T</span> 라이트/다크 테마 전환</div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+      <div>© 2025 Nimbus. 일부 권리는 보호됩니다.</div>
+      <div class="footer-links">
+        <a href="#" id="policyLink">개인정보 처리방침</a>
+        <a href="#" id="termsLink">이용약관</a>
+        <a href="#" id="contactLink">문의하기</a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <strong id="toastTitle">복사 완료</strong>
+    <span id="toastMsg">링크가 클립보드에 복사되었습니다.</span>
+  </div>
+
+  <script>
+    // Utilities
+    const $ = (sel, root = document) => root.querySelector(sel);
+    const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+    const fmtTime = (d = new Date()) => {
+      const pad = n => String(n).padStart(2,'0');
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    };
+
+    const state = {
+      error: '404',
+      lang: 'ko',
+      reqId: Math.random().toString(36).slice(2, 8).toUpperCase(),
+      theme: (document.documentElement.dataset.theme || 'dark')
+    };
+
+    const messages = {
+      ko: {
+        404: { title: '페이지를 찾을 수 없어요', msg: '요청하신 페이지를 찾을 수 없습니다.', hint: '주소를 다시 확인하거나 아래의 안내를 참고해주세요.' },
+        403: { title: '접근이 금지되었어요', msg: '이 페이지에 접근할 권한이 없습니다.', hint: '권한을 요청하거나 계정을 확인하세요.' },
+        401: { title: '인증이 필요해요', msg: '로그인이 필요합니다.', hint: '로그인 후 다시 시도해주세요.' },
+        500: { title: '서버에서 문제가 발생했어요', msg: '요청을 처리하는 중 오류가 발생했습니다.', hint: '잠시 후 다시 시도해주세요.' },
+        502: { title: '게이트웨이 오류예요', msg: '업스트림 서버에서 잘못된 응답을 보냈습니다.', hint: '잠시 후 자동으로 복구될 수 있습니다.' },
+        503: { title: '점검 중이에요', msg: '서비스가 일시적으로 사용 불가합니다.', hint: '점검이 완료될 때까지 기다려주세요.' },
+        504: { title: '시간이 초과되었어요', msg: '응답을 기다리는 동안 시간이 초과되었습니다.', hint: '네트워크 상태를 확인 후 다시 시도하세요.' },
+        copied: { title: '복사 완료', msg: '링크가 클립보드에 복사되었습니다.' },
+        failedCopy: { title: '복사 실패', msg: '복사 권한을 확인하거나 수동으로 복사해주세요.' }
+      },
+      en: {
+        404: { title: 'We can’t find this page', msg: 'The page you requested could not be found.', hint: 'Check the URL or use the links below.' },
+        403: { title: 'Access is forbidden', msg: 'You don’t have permission to access this page.', hint: 'Request access or verify your account.' },
+        401: { title: 'Authentication required', msg: 'You need to sign in.', hint: 'Sign in and try again.' },
+        500: { title: 'Something broke on our side', msg: 'An error occurred while processing your request.', hint: 'Please try again later.' },
+        502: { title: 'Bad gateway', msg: 'Upstream server sent an invalid response.', hint: 'It may recover automatically.' },
+        503: { title: 'Under maintenance', msg: 'Service is temporarily unavailable.', hint: 'Please wait until maintenance completes.' },
+        504: { title: 'Request timed out', msg: 'Waiting for a response took too long.', hint: 'Check your network and retry.' },
+        copied: { title: 'Copied', msg: 'Link copied to clipboard.' },
+        failedCopy: { title: 'Copy failed', msg: 'Check clipboard permission or copy manually.' }
+      }
+    };
+
+    // Initialize diagnostic values
+    const initDiagnostics = () => {
+      $('#reqUrl').textContent = location.href;
+      $('#clientUa').textContent = navigator.userAgent;
+      $('#reqId').textContent = state.reqId;
+      $('#occuredAt').textContent = fmtTime();
+    };
+
+    // Update UI based on state
+    const updateView = () => {
+      const m = messages[state.lang][state.error];
+      $('#error-heading').textContent = m.title;
+      $('#codeBig').textContent = state.error;
+      $('#messageMain').textContent = m.msg;
+      $('#hintMain').textContent = m.hint + ' 오류가 지속되면 고객센터로 알려주세요.';
+      document.querySelector('.page').setAttribute('data-error', state.error);
+
+      // Theme-dependent emoji for icon
+      const iconEl = document.querySelector('.status-icon');
+      const icon = ['500','502','504'].includes(state.error) ? '💥' :
+                   state.error === '503' ? '🛠️' :
+                   state.error === '403' ? '🚫' :
+                   state.error === '401' ? '🔐' : '⚠️';
+      iconEl.textContent = icon;
+    };
+
+    // Toast helpers
+    const toastEl = $('#toast');
+    let toastTimer;
+    const showToast = (title, msg) => {
+      clearTimeout(toastTimer);
+      $('#toastTitle').textContent = title;
+      $('#toastMsg').textContent = msg;
+      toastEl.classList.add('show');
+      toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2400);
+    };
+
+    // Event bindings
+    const bindEvents = () => {
+      // Theme toggle
+      $('#themeBtn').addEventListener('click', () => {
+        const next = (document.documentElement.dataset.theme === 'light') ? 'dark' : 'light';
+        document.documentElement.dataset.theme = next;
+        state.theme = next;
+      });
+
+      // Retry
+      $('#retryBtn').addEventListener('click', () => {
+        // Simulate retry by refreshing diagnostic timestamp
+        $('#occuredAt').textContent = fmtTime();
+        const langMsg = messages[state.lang];
+        showToast(langMsg.copied.title, state.lang === 'ko' ? '다시 시도했습니다.' : 'Retried.');
+      });
+
+      // Home
+      $('#homeBtn').addEventListener('click', () => {
+        // You can replace with actual route
+        location.href = '/';
+      });
+
+      // Back
+      $('#goBackBtn').addEventListener('click', () => history.length > 1 ? history.back() : location.href = '/');
+
+      // Copy link
+      $('#copyLinkBtn').addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(location.href);
+          const msg = messages[state.lang].copied;
+          showToast(msg.title, msg.msg);
+        } catch (e) {
+          const msg = messages[state.lang].failedCopy;
+          showToast(msg.title, msg.msg);
+        }
+      });
+
+      // Toggle diagnostics
+      $('#detailsBtn').addEventListener('click', () => {
+        const p = $('#diagnosticPanel');
+        p.style.display = (p.style.display === 'none') ? '' : 'none';
+      });
+
+      // Language
+      $('#lang').addEventListener('change', (e) => {
+        state.lang = e.target.value;
+        updateView();
+      });
+
+      // Alternate errors
+      $$('#alternates .btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.error = btn.dataset.err;
+          $('#type').value = state.error; // sync form
+          updateView();
+        });
+      });
+
+      // Report form
+      $('#reportForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = $('#email').value.trim();
+        const type = $('#type').value;
+        const desc = $('#desc').value.trim();
+
+        if (!email || !type || !desc) {
+          showToast(state.lang === 'ko' ? '필수 입력 확인' : 'Required fields', state.lang === 'ko' ? '모두 입력해주세요.' : 'Please fill all fields.');
+          return;
+        }
+
+        // Simulate sending
+        showToast(state.lang === 'ko' ? '제출 완료' : 'Submitted',
+                  state.lang === 'ko' ? '신고가 접수되었습니다.' : 'Your report has been received.');
+        e.target.reset();
+      });
+
+      // Shortcuts
+      window.addEventListener('keydown', (e) => {
+        if (e.target.matches('input, textarea')) return;
+        if (e.key.toLowerCase() === 'r') $('#retryBtn').click();
+        if (e.key.toLowerCase() === 'h') $('#homeBtn').click();
+        if (e.key.toLowerCase() === 'd') $('#detailsBtn').click();
+        if (e.key.toLowerCase() === 't') $('#themeBtn').click();
+      });
+
+      // Refresh status simulated
+      $('#refreshStatusBtn').addEventListener('click', () => {
+        const labels = $$('.status-time');
+        labels.forEach(l => l.textContent = '갱신됨 ' + fmtTime());
+      });
+
+      // Subscribe
+      $('#subscribeBtn').addEventListener('click', () => {
+        showToast(state.lang === 'ko' ? '구독됨' : 'Subscribed',
+                  state.lang === 'ko' ? '상태 변경 시 알림을 받습니다.' : 'You’ll get status alerts.');
+      });
+    };
+
+    // Startup
+    initDiagnostics();
+    updateView();
+    bindEvents();
+  </script>
+</body>
+</html>
