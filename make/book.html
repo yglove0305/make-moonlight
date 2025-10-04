@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>동물 도감 — 생태, 분류, 서식지, 습성</title>
+  <meta name="description" content="포유류, 조류, 파충류, 양서류, 어류, 곤충 등 다양한 동물을 검색하고 분류별로 탐색할 수 있는 인터랙티브 동물 도감입니다." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="동물 도감" />
+  <meta property="og:description" content="검색과 필터로 다양한 동물을 탐색하세요." />
+  <meta property="og:type" content="website" />
+
+  <!-- Favicon (optional base64 placeholder) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23ffe08a'/%3E%3Ctext x='32' y='40' font-size='30' text-anchor='middle' fill='%23555555'%3E%F0%9F%90%BD%3C/text%3E%3C/svg%3E" />
+
+  <style>
+    :root {
+      --bg: #fff;
+      --text: #1a1a1a;
+      --muted: #6b7280;
+      --primary: #0ea5e9;
+      --primary-600: #0284c7;
+      --surface: #f8fafc;
+      --border: #e5e7eb;
+      --accent: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --radius: 14px;
+      --radius-sm: 10px;
+      --shadow: 0 10px 30px rgba(0,0,0,0.08);
+      --shadow-sm: 0 6px 18px rgba(0,0,0,0.06);
+      --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Helvetica Neue", Arial, "Liberation Sans", "Cantarell", "DejaVu Sans", "Noto Sans", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0b0f14;
+        --text: #e5e7eb;
+        --muted: #9ca3af;
+        --primary: #38bdf8;
+        --primary-600: #0ea5e9;
+        --surface: #0f172a;
+        --border: #1f2937;
+        --accent: #4ade80;
+        --warn: #fbbf24;
+        --danger: #f87171;
+        --shadow: 0 10px 30px rgba(0,0,0,0.45);
+        --shadow-sm: 0 6px 18px rgba(0,0,0,0.35);
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      color: var(--text);
+      background: radial-gradient(1200px 800px at 20% 0%, rgba(14,165,233,0.08), transparent 60%),
+                  radial-gradient(900px 600px at 80% 20%, rgba(34,197,94,0.07), transparent 50%), var(--bg);
+    }
+
+    /* Layout */
+    header {
+      position: sticky;
+      top: 0;
+      backdrop-filter: saturate(150%) blur(8px);
+      background: color-mix(in srgb, var(--bg) 92%, transparent);
+      border-bottom: 1px solid var(--border);
+      z-index: 50;
+    }
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 0;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand .logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      display: grid;
+      place-items: center;
+      box-shadow: var(--shadow-sm);
+      color: #1f2937;
+      font-size: 26px;
+    }
+    .brand .title {
+      font-weight: 800;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+    .brand .desc {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .btn {
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: all .2s ease;
+      font-weight: 600;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn.primary {
+      background: linear-gradient(180deg, var(--primary), var(--primary-600));
+      border-color: transparent;
+      color: white;
+    }
+
+    /* Controls */
+    .controls {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1.2fr 0.8fr 1fr;
+      align-items: start;
+      padding: 18px 0 22px;
+    }
+    .search {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      box-shadow: var(--shadow-sm);
+    }
+    .search input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 15px;
+    }
+    .field-group {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .chip {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      padding: 8px 10px;
+      border-radius: 1000px;
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+    }
+    .chip input { accent-color: var(--primary); }
+    .chip.active {
+      color: var(--text);
+      border-color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 12%, transparent);
+    }
+
+    .sort {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .select {
+      position: relative;
+    }
+    .select select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: var(--shadow-sm);
+      outline: none;
+    }
+
+    /* Grid */
+    main {
+      padding: 18px 0 40px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+    @media (max-width: 1100px) {
+      .grid { grid-template-columns: repeat(3, 1fr); }
+      .controls { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 800px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 540px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--surface) 88%, var(--bg)));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.12);
+      border-color: color-mix(in srgb, var(--primary) 28%, var(--border));
+    }
+    .thumb {
+      height: 160px;
+      background: linear-gradient(135deg, rgba(14,165,233,.18), rgba(34,197,94,.18)),
+                  radial-gradient(400px 180px at 70% 10%, rgba(14,165,233,.28), transparent 60%),
+                  radial-gradient(450px 180px at 25% 60%, rgba(34,197,94,.22), transparent 50%);
+      display: grid;
+      place-items: center;
+      font-size: 56px;
+    }
+    .content {
+      padding: 14px 14px 10px;
+    }
+    .name {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .name h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+    .name .latin {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .tag {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 1000px;
+      border: 1px dashed var(--border);
+      color: var(--muted);
+      background: var(--bg);
+    }
+    .meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .meta div { display: flex; align-items: center; gap: 6px; }
+    .cta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      border-top: 1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 90%, var(--bg));
+    }
+    .link {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .link.primary {
+      border-color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 15%, transparent);
+      color: var(--text);
+    }
+
+    /* Modal */
+    dialog#detail {
+      border: none;
+      padding: 0;
+      border-radius: 16px;
+      width: min(820px, 92vw);
+      box-shadow: var(--shadow);
+      background: var(--bg);
+      color: var(--text);
+    }
+    dialog::backdrop {
+      backdrop-filter: blur(4px);
+      background: rgba(0,0,0,.35);
+    }
+    .detail-wrap {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 16px;
+    }
+    .detail-thumb {
+      height: 220px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(14,165,233,.18), rgba(34,197,94,.18));
+      display: grid;
+      place-items: center;
+      font-size: 80px;
+      box-shadow: var(--shadow-sm);
+    }
+    .detail {
+      padding: 18px;
+    }
+    .detail h2 { margin: 0; }
+    .detail .latin { color: var(--muted); font-size: 14px; }
+    .detail .section {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border);
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 1000px;
+      background: color-mix(in srgb, var(--primary) 14%, transparent);
+      border: 1px solid var(--primary);
+      color: var(--text);
+      font-size: 12px;
+    }
+    .detail-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    /* Footer */
+    footer {
+      padding: 36px 0 60px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+    .kbd {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2px 6px;
+      font-size: 12px;
+      background: var(--surface);
+    }
+  </style>
+</head>
+<body>
+  <header role="banner" aria-label="페이지 헤더">
+    <div class="wrap">
+      <div class="hero">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">🐾</div>
+          <div>
+            <div class="title">동물 도감</div>
+            <div class="desc">검색, 필터, 분류로 세계의 동물을 탐험하세요</div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="randomBtn" aria-label="무작위 동물">무작위 보기</button>
+          <button class="btn" id="resetBtn" aria-label="필터 초기화">필터 초기화</button>
+        </div>
+      </div>
+
+      <section class="controls" aria-label="검색 및 필터">
+        <div class="search" role="search">
+          <span aria-hidden="true">🔎</span>
+          <input type="search" id="searchInput" placeholder="예: 호랑이, 개, 독수리…" aria-label="동물 검색 입력" />
+          <button class="btn" id="clearSearch" aria-label="검색 지우기">지우기</button>
+        </div>
+
+        <div class="field-group" aria-label="분류 필터">
+          <label class="chip" data-chip="class" data-value="포유류">
+            <input type="checkbox" /> 포유류
+          </label>
+          <label class="chip" data-chip="class" data-value="조류">
+            <input type="checkbox" /> 조류
+          </label>
+          <label class="chip" data-chip="class" data-value="파충류">
+            <input type="checkbox" /> 파충류
+          </label>
+          <label class="chip" data-chip="class" data-value="양서류">
+            <input type="checkbox" /> 양서류
+          </label>
+          <label class="chip" data-chip="class" data-value="어류">
+            <input type="checkbox" /> 어류
+          </label>
+          <label class="chip" data-chip="class" data-value="곤충">
+            <input type="checkbox" /> 곤충
+          </label>
+        </div>
+
+        <div class="sort" aria-label="정렬 및 지역">
+          <div class="select">
+            <label for="sortSelect" class="desc">정렬</label>
+            <select id="sortSelect" aria-label="정렬 선택">
+              <option value="name-asc">이름 오름차순 (가→하)</option>
+              <option value="name-desc">이름 내림차순 (하→가)</option>
+              <option value="size-desc">최대 길이 (큰 순)</option>
+              <option value="size-asc">최대 길이 (작은 순)</option>
+              <option value="lifespan-desc">수명 (긴 순)</option>
+              <option value="lifespan-asc">수명 (짧은 순)</option>
+            </select>
+          </div>
+          <div class="select">
+            <label for="regionSelect" class="desc">지역</label>
+            <select id="regionSelect" aria-label="지역 선택">
+              <option value="">전체</option>
+              <option>아시아</option>
+              <option>아프리카</option>
+              <option>유럽</option>
+              <option>북아메리카</option>
+              <option>남아메리카</option>
+              <option>오세아니아</option>
+              <option>극지</option>
+              <option>전세계</option>
+            </select>
+          </div>
+        </div>
+      </section>
+    </div>
+  </header>
+
+  <main class="wrap" id="main" aria-live="polite">
+    <section aria-label="동물 카드 그리드">
+      <div class="grid" id="grid">
+        <!-- Cards will be generated by JS -->
+      </div>
+    </section>
+  </main>
+
+  <dialog id="detail" aria-label="동물 상세 보기">
+    <form method="dialog" style="padding:16px 16px 12px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+      <div style="font-weight:800">상세 정보</div>
+      <button class="btn" aria-label="닫기">닫기</button>
+    </form>
+    <div class="detail" id="detailBody">
+      <!-- Filled by JS -->
+    </div>
+  </dialog>
+
+  <footer class="wrap" aria-label="바닥글">
+    <p>
+      본 도감은 학습 및 탐색을 위한 예시 데이터로 구성되어 있습니다.
+      단축키: <span class="kbd">/</span> 검색, <span class="kbd">R</span> 무작위, <span class="kbd">Esc</span> 닫기
+    </p>
+  </footer>
+
+  <script>
+    // Animal dataset (Korean, compact but rich)
+    const animals = [
+      // Mammals (포유류)
+      { id: "tiger", emoji: "🐯", name: "호랑이", latin: "Panthera tigris", class: "포유류", habitats: ["숲","초원"], diet: "육식", regions: ["아시아"], size_m: 3.3, lifespan_y: 15, status: "위기", notes: "은밀한 사냥꾼, 줄무늬는 위장에 도움." },
+      { id: "lion", emoji: "🦁", name: "사자", latin: "Panthera leo", class: "포유류", habitats: ["초원","사바나"], diet: "육식", regions: ["아프리카"], size_m: 2.8, lifespan_y: 14, status: "취약", notes: "무리 생활, 수컷의 갈기 특징." },
+      { id: "leopard", emoji: "🐆", name: "표범", latin: "Panthera pardus", class: "포유류", habitats: ["숲","산지"], diet: "육식", regions: ["아프리카","아시아"], size_m: 2.3, lifespan_y: 17, status: "취약", notes: "나무 위 휴식과 사냥, 점박이 무늬." },
+      { id: "cheetah", emoji: "🐆", name: "치타", latin: "Acinonyx jubatus", class: "포유류", habitats: ["사바나"], diet: "육식", regions: ["아프리카"], size_m: 2.3, lifespan_y: 12, status: "취약", notes: "가속 능력이 뛰어나며 최고 속도는 약 100km/h." },
+      { id: "wolf", emoji: "🐺", name: "늑대", latin: "Canis lupus", class: "포유류", habitats: ["숲","초원","산지"], diet: "잡식", regions: ["북아메리카","유럽","아시아"], size_m: 1.6, lifespan_y: 13, status: "관심필요", notes: "무리 사냥, 울음으로 의사소통." },
+      { id: "fox", emoji: "🦊", name: "여우", latin: "Vulpes vulpes", class: "포유류", habitats: ["숲","초원"], diet: "잡식", regions: ["유럽","아시아","북아메리카"], size_m: 0.9, lifespan_y: 8, status: "관심필요", notes: "야행성, 영리하고 적응력 높음." },
+      { id: "bear", emoji: "🐻", name: "불곰", latin: "Ursus arctos", class: "포유류", habitats: ["숲","산지"], diet: "잡식", regions: ["유럽","아시아","북아메리카"], size_m: 2.8, lifespan_y: 25, status: "관심필요", notes: "강한 체구, 겨울잠." },
+      { id: "polar-bear", emoji: "🐻‍❄️", name: "북극곰", latin: "Ursus maritimus", class: "포유류", habitats: ["빙하","해안"], diet: "육식", regions: ["극지"], size_m: 3.0, lifespan_y: 25, status: "취약", notes: "바다표범 사냥, 얼음 위에서 생활." },
+      { id: "panda", emoji: "🐼", name: "자이언트 판다", latin: "Ailuropoda melanoleuca", class: "포유류", habitats: ["숲","대나무"], diet: "초식", regions: ["아시아"], size_m: 1.9, lifespan_y: 20, status: "취약", notes: "대나무에 특화된 식성, 엄지처럼 생긴 손가락." },
+      { id: "koala", emoji: "🐨", name: "코알라", latin: "Phascolarctos cinereus", class: "포유류", habitats: ["숲"], diet: "초식", regions: ["오세아니아"], size_m: 0.85, lifespan_y: 15, status: "취약", notes: "유칼립투스 잎 섭취, 나무 생활." },
+      { id: "elephant", emoji: "🐘", name: "아시아코끼리", latin: "Elephas maximus", class: "포유류", habitats: ["숲","초원"], diet: "초식", regions: ["아시아"], size_m: 6.5, lifespan_y: 60, status: "위기", notes: "지구상 최대 육상동물 중 하나, 사회적 구조." },
+      { id: "african-elephant", emoji: "🐘", name: "아프리카코끼리", latin: "Loxodonta africana", class: "포유류", habitats: ["사바나","숲"], diet: "초식", regions: ["아프리카"], size_m: 7.0, lifespan_y: 65, status: "위기", notes: "넓은 귀와 큰 상아." },
+      { id: "giraffe", emoji: "🦒", name: "기린", latin: "Giraffa camelopardalis", class: "포유류", habitats: ["사바나"], diet: "초식", regions: ["아프리카"], size_m: 5.7, lifespan_y: 25, status: "취약", notes: "긴 목으로 높은 나뭇잎을 뜯어먹음." },
+      { id: "zebra", emoji: "🦓", name: "그렙비얼말", latin: "Equus grevyi", class: "포유류", habitats: ["사바나"], diet: "초식", regions: ["아프리카"], size_m: 2.7, lifespan_y: 20, status: "위기", notes: "선명한 줄무늬가 개체 인식에 도움." },
+      { id: "hippo", emoji: "🦛", name: "하마", latin: "Hippopotamus amphibius", class: "포유류", habitats: ["강","호수"], diet: "초식", regions: ["아프리카"], size_m: 5.0, lifespan_y: 40, status: "취약", notes: "수중 생활에 적응, 강력한 턱." },
+      { id: "rhino", emoji: "🦏", name: "흰코뿔소", latin: "Ceratotherium simum", class: "포유류", habitats: ["사바나"], diet: "초식", regions: ["아프리카"], size_m: 4.2, lifespan_y: 40, status: "취약", notes: "코뿔은 케라틴으로 구성." },
+      { id: "camel", emoji: "🐪", name: "단봉낙타", latin: "Camelus dromedarius", class: "포유류", habitats: ["사막"], diet: "초식", regions: ["아프리카","아시아"], size_m: 3.0, lifespan_y: 40, status: "가축화", notes: "혹은 지방 저장고 역할." },
+      { id: "capybara", emoji: "🦫", name: "카피바라", latin: "Hydrochoerus hydrochaeris", class: "포유류", habitats: ["습지","강"], diet: "초식", regions: ["남아메리카"], size_m: 1.3, lifespan_y: 8, status: "관심필요", notes: "세계 최대 설치류, 사회적 무리." },
+      { id: "kangaroo", emoji: "🦘", name: "캥거루", latin: "Macropus spp.", class: "포유류", habitats: ["초원","관목지"], diet: "초식", regions: ["오세아니아"], size_m: 2.0, lifespan_y: 23, status: "관심필요", notes: "강한 뒷다리, 주머니 육아." },
+      { id: "otter", emoji: "🦦", name: "수달", latin: "Lutra lutra", class: "포유류", habitats: ["강","호수","해안"], diet: "육식", regions: ["유럽","아시아"], size_m: 1.2, lifespan_y: 16, status: "준위협", notes: "유영 능숙, 도구 사용 관찰됨." },
+      { id: "red-panda", emoji: "🦝", name: "레서판다", latin: "Ailurus fulgens", class: "포유류", habitats: ["산지","숲"], diet: "잡식", regions: ["아시아"], size_m: 0.6, lifespan_y: 14, status: "위기", notes: "대나무 선호, 긴 꼬리로 균형." },
+      { id: "bat", emoji: "🦇", name: "박쥐", latin: "Chiroptera", class: "포유류", habitats: ["동굴","숲"], diet: "잡식", regions: ["전세계"], size_m: 0.2, lifespan_y: 20, status: "다양", notes: "유일한 날수 있는 포유류." },
+
+      // Birds (조류)
+      { id: "eagle", emoji: "🦅", name: "독수리", latin: "Aquila chrysaetos", class: "조류", habitats: ["산지","절벽"], diet: "육식", regions: ["유럽","아시아","북아메리카"], size_m: 0.9, lifespan_y: 20, status: "관심필요", notes: "예리한 시각, 활공 비행." },
+      { id: "falcon", emoji: "🦅", name: "송골매", latin: "Falco peregrinus", class: "조류", habitats: ["도시","절벽"], diet: "육식", regions: ["전세계"], size_m: 0.5, lifespan_y: 15, status: "관심필요", notes: "낙하 속도 매우 빠름." },
+      { id: "owl", emoji: "🦉", name: "올빼미", latin: "Strigidae", class: "조류", habitats: ["숲"], diet: "육식", regions: ["전세계"], size_m: 0.6, lifespan_y: 12, status: "다양", notes: "야행성, 특수한 깃털로 조용한 비행." },
+      { id: "parrot", emoji: "🦜", name: "앵무새", latin: "Psittaciformes", class: "조류", habitats: ["열대림"], diet: "잡식", regions: ["오세아니아","남아메리카"], size_m: 0.9, lifespan_y: 50, status: "다양", notes: "의사소통 능력, 지능 높음." },
+      { id: "penguin", emoji: "🐧", name: "황제펭귄", latin: "Aptenodytes forsteri", class: "조류", habitats: ["극지","해안"], diet: "육식", regions: ["극지"], size_m: 1.3, lifespan_y: 20, status: "관심필요", notes: "장거리 잠영, 혹한 번식." },
+      { id: "swan", emoji: "🦢", name: "고니", latin: "Cygnus olor", class: "조류", habitats: ["호수","습지"], diet: "초식", regions: ["유럽","아시아"], size_m: 1.5, lifespan_y: 20, status: "관심필요", notes: "우아한 체형, 일부일처 경향." },
+      { id: "peacock", emoji: "🦚", name: "공작", latin: "Pavo cristatus", class: "조류", habitats: ["숲","정원"], diet: "잡식", regions: ["아시아"], size_m: 2.3, lifespan_y: 20, status: "관심필요", notes: "화려한 꼬리 깃으로 구애." },
+
+      // Reptiles (파충류)
+      { id: "crocodile", emoji: "🐊", name: "나일악어", latin: "Crocodylus niloticus", class: "파충류", habitats: ["강","늪"], diet: "육식", regions: ["아프리카"], size_m: 6.0, lifespan_y: 70, status: "관심필요", notes: "매복 사냥, 강한 턱." },
+      { id: "alligator", emoji: "🐊", name: "미시시피앨리게이터", latin: "Alligator mississippiensis", class: "파충류", habitats: ["늪","강"], diet: "육식", regions: ["북아메리카"], size_m: 4.5, lifespan_y: 50, status: "관심필요", notes: "원추형 이빨, 둥근 주둥이." },
+      { id: "komodo", emoji: "🦎", name: "코모도왕도마뱀", latin: "Varanus komodoensis", class: "파충류", habitats: ["건조림"], diet: "육식", regions: ["오세아니아"], size_m: 3.0, lifespan_y: 30, status: "위기", notes: "강력한 독성 침, 대형 도마뱀." },
+      { id: "python", emoji: "🐍", name: "비단뱀", latin: "Python molurus", class: "파충류", habitats: ["숲","습지"], diet: "육식", regions: ["아시아"], size_m: 5.0, lifespan_y: 25, status: "관심필요", notes: "굴식성, 압박으로 포획." },
+      { id: "cobra", emoji: "🐍", name: "코브라", latin: "Naja naja", class: "파충류", habitats: ["초원","농경지"], diet: "육식", regions: ["아시아"], size_m: 2.0, lifespan_y: 20, status: "관심필요", notes: "후드 펼침으로 경고." },
+      { id: "sea-turtle", emoji: "🐢", name: "푸른바다거북", latin: "Chelonia mydas", class: "파충류", habitats: ["해양","해안"], diet: "초식", regions: ["전세계"], size_m: 1.5, lifespan_y: 80, status: "취약", notes: "산란을 위해 모래사장 상륙." },
+      { id: "chameleon", emoji: "🦎", name: "카멜레온", latin: "Chamaeleonidae", class: "파충류", habitats: ["숲","관목지"], diet: "육식", regions: ["아프리카"], size_m: 0.6, lifespan_y: 8, status: "관심필요", notes: "색 변화와 독립적인 눈." },
+
+      // Amphibians (양서류)
+      { id: "frog", emoji: "🐸", name: "청개구리", latin: "Hyla japonica", class: "양서류", habitats: ["습지","숲"], diet: "육식", regions: ["아시아"], size_m: 0.05, lifespan_y: 6, status: "관심필요", notes: "흡착성 발가락으로 나무 오름." },
+      { id: "salamander", emoji: "🦎", name: "도롱뇽", latin: "Hynobiidae", class: "양서류", habitats: ["개울","습지"], diet: "육식", regions: ["아시아","유럽"], size_m: 0.2, lifespan_y: 10, status: "준위협", notes: "재생 능력, 수중 산란." },
+      { id: "axolotl", emoji: "🦎", name: "아홀로틀", latin: "Ambystoma mexicanum", class: "양서류", habitats: ["호수"], diet: "육식", regions: ["남아메리카"], size_m: 0.25, lifespan_y: 15, status: "위기", notes: "평생 유생형태 유지(네오테니)." },
+
+      // Fish (어류)
+      { id: "shark", emoji: "🦈", name: "백상아리", latin: "Carcharodon carcharias", class: "어류", habitats: ["해양"], diet: "육식", regions: ["전세계"], size_m: 6.0, lifespan_y: 70, status: "관심필요", notes: "상위 포식자, 전기수용." },
+      { id: "clownfish", emoji: "🐠", name: "흰동가리", latin: "Amphiprion ocellaris", class: "어류", habitats: ["산호초"], diet: "잡식", regions: ["오세아니아","아시아"], size_m: 0.11, lifespan_y: 6, status: "관심필요", notes: "말미잘 공생." },
+      { id: "betta", emoji: "🐟", name: "베타", latin: "Betta splendens", class: "어류", habitats: ["논","웅덩이"], diet: "육식", regions: ["아시아"], size_m: 0.07, lifespan_y: 5, status: "가축화", notes: "미로기관으로 산소 흡입." },
+      { id: "manta", emoji: "🛸", name: "만타가오리", latin: "Mobula birostris", class: "어류", habitats: ["해양"], diet: "플랑크톤", regions: ["전세계"], size_m: 7.0, lifespan_y: 50, status: "취약", notes: "큰 날개폭으로 우아한 유영." },
+
+      // Insects (곤충)
+      { id: "bee", emoji: "🐝", name: "꿀벌", latin: "Apis mellifera", class: "곤충", habitats: ["초원","정원"], diet: "꽃가루/꿀", regions: ["전세계"], size_m: 0.015, lifespan_y: 0.3, status: "관심필요", notes: "수분 매개, 복잡한 사회성." },
+      { id: "butterfly", emoji: "🦋", name: "나비", latin: "Papilionoidea", class: "곤충", habitats: ["숲","정원"], diet: "꿀", regions: ["전세계"], size_m: 0.08, lifespan_y: 0.1, status: "다양", notes: "완전변태, 화려한 날개." },
+      { id: "dragonfly", emoji: "🪰", name: "잠자리", latin: "Anisoptera", class: "곤충", habitats: ["습지","연못"], diet: "육식", regions: ["전세계"], size_m: 0.09, lifespan_y: 1, status: "관심필요", notes: "비행 기동성 높음." },
+      { id: "stag-beetle", emoji: "🪲", name: "사슴벌레", latin: "Lucanidae", class: "곤충", habitats: ["숲"], diet: "수액", regions: ["아시아","유럽"], size_m: 0.1, lifespan_y: 2, status: "관심필요", notes: "큰 낫 모양의 턱." },
+      { id: "mantis", emoji: "🦗", name: "사마귀", latin: "Mantodea", class: "곤충", habitats: ["초원","정원"], diet: "육식", regions: ["전세계"], size_m: 0.08, lifespan_y: 1, status: "관심필요", notes: "앞다리로 포획, 위장." },
+
+      // Bonus variety
+      { id: "sloth", emoji: "🦥", name: "나무늘보", latin: "Folivora", class: "포유류", habitats: ["열대림"], diet: "초식", regions: ["남아메리카"], size_m: 0.6, lifespan_y: 25, status: "관심필요", notes: "느린 대사, 하루 대부분 휴식." },
+      { id: "tapir", emoji: "🐗", name: "맥", latin: "Tapirus terrestris", class: "포유류", habitats: ["숲","습지"], diet: "초식", regions: ["남아메리카"], size_m: 2.0, lifespan_y: 25, status: "취약", notes: "짧은 코로 수중 식물 채집." },
+      { id: "bison", emoji: "🦬", name: "들소", latin: "Bison bison", class: "포유류", habitats: ["초원"], diet: "초식", regions: ["북아메리카"], size_m: 3.8, lifespan_y: 20, status: "관심필요", notes: "대규모 떼 이동." },
+      { id: "moose", emoji: "🦌", name: "말코손바닥사슴", latin: "Alces alces", class: "포유류", habitats: ["숲","습지"], diet: "초식", regions: ["유럽","북아메리카"], size_m: 3.2, lifespan_y: 20, status: "관심필요", notes: "큰 뿔, 수생식물 섭취." },
+      { id: "orca", emoji: "🐋", name: "범고래", latin: "Orcinus orca", class: "포유류", habitats: ["해양"], diet: "육식", regions: ["전세계"], size_m: 8.0, lifespan_y: 50, status: "다양", notes: "복잡한 사냥 전략." },
+      { id: "dolphin", emoji: "🐬", name: "돌고래", latin: "Delphinus delphis", class: "포유류", habitats: ["해양"], diet: "육식", regions: ["전세계"], size_m: 2.5, lifespan_y: 30, status: "관심필요", notes: "에코로케이션 사용." },
+      { id: "walrus", emoji: "🦭", name: "바다코끼리", latin: "Odobenus rosmarus", class: "포유류", habitats: ["해안","빙해"], diet: "육식", regions: ["극지"], size_m: 3.6, lifespan_y: 30, status: "관심필요", notes: "긴 엄니, 다수 무리." },
+      { id: "emu", emoji: "🦤", name: "에뮤", latin: "Dromaius novaehollandiae", class: "조류", habitats: ["초원"], diet: "잡식", regions: ["오세아니아"], size_m: 1.9, lifespan_y: 20, status: "관심필요", notes: "비행 불가, 빠른 달리기." },
+      { id: "toucan", emoji: "🐦", name: "투칸", latin: "Ramphastos toco", class: "조류", habitats: ["열대림"], diet: "잡식", regions: ["남아메리카"], size_m: 0.6, lifespan_y: 20, status: "관심필요", notes: "큰 부리로 과일 섭취." },
+      { id: "iguana", emoji: "🦎", name: "이구아나", latin: "Iguana iguana", class: "파충류", habitats: ["열대림"], diet: "초식", regions: ["남아메리카"], size_m: 2.0, lifespan_y: 20, status: "관심필요", notes: "태양열로 체온 조절." },
+      { id: "gecko", emoji: "🦎", name: "도마뱀붙이", latin: "Gekkonidae", class: "파충류", habitats: ["주거지","숲"], diet: "육식", regions: ["전세계"], size_m: 0.2, lifespan_y: 8, status: "관심필요", notes: "미세 구조 발바닥으로 부착." },
+      { id: "starfish", emoji: "⭐", name: "불가사리", latin: "Asteroidea", class: "극피동물", habitats: ["해양"], diet: "육식", regions: ["전세계"], size_m: 0.3, lifespan_y: 10, status: "관심필요", notes: "재생 능력, 수서." },
+      { id: "jellyfish", emoji: "🍥", name: "해파리", latin: "Scyphozoa", class: "자포동물", habitats: ["해양"], diet: "육식", regions: ["전세계"], size_m: 1.0, lifespan_y: 1, status: "관심필요", notes: "촉수와 자포로 포획." }
+    ];
+
+    const grid = document.getElementById('grid');
+    const searchInput = document.getElementById('searchInput');
+    const clearSearch = document.getElementById('clearSearch');
+    const sortSelect = document.getElementById('sortSelect');
+    const regionSelect = document.getElementById('regionSelect');
+    const resetBtn = document.getElementById('resetBtn');
+    const randomBtn = document.getElementById('randomBtn');
+    const detail = document.getElementById('detail');
+    const detailBody = document.getElementById('detailBody');
+    const chips = Array.from(document.querySelectorAll('.chip'));
+
+    let state = {
+      query: '',
+      classes: new Set(),
+      region: '',
+      sort: 'name-asc'
+    };
+
+    function renderCards(list) {
+      grid.innerHTML = '';
+      if (!list.length) {
+        const empty = document.createElement('div');
+        empty.style.gridColumn = '1/-1';
+        empty.style.padding = '24px';
+        empty.style.border = '1px dashed var(--border)';
+        empty.style.borderRadius = '12px';
+        empty.style.textAlign = 'center';
+        empty.innerHTML = '조건에 맞는 동물을 찾지 못했습니다. 필터를 조정해보세요.';
+        grid.appendChild(empty);
+        return;
+      }
+      for (const a of list) {
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('role', 'article');
+        card.setAttribute('aria-label', a.name);
+
+        const thumb = document.createElement('div');
+        thumb.className = 'thumb';
+        thumb.setAttribute('aria-hidden','true');
+        thumb.textContent = a.emoji;
+
+        const content = document.createElement('div');
+        content.className = 'content';
+
+        const name = document.createElement('div');
+        name.className = 'name';
+        name.innerHTML = `
+          <div>
+            <h3>${a.name}</h3>
+            <div class="latin">${a.latin}</div>
+          </div>
+          <span class="pill">${a.class}</span>
+        `;
+
+        const tags = document.createElement('div');
+        tags.className = 'tags';
+        const tagItems = [
+          { label: '서식지', value: a.habitats.join(', ') },
+          { label: '식성', value: a.diet },
+          { label: '지역', value: a.regions.join(', ') },
+          { label: '보전상태', value: a.status }
+        ];
+        tagItems.forEach(t => {
+          const el = document.createElement('span');
+          el.className = 'tag';
+          el.textContent = `${t.label}: ${t.value}`;
+          tags.appendChild(el);
+        });
+
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        meta.innerHTML = `
+          <div><span aria-hidden="true">📏</span> 최대 길이: ${a.size_m} m</div>
+          <div><span aria-hidden="true">⏳</span> 평균 수명: ${a.lifespan_y} 년</div>
+        `;
+
+        const cta = document.createElement('div');
+        cta.className = 'cta';
+        const left = document.createElement('div');
+        left.style.color = 'var(--muted)';
+        left.style.fontSize = '12px';
+        left.textContent = a.notes;
+
+        const more = document.createElement('button');
+        more.className = 'link primary';
+        more.textContent = '상세 보기';
+        more.addEventListener('click', () => openDetail(a));
+
+        cta.append(left, more);
+
+        content.append(name, tags, meta);
+        card.append(thumb, content, cta);
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') openDetail(a);
+        });
+
+        grid.appendChild(card);
+      }
+    }
+
+    function filterList() {
+      const q = state.query.trim().toLowerCase();
+      let list = animals.filter(a => {
+        const matchesQuery =
+          !q ||
+          a.name.toLowerCase().includes(q) ||
+          a.latin.toLowerCase().includes(q) ||
+          a.habitats.some(h => h.toLowerCase().includes(q)) ||
+          a.regions.some(r => r.toLowerCase().includes(q)) ||
+          a.diet.toLowerCase().includes(q) ||
+          a.class.toLowerCase().includes(q);
+
+        const matchesClass = state.classes.size === 0 || state.classes.has(a.class);
+        const matchesRegion = !state.region || a.regions.includes(state.region);
+        return matchesQuery && matchesClass && matchesRegion;
+      });
+
+      switch (state.sort) {
+        case 'name-asc': list.sort((x,y)=>x.name.localeCompare(y.name,'ko')); break;
+        case 'name-desc': list.sort((x,y)=>y.name.localeCompare(x.name,'ko')); break;
+        case 'size-asc': list.sort((x,y)=>x.size_m - y.size_m); break;
+        case 'size-desc': list.sort((x,y)=>y.size_m - x.size_m); break;
+        case 'lifespan-asc': list.sort((x,y)=>x.lifespan_y - y.lifespan_y); break;
+        case 'lifespan-desc': list.sort((x,y)=>y.lifespan_y - x.lifespan_y); break;
+      }
+
+      renderCards(list);
+    }
+
+    function openDetail(a) {
+      detailBody.innerHTML = `
+        <div class="detail-wrap">
+          <div>
+            <div class="detail-thumb" aria-hidden="true">${a.emoji}</div>
+            <div class="section">
+              <div class="pill">분류: ${a.class}</div>
+            </div>
+          </div>
+          <div>
+            <h2>${a.name}</h2>
+            <div class="latin">${a.latin}</div>
+
+            <div class="section">
+              <h3 style="margin:0 0 8px;">기본 정보</h3>
+              <ul style="margin:0; padding-left:18px;">
+                <li><strong>서식지:</strong> ${a.habitats.join(', ')}</li>
+                <li><strong>식성:</strong> ${a.diet}</li>
+                <li><strong>지역:</strong> ${a.regions.join(', ')}</li>
+                <li><strong>보전 상태:</strong> ${a.status}</li>
+                <li><strong>최대 길이:</strong> ${a.size_m} m</li>
+                <li><strong>평균 수명:</strong> ${a.lifespan_y} 년</li>
+              </ul>
+            </div>
+
+            <div class="section">
+              <h3 style="margin:0 0 8px;">특징 및 습성</h3>
+              <p style="margin:0; line-height:1.6;">
+                ${a.notes}
+              </p>
+            </div>
+
+            <div class="detail-actions">
+              <button class="btn primary" id="focusBtn">카드로 이동</button>
+              <button class="btn" id="copyBtn">정보 복사</button>
+            </div>
+          </div>
+        </div>
+      `;
+      detail.showModal();
+      const copyBtn = document.getElementById('copyBtn');
+      copyBtn?.addEventListener('click', () => {
+        const text = `${a.name} (${a.latin})
+- 분류: ${a.class}
+- 서식지: ${a.habitats.join(', ')}
+- 식성: ${a.diet}
+- 지역: ${a.regions.join(', ')}
+- 보전 상태: ${a.status}
+- 최대 길이: ${a.size_m} m
+- 평균 수명: ${a.lifespan_y} 년
+특징: ${a.notes}`;
+        navigator.clipboard?.writeText(text);
+        copyBtn.textContent = '복사 완료';
+        setTimeout(()=>copyBtn.textContent='정보 복사', 1200);
+      });
+      const focusBtn = document.getElementById('focusBtn');
+      focusBtn?.addEventListener('click', () => {
+        detail.close();
+        const idx = animals.findIndex(x=>x.id===a.id);
+        const card = grid.children[idx];
+        card?.focus();
+      });
+    }
+
+    // Event wiring
+    searchInput.addEventListener('input', (e) => {
+      state.query = e.target.value;
+      filterList();
+    });
+    clearSearch.addEventListener('click', () => {
+      searchInput.value = '';
+      state.query = '';
+      filterList();
+      searchInput.focus();
+    });
+    sortSelect.addEventListener('change', (e) => {
+      state.sort = e.target.value;
+      filterList();
+    });
+    regionSelect.addEventListener('change', (e) => {
+      state.region = e.target.value;
+      filterList();
+    });
+    chips.forEach(chip => {
+      const input = chip.querySelector('input');
+      chip.addEventListener('click', (e) => {
+        if (input) input.checked = !input.checked;
+        const val = chip.dataset.value;
+        if (input.checked) {
+          chip.classList.add('active');
+          state.classes.add(val);
+        } else {
+          chip.classList.remove('active');
+          state.classes.delete(val);
+        }
+        filterList();
+      });
+    });
+
+    resetBtn.addEventListener('click', () => {
+      // clear chips
+      chips.forEach(chip => {
+        const input = chip.querySelector('input');
+        if (input) input.checked = false;
+        chip.classList.remove('active');
+      });
+      state.classes.clear();
+      // clear search
+      searchInput.value = '';
+      state.query = '';
+      // reset selects
+      sortSelect.value = 'name-asc';
+      state.sort = 'name-asc';
+      regionSelect.value = '';
+      state.region = '';
+      filterList();
+    });
+
+    randomBtn.addEventListener('click', () => {
+      const list = grid.querySelectorAll('.card');
+      if (!list.length) return;
+      const i = Math.floor(Math.random() * list.length);
+      list[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      list[i].classList.add('pulse');
+      setTimeout(()=>list[i].classList.remove('pulse'), 1200);
+    });
+
+    // Keyboard shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (e.key === '/') {
+        e.preventDefault();
+        searchInput.focus();
+      } else if (e.key.toLowerCase() === 'r') {
+        randomBtn.click();
+      } else if (e.key === 'Escape' && detail.open) {
+        detail.close();
+      }
+    });
+
+    // Initial render
+    filterList();
+  </script>
+</body>
+</html>
+```
