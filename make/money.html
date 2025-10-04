@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>용돈 기입장 — 로컬 스토리지</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --fg: #1f2937;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --primary-fg: #ffffff;
+      --border: #e5e7eb;
+      --card: #ffffff;
+      --danger: #dc2626;
+      --success: #16a34a;
+      --warning: #d97706;
+      --input-bg: #ffffff;
+    }
+    [data-theme="dark"] {
+      --bg: #0b1220;
+      --fg: #e5e7eb;
+      --muted: #9ca3af;
+      --primary: #60a5fa;
+      --primary-fg: #0b1220;
+      --border: #1f2937;
+      --card: #111827;
+      --danger: #f87171;
+      --success: #34d399;
+      --warning: #f59e0b;
+      --input-bg: #0f172a;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      line-height: 1.5;
+      margin: 0;
+    }
+    header {
+      padding: 24px 16px 8px;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+    header h1 {
+      font-size: 1.75rem;
+      margin: 0 0 8px;
+    }
+    header p {
+      margin: 0;
+      color: var(--muted);
+    }
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 960px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .card h2 {
+      font-size: 1.2rem;
+      margin: 0 0 12px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .row .field { display: flex; flex-direction: column; gap: 6px; }
+    label { font-size: 0.85rem; color: var(--muted); }
+    input[type="text"], input[type="number"], input[type="date"], select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--input-bg);
+      color: var(--fg);
+      outline: none;
+    }
+    textarea { min-height: 60px; resize: vertical; }
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    button {
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--fg);
+      cursor: pointer;
+    }
+    button.primary {
+      background: var(--primary);
+      color: var(--primary-fg);
+      border-color: transparent;
+    }
+    button.danger { border-color: transparent; background: var(--danger); color: var(--primary-fg); }
+    button.success { border-color: transparent; background: var(--success); color: var(--primary-fg); }
+    button.warning { border-color: transparent; background: var(--warning); color: var(--primary-fg); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 720px) {
+      .summary { grid-template-columns: 1fr 1fr; }
+    }
+    .stat {
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card);
+    }
+    .stat .label { font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; }
+    .stat .value { font-size: 1.25rem; font-weight: 600; }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
+      background: var(--card);
+    }
+    thead th {
+      position: sticky; top: 0;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      padding: 10px;
+      font-size: 0.9rem;
+    }
+    tbody td {
+      border-top: 1px solid var(--border);
+      padding: 10px;
+      vertical-align: top;
+    }
+    tbody tr:hover { background: rgba(0,0,0,0.03); }
+    .tag {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      border: 1px solid var(--border);
+    }
+    .tag.income { color: var(--success); border-color: var(--success); }
+    .tag.expense { color: var(--danger); border-color: var(--danger); }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .toolbar .spacer { flex: 1; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--card);
+    }
+    .undo-banner {
+      margin-top: 8px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(22, 163, 74, 0.08);
+      border: 1px solid var(--success);
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer {
+      padding: 24px 16px 48px;
+      color: var(--muted);
+      text-align: center;
+    }
+    .hidden { display: none !important; }
+    .danger-text { color: var(--danger); }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>용돈 기입장</h1>
+    <p>당신의 돈이 지나가는 길을, 당신의 속도대로 기록하세요.</p>
+  </header>
+
+  <div class="container">
+    <div class="grid">
+      <section class="card">
+        <h2>새 내역 추가</h2>
+
+        <div class="row">
+          <div class="field" style="grid-column: span 3;">
+            <label for="date">날짜</label>
+            <input type="date" id="date" />
+          </div>
+          <div class="field" style="grid-column: span 5;">
+            <label for="title">항목</label>
+            <input type="text" id="title" placeholder="예: 편의점, 월급, 카페…" />
+          </div>
+          <div class="field" style="grid-column: span 4;">
+            <label for="category">카테고리</label>
+            <select id="category"></select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field" style="grid-column: span 3;">
+            <label for="type">유형</label>
+            <select id="type">
+              <option value="income">수입</option>
+              <option value="expense">지출</option>
+            </select>
+          </div>
+          <div class="field" style="grid-column: span 3;">
+            <label for="amount">금액</label>
+            <input type="number" id="amount" min="0" step="1" placeholder="숫자만 입력" />
+          </div>
+          <div class="field" style="grid-column: span 6;">
+            <label for="note">메모</label>
+            <input type="text" id="note" placeholder="선택사항" />
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" id="addBtn">내역 추가</button>
+          <button id="clearFormBtn">입력 초기화</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>설정 및 백업</h2>
+
+        <div class="row">
+          <div class="field" style="grid-column: span 6;">
+            <label for="startBalance">시작 잔액</label>
+            <input type="number" id="startBalance" step="1" />
+          </div>
+          <div class="field" style="grid-column: span 6;">
+            <label for="currency">통화 표기</label>
+            <select id="currency">
+              <option value="KRW">KRW (₩)</option>
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="JPY">JPY (¥)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field" style="grid-column: span 6;">
+            <label for="theme">테마</label>
+            <select id="theme">
+              <option value="light">라이트</option>
+              <option value="dark">다크</option>
+            </select>
+          </div>
+          <div class="field" style="grid-column: span 6;">
+            <label for="resetAll">전체 데이터 관리</label>
+            <div class="actions">
+              <button class="warning" id="exportBtn">JSON 내보내기</button>
+              <label class="pill" for="importFile">JSON 가져오기
+                <input type="file" id="importFile" accept="application/json" style="display:none;" />
+              </label>
+              <button class="danger" id="purgeBtn">모든 내역 삭제</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top: 16px;">
+      <h2>요약</h2>
+      <div class="summary">
+        <div class="stat">
+          <div class="label">총 수입</div>
+          <div class="value" id="sumIncome">₩0</div>
+        </div>
+        <div class="stat">
+          <div class="label">총 지출</div>
+          <div class="value" id="sumExpense">₩0</div>
+        </div>
+        <div class="stat">
+          <div class="label">현재 잔액</div>
+          <div class="value" id="currentBalance">₩0</div>
+        </div>
+        <div class="stat">
+          <div class="label">기록 건수</div>
+          <div class="value" id="entryCount">0</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top: 16px;">
+      <h2>내역</h2>
+
+      <div class="toolbar">
+        <div class="pill">
+          <label for="monthFilter">월</label>
+          <input type="month" id="monthFilter" />
+        </div>
+        <div class="pill">
+          <label for="categoryFilter">카테고리</label>
+          <select id="categoryFilter"></select>
+        </div>
+        <div class="pill">
+          <label for="typeFilter">유형</label>
+          <select id="typeFilter">
+            <option value="">전체</option>
+            <option value="income">수입</option>
+            <option value="expense">지출</option>
+          </select>
+        </div>
+        <div class="pill" style="flex:1;">
+          <label for="searchInput">검색</label>
+          <input type="text" id="searchInput" placeholder="항목/메모에서 검색" />
+        </div>
+        <div class="spacer"></div>
+        <button id="resetFilterBtn">필터 초기화</button>
+      </div>
+
+      <div class="undo-banner" id="undoBanner">
+        <span>내역을 삭제했습니다. 되돌리시겠어요?</span>
+        <div>
+          <button class="success" id="undoBtn">되돌리기</button>
+          <button id="dismissUndoBtn">닫기</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table id="ledgerTable" aria-describedby="summary">
+          <thead>
+            <tr>
+              <th data-sort="date">날짜</th>
+              <th data-sort="title">항목</th>
+              <th data-sort="category">카테고리</th>
+              <th data-sort="type">유형</th>
+              <th data-sort="amount">금액</th>
+              <th>메모</th>
+              <th>작업</th>
+            </tr>
+          </thead>
+          <tbody id="ledgerBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="footer">
+      <p class="mono">localStorage key: allowance_ledger_v1</p>
+      <p>작은 기록이 쌓이면, 당신의 선택이 선명해집니다.</p>
+    </section>
+  </div>
+
+  <script>
+    // --------- 데이터 키 및 기본값 ---------
+    const STORAGE_KEY = 'allowance_ledger_v1';
+    const SETTINGS_KEY = 'allowance_settings_v1';
+    const DEFAULT_CATEGORIES = [
+      '급여', '용돈', '장학금', '기타수입',
+      '식사', '카페/간식', '교통', '쇼핑', '여가', '구독',
+      '주거', '공과금', '교육', '의료', '기타지출'
+    ];
+
+    // --------- 상태 ---------
+    let state = {
+      entries: [],
+      settings: {
+        startBalance: 0,
+        currency: 'KRW',
+        theme: 'light'
+      },
+      sort: { key: 'date', dir: 'desc' },
+      lastDeleted: null,
+    };
+
+    // --------- 유틸 ---------
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const rawSettings = localStorage.getItem(SETTINGS_KEY);
+        state.entries = raw ? JSON.parse(raw) : [];
+        state.settings = rawSettings ? JSON.parse(rawSettings) : state.settings;
+      } catch (e) {
+        console.warn('데이터 로드 실패', e);
+        state.entries = [];
+      }
+    }
+    function saveEntries() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.entries));
+    }
+    function saveSettings() {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings));
+    }
+    function uid() {
+      return Math.random().toString(36).slice(2) + Date.now().toString(36);
+    }
+    function formatCurrency(value, currency) {
+      try {
+        const opts = { style: 'currency', currency, maximumFractionDigits: 0 };
+        // 일부 통화는 심볼 표시가 지역에 따라 다름. 한국 로케일 우선 적용.
+        return new Intl.NumberFormat('ko-KR', opts).format(value);
+      } catch {
+        // 폴백
+        const symbol = currency === 'KRW' ? '₩'
+                      : currency === 'USD' ? '$'
+                      : currency === 'EUR' ? '€'
+                      : currency === 'JPY' ? '¥' : '';
+        return symbol + String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      }
+    }
+    function parseIntSafe(v) {
+      const n = parseInt(v, 10);
+      return Number.isFinite(n) ? n : 0;
+    }
+    function todayISO() {
+      const d = new Date();
+      const iso = new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+      return iso;
+    }
+    function monthFromISO(iso) {
+      return iso?.slice(0,7); // YYYY-MM
+    }
+
+    // --------- DOM 참조 ---------
+    const dateEl = document.getElementById('date');
+    const titleEl = document.getElementById('title');
+    const categoryEl = document.getElementById('category');
+    const typeEl = document.getElementById('type');
+    const amountEl = document.getElementById('amount');
+    const noteEl = document.getElementById('note');
+    const addBtn = document.getElementById('addBtn');
+    const clearFormBtn = document.getElementById('clearFormBtn');
+
+    const startBalanceEl = document.getElementById('startBalance');
+    const currencyEl = document.getElementById('currency');
+    const themeEl = document.getElementById('theme');
+    const exportBtn = document.getElementById('exportBtn');
+    const importFileEl = document.getElementById('importFile');
+    const purgeBtn = document.getElementById('purgeBtn');
+
+    const sumIncomeEl = document.getElementById('sumIncome');
+    const sumExpenseEl = document.getElementById('sumExpense');
+    const currentBalanceEl = document.getElementById('currentBalance');
+    const entryCountEl = document.getElementById('entryCount');
+
+    const monthFilterEl = document.getElementById('monthFilter');
+    const categoryFilterEl = document.getElementById('categoryFilter');
+    const typeFilterEl = document.getElementById('typeFilter');
+    const searchInputEl = document.getElementById('searchInput');
+    const resetFilterBtn = document.getElementById('resetFilterBtn');
+
+    const ledgerBody = document.getElementById('ledgerBody');
+    const tableEl = document.getElementById('ledgerTable');
+
+    const undoBanner = document.getElementById('undoBanner');
+    const undoBtn = document.getElementById('undoBtn');
+    const dismissUndoBtn = document.getElementById('dismissUndoBtn');
+
+    // --------- 초기화 ---------
+    function initCategories() {
+      const cats = new Set(DEFAULT_CATEGORIES);
+      // 기존 엔트리의 카테고리도 병합
+      state.entries.forEach(e => { if (e.category) cats.add(e.category); });
+      categoryEl.innerHTML = '';
+      categoryFilterEl.innerHTML = '<option value="">전체</option>';
+      [...cats].forEach(c => {
+        const opt1 = document.createElement('option');
+        opt1.value = c; opt1.textContent = c;
+        categoryEl.appendChild(opt1);
+        const opt2 = document.createElement('option');
+        opt2.value = c; opt2.textContent = c;
+        categoryFilterEl.appendChild(opt2);
+      });
+    }
+
+    function applyTheme() {
+      document.documentElement.setAttribute('data-theme',
+        state.settings.theme === 'dark' ? 'dark' : 'light'
+      );
+    }
+
+    function initFormDefaults() {
+      dateEl.value = todayISO();
+      typeEl.value = 'expense';
+      amountEl.value = '';
+      noteEl.value = '';
+    }
+
+    function renderSummary(filtered = null) {
+      const entries = filtered ?? state.entries;
+      let income = 0, expense = 0;
+      entries.forEach(e => {
+        if (e.type === 'income') income += e.amount;
+        else expense += e.amount;
+      });
+      const balance = state.settings.startBalance + income - expense;
+      sumIncomeEl.textContent = formatCurrency(income, state.settings.currency);
+      sumExpenseEl.textContent = formatCurrency(expense, state.settings.currency);
+      currentBalanceEl.textContent = formatCurrency(balance, state.settings.currency);
+      entryCountEl.textContent = String(entries.length);
+    }
+
+    function sortEntries(entries) {
+      const { key, dir } = state.sort;
+      const sign = dir === 'asc' ? 1 : -1;
+      return [...entries].sort((a, b) => {
+        let va = a[key], vb = b[key];
+        if (key === 'amount') return (va - vb) * sign;
+        if (key === 'date') return (va.localeCompare(vb)) * sign;
+        return String(va).localeCompare(String(vb)) * sign;
+      });
+    }
+
+    function filterEntries() {
+      const month = monthFilterEl.value;
+      const cat = categoryFilterEl.value;
+      const typ = typeFilterEl.value;
+      const q = searchInputEl.value.trim().toLowerCase();
+
+      let list = state.entries.filter(e => {
+        if (month && monthFromISO(e.date) !== month) return false;
+        if (cat && e.category !== cat) return false;
+        if (typ && e.type !== typ) return false;
+        if (q) {
+          const hay = (e.title + ' ' + (e.note || '')).toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+      list = sortEntries(list);
+      return list;
+    }
+
+    function renderTable() {
+      const list = filterEntries();
+      renderSummary(list);
+      ledgerBody.innerHTML = '';
+      if (list.length === 0) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 7;
+        td.textContent = '내역이 없습니다.';
+        td.style.color = 'var(--muted)';
+        tr.appendChild(td);
+        ledgerBody.appendChild(tr);
+        return;
+      }
+      list.forEach(e => {
+        const tr = document.createElement('tr');
+        tr.dataset.id = e.id;
+
+        const tdDate = document.createElement('td');
+        tdDate.textContent = e.date;
+
+        const tdTitle = document.createElement('td');
+        tdTitle.textContent = e.title;
+
+        const tdCat = document.createElement('td');
+        tdCat.textContent = e.category;
+
+        const tdType = document.createElement('td');
+        const tag = document.createElement('span');
+        tag.className = 'tag ' + (e.type === 'income' ? 'income' : 'expense');
+        tag.textContent = e.type === 'income' ? '수입' : '지출';
+        tdType.appendChild(tag);
+
+        const tdAmount = document.createElement('td');
+        tdAmount.textContent = formatCurrency(e.amount, state.settings.currency);
+
+        const tdNote = document.createElement('td');
+        tdNote.textContent = e.note || '';
+
+        const tdActions = document.createElement('td');
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '편집';
+        const delBtn = document.createElement('button');
+        delBtn.classList.add('danger');
+        delBtn.textContent = '삭제';
+
+        editBtn.addEventListener('click', () => startEdit(e.id));
+        delBtn.addEventListener('click', () => deleteEntry(e.id));
+
+        tdActions.appendChild(editBtn);
+        tdActions.appendChild(delBtn);
+
+        tr.appendChild(tdDate);
+        tr.appendChild(tdTitle);
+        tr.appendChild(tdCat);
+        tr.appendChild(tdType);
+        tr.appendChild(tdAmount);
+        tr.appendChild(tdNote);
+        tr.appendChild(tdActions);
+
+        ledgerBody.appendChild(tr);
+      });
+    }
+
+    function startEdit(id) {
+      const e = state.entries.find(x => x.id === id);
+      if (!e) return;
+      // 폼에 로드
+      dateEl.value = e.date;
+      titleEl.value = e.title;
+      ensureCategoryOption(e.category);
+      categoryEl.value = e.category;
+      typeEl.value = e.type;
+      amountEl.value = e.amount;
+      noteEl.value = e.note || '';
+      // 버튼 상태 변경
+      addBtn.textContent = '수정 완료';
+      addBtn.classList.add('success');
+      addBtn.dataset.editing = id;
+    }
+
+    function cancelEdit() {
+      addBtn.textContent = '내역 추가';
+      addBtn.classList.remove('success');
+      delete addBtn.dataset.editing;
+      initFormDefaults();
+    }
+
+    function ensureCategoryOption(cat) {
+      if (!cat) return;
+      const exists = [...categoryEl.options].some(o => o.value === cat);
+      if (!exists) {
+        const opt1 = document.createElement('option');
+        opt1.value = cat; opt1.textContent = cat;
+        categoryEl.appendChild(opt1);
+        const opt2 = document.createElement('option');
+        opt2.value = cat; opt2.textContent = cat;
+        categoryFilterEl.appendChild(opt2);
+      }
+    }
+
+    function addOrUpdateEntry() {
+      const date = dateEl.value || todayISO();
+      const title = titleEl.value.trim();
+      const category = categoryEl.value;
+      const type = typeEl.value;
+      const amount = parseIntSafe(amountEl.value);
+      const note = noteEl.value.trim();
+
+      if (!title) {
+        alert('항목을 입력해주세요.');
+        return;
+      }
+      if (!category) {
+        alert('카테고리를 선택해주세요.');
+        return;
+      }
+      if (amount <= 0) {
+        alert('금액은 1 이상이어야 합니다.');
+        return;
+      }
+
+      const editingId = addBtn.dataset.editing;
+      if (editingId) {
+        // 업데이트
+        const idx = state.entries.findIndex(e => e.id === editingId);
+        if (idx >= 0) {
+          state.entries[idx] = { ...state.entries[idx], date, title, category, type, amount, note };
+          saveEntries();
+          cancelEdit();
+          renderTable();
+        }
+      } else {
+        // 추가
+        const entry = { id: uid(), date, title, category, type, amount, note };
+        state.entries.push(entry);
+        saveEntries();
+        initCategories();
+        renderTable();
+        initFormDefaults();
+      }
+    }
+
+    function deleteEntry(id) {
+      const idx = state.entries.findIndex(e => e.id === id);
+      if (idx < 0) return;
+      const [removed] = state.entries.splice(idx, 1);
+      state.lastDeleted = removed;
+      saveEntries();
+      renderTable();
+      // undo 표시
+      undoBanner.style.display = 'flex';
+      // 5초 후 자동 닫기
+      clearTimeout(undoBanner._timer);
+      undoBanner._timer = setTimeout(() => {
+        undoBanner.style.display = 'none';
+        state.lastDeleted = null;
+      }, 5000);
+    }
+
+    function undoDelete() {
+      if (!state.lastDeleted) return;
+      state.entries.push(state.lastDeleted);
+      state.lastDeleted = null;
+      saveEntries();
+      renderTable();
+      undoBanner.style.display = 'none';
+    }
+
+    function resetFilters() {
+      monthFilterEl.value = '';
+      categoryFilterEl.value = '';
+      typeFilterEl.value = '';
+      searchInputEl.value = '';
+      renderTable();
+    }
+
+    // --------- 정렬 헤더 ---------
+    function initSortHeader() {
+      const ths = tableEl.querySelectorAll('thead th[data-sort]');
+      ths.forEach(th => {
+        th.style.cursor = 'pointer';
+        th.addEventListener('click', () => {
+          const key = th.dataset.sort;
+          if (state.sort.key === key) {
+            state.sort.dir = state.sort.dir === 'asc' ? 'desc' : 'asc';
+          } else {
+            state.sort.key = key;
+            state.sort.dir = 'asc';
+          }
+          renderTable();
+          updateSortIndicators();
+        });
+      });
+      updateSortIndicators();
+    }
+    function updateSortIndicators() {
+      const ths = tableEl.querySelectorAll('thead th[data-sort]');
+      ths.forEach(th => {
+        const key = th.dataset.sort;
+        const is = state.sort.key === key;
+        th.textContent = th.textContent.replace(/[\u25B2\u25BC]\s*$/, '');
+        if (is) {
+          const arrow = state.sort.dir === 'asc' ? ' ▲' : ' ▼';
+          th.textContent = th.textContent + arrow;
+        }
+      });
+    }
+
+    // --------- 설정 핸들러 ---------
+    function applySettingsToUI() {
+      startBalanceEl.value = state.settings.startBalance;
+      currencyEl.value = state.settings.currency;
+      themeEl.value = state.settings.theme;
+      applyTheme();
+    }
+    startBalanceEl.addEventListener('change', () => {
+      state.settings.startBalance = parseIntSafe(startBalanceEl.value);
+      saveSettings(); renderTable();
+    });
+    currencyEl.addEventListener('change', () => {
+      state.settings.currency = currencyEl.value;
+      saveSettings(); renderTable();
+    });
+    themeEl.addEventListener('change', () => {
+      state.settings.theme = themeEl.value;
+      saveSettings(); applyTheme();
+    });
+
+    // --------- 백업/복구 ---------
+    exportBtn.addEventListener('click', () => {
+      const data = {
+        entries: state.entries,
+        settings: state.settings,
+        exportedAt: new Date().toISOString(),
+        version: 1
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const ts = new Date().toISOString().replace(/[:.]/g, '-');
+      a.download = `allowance_backup_${ts}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    importFileEl.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if (!data.entries || !Array.isArray(data.entries)) {
+          alert('잘못된 백업 파일입니다.');
+          return;
+        }
+        state.entries = data.entries.map(x => ({
+          id: x.id || uid(),
+          date: x.date,
+          title: x.title,
+          category: x.category,
+          type: x.type,
+          amount: parseIntSafe(x.amount),
+          note: x.note || ''
+        }));
+        if (data.settings) {
+          state.settings = {
+            startBalance: parseIntSafe(data.settings.startBalance),
+            currency: data.settings.currency || state.settings.currency,
+            theme: data.settings.theme || state.settings.theme
+          };
+        }
+        saveEntries(); saveSettings();
+        initCategories();
+        applySettingsToUI();
+        renderTable();
+        alert('가져오기가 완료되었습니다.');
+      } catch (err) {
+        console.error(err);
+        alert('가져오기에 실패했습니다.');
+      } finally {
+        importFileEl.value = '';
+      }
+    });
+
+    purgeBtn.addEventListener('click', () => {
+      const ok = confirm('정말 모든 내역을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');
+      if (!ok) return;
+      state.entries = [];
+      state.lastDeleted = null;
+      saveEntries();
+      renderTable();
+      alert('모든 내역을 삭제했습니다.');
+    });
+
+    // --------- 이벤트 바인딩 ---------
+    addBtn.addEventListener('click', addOrUpdateEntry);
+    clearFormBtn.addEventListener('click', () => {
+      cancelEdit();
+      titleEl.value = '';
+      amountEl.value = '';
+      noteEl.value = '';
+    });
+
+    monthFilterEl.addEventListener('change', renderTable);
+    categoryFilterEl.addEventListener('change', renderTable);
+    typeFilterEl.addEventListener('change', renderTable);
+    searchInputEl.addEventListener('input', () => {
+      // 입력시 debounce 없이 바로 반영
+      renderTable();
+    });
+    resetFilterBtn.addEventListener('click', resetFilters);
+
+    undoBtn.addEventListener('click', undoDelete);
+    dismissUndoBtn.addEventListener('click', () => {
+      undoBanner.style.display = 'none';
+      state.lastDeleted = null;
+    });
+
+    // --------- 시작 ---------
+    function bootstrap() {
+      loadState();
+      initCategories();
+      applySettingsToUI();
+      initFormDefaults();
+      renderTable();
+      initSortHeader();
+      // 초기 월 필터를 현재 월로 설정 (원하면 주석 해제)
+      // monthFilterEl.value = todayISO().slice(0,7);
+    }
+    bootstrap();
+  </script>
+</body>
+</html>
