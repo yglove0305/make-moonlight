@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>곤충 지식 도감 | Insect Knowledge Encyclopedia</title>
+  <meta name="description" content="대한민국을 포함한 다양한 지역의 곤충을 분류, 검색, 비교할 수 있는 웹 기반 지식 도감입니다." />
+  <meta name="color-scheme" content="light dark" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Ctext y='24' x='2' font-size='24'%3E%F0%9F%90%9B%3C/text%3E%3C/svg%3E">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #1a1a1a;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --primary-contrast: #ffffff;
+      --surface: #f3f4f6;
+      --border: #e5e7eb;
+      --accent: #10b981;
+      --card-bg: #ffffff;
+      --danger: #ef4444;
+      --warn: #f59e0b;
+      --ok: #10b981;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0b0f14;
+        --fg: #e5e7eb;
+        --muted: #9ca3af;
+        --primary: #60a5fa;
+        --primary-contrast: #0b0f14;
+        --surface: #0f141b;
+        --border: #1f2937;
+        --accent: #34d399;
+        --card-bg: #0f141b;
+      }
+    }
+    [data-theme="dark"] {
+      --bg: #0b0f14;
+      --fg: #e5e7eb;
+      --muted: #9ca3af;
+      --primary: #60a5fa;
+      --primary-contrast: #0b0f14;
+      --surface: #0f141b;
+      --border: #1f2937;
+      --accent: #34d399;
+      --card-bg: #0f141b;
+    }
+
+    /* Reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans KR, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1, h2, h3 { line-height: 1.25; margin: 0 0 .5rem; }
+    h4, h5, h6 { margin: .25rem 0; }
+    img { max-width: 100%; height: auto; border-radius: .5rem; }
+    button { cursor: pointer; }
+
+    /* Layout */
+    .container {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 1.25rem;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: .75rem 1rem;
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: .75rem;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+    .brand-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: grid; place-items: center;
+      background: radial-gradient(80% 80% at 20% 20%, #22c55e 0%, #16a34a 30%, #065f46 100%);
+      color: #fff; font-size: 22px;
+      box-shadow: 0 8px 24px rgba(34,197,94,.3);
+    }
+    .brand h1 { font-size: 1.25rem; margin: 0; }
+    .brand small { color: var(--muted); display: block; }
+
+    /* Controls */
+    .controls {
+      display: flex; gap: .5rem; align-items: center;
+    }
+    .searchbar {
+      display: flex; align-items: center; gap: .5rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: .75rem; padding: .5rem .75rem;
+      width: 100%;
+    }
+    .searchbar input {
+      flex: 1; border: none; outline: none;
+      background: transparent; color: var(--fg);
+      font-size: .95rem;
+    }
+    .chip {
+      display: inline-flex; align-items: center;
+      gap: .35rem; padding: .25rem .5rem;
+      border-radius: 999px; border: 1px solid var(--border);
+      background: var(--surface); color: var(--muted); font-size: .85rem;
+    }
+    .btn {
+      padding: .5rem .75rem; border-radius: .5rem;
+      border: 1px solid var(--border);
+      background: var(--card-bg); color: var(--fg);
+    }
+    .btn.primary {
+      background: var(--primary);
+      border-color: transparent;
+      color: var(--primary-contrast);
+    }
+    .btn.ghost {
+      background: transparent;
+      border-color: var(--border);
+    }
+    .toggle {
+      display: inline-flex; gap: .5rem; align-items: center;
+      border: 1px solid var(--border); border-radius: 999px;
+      padding: .25rem .5rem; color: var(--muted);
+    }
+
+    /* Sidebar */
+    aside {
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      border-radius: .75rem;
+      padding: .75rem;
+      position: sticky;
+      top: 84px;
+      height: calc(100vh - 96px);
+      overflow: auto;
+    }
+    .filter-group {
+      margin-bottom: 1rem;
+      padding-bottom: .75rem;
+      border-bottom: 1px dashed var(--border);
+    }
+    .filter-group:last-child { border-bottom: none; }
+    .filter-title { font-weight: 600; margin-bottom: .5rem; }
+    .filter-list { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .filter-list .chip { user-select: none; }
+    .filter-list .chip.active {
+      background: var(--accent);
+      color: #05323b;
+      border-color: transparent;
+      font-weight: 600;
+    }
+    .range { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .5rem; }
+    .range input { width: 100%; }
+    .small-muted { color: var(--muted); font-size: .85rem; }
+
+    /* Main grid */
+    main {
+      display: grid; gap: 1rem;
+      grid-template-rows: auto auto 1fr;
+    }
+    .section {
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      border-radius: .75rem;
+      padding: .75rem;
+    }
+    .section-title {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: .5rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: .75rem;
+    }
+    @media (max-width: 1024px) {
+      .container { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 640px) {
+      .grid { grid-template-columns: 1fr; }
+      .header-inner { grid-template-columns: 1fr; }
+    }
+
+    /* Cards */
+    .card {
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      border-radius: .75rem;
+      overflow: hidden;
+      display: grid; grid-template-rows: auto auto 1fr auto;
+    }
+    .card-header {
+      display: grid; grid-template-columns: 60px 1fr auto; gap: .5rem;
+      align-items: center; padding: .5rem .75rem;
+      border-bottom: 1px dashed var(--border);
+      background: linear-gradient(180deg, var(--surface), transparent);
+    }
+    .emoji {
+      width: 60px; height: 60px; border-radius: .5rem;
+      display: grid; place-items: center;
+      font-size: 32px;
+      background: radial-gradient(90% 90% at 20% 20%, #fde68a 0%, #fbbf24 35%, #f59e0b 100%);
+    }
+    .title {
+      display: flex; flex-direction: column;
+    }
+    .title h3 { margin: 0; }
+    .title small { color: var(--muted); }
+    .status {
+      display: inline-flex; align-items: center; gap: .25rem;
+      padding: .25rem .5rem; border-radius: .5rem; font-size: .8rem;
+      border: 1px solid var(--border); background: var(--surface); color: var(--muted);
+    }
+    .status.ok { color: var(--ok); border-color: var(--ok + 10%); }
+    .status.warn { color: var(--warn); }
+    .status.danger { color: var(--danger); }
+
+    .card-body {
+      padding: .75rem;
+      display: grid; gap: .5rem;
+    }
+    .meta {
+      display: grid; grid-template-columns: 1fr 1fr; gap: .5rem;
+    }
+    .meta-item {
+      display: flex; gap: .5rem; align-items: baseline;
+      border: 1px dashed var(--border); border-radius: .5rem;
+      padding: .5rem;
+    }
+    .meta-item b { color: var(--muted); font-weight: 600; width: 90px; flex-shrink: 0; }
+    .tags { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .tag {
+      font-size: .8rem; padding: .25rem .45rem; border-radius: 999px;
+      background: var(--surface); border: 1px solid var(--border);
+    }
+    .card-footer {
+      padding: .5rem .75rem; border-top: 1px dashed var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .actions { display: flex; gap: .5rem; }
+    .like-btn[data-liked="true"] { color: var(--danger); }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,.4);
+      display: none; align-items: center; justify-content: center; z-index: 100;
+    }
+    .modal {
+      width: min(760px, 92vw);
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: .75rem;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: .75rem 1rem; border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .modal-body { padding: 1rem; display: grid; gap: .75rem; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+    @media (max-width: 640px) { .detail-grid { grid-template-columns: 1fr; } }
+    .detail-section { border: 1px dashed var(--border); border-radius: .5rem; padding: .75rem; }
+    .close-x { font-size: 1.25rem; }
+
+    /* Footer */
+    footer {
+      margin-top: 1rem; padding: 1rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* Utility */
+    .visually-hidden {
+      position: absolute !important;
+      height: 1px; width: 1px;
+      overflow: hidden; clip: rect(1px, 1px, 1px, 1px);
+      white-space: nowrap;
+    }
+    .pill { border-radius: 999px; padding: .15rem .5rem; }
+    .pill.green { background: rgba(16,185,129,.12); color: var(--ok); border: 1px solid rgba(16,185,129,.25); }
+    .pill.orange { background: rgba(245,158,11,.12); color: var(--warn); border: 1px solid rgba(245,158,11,.25); }
+    .pill.red { background: rgba(239,68,68,.12); color: var(--danger); border: 1px solid rgba(239,68,68,.25); }
+  </style>
+</head>
+<body>
+  <header role="banner" aria-label="사이트 헤더">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">🐛</div>
+        <div>
+          <h1>곤충 지식 도감</h1>
+          <small>검색·분류·비교로 배우는 자연 도감</small>
+        </div>
+      </div>
+      <div class="searchbar" role="search">
+        <span aria-hidden="true">🔎</span>
+        <label for="search" class="visually-hidden">곤충 검색</label>
+        <input id="search" type="search" placeholder="이름, 학명, 분류(나비목), 서식지(논·산지), 특징(완전변태) 등으로 검색…" autocomplete="off" />
+        <button class="btn ghost" id="clearSearch" aria-label="검색 지우기">지우기</button>
+      </div>
+      <div class="controls">
+        <button class="btn" id="randomBtn" aria-label="무작위 곤충 보기">🎲 무작위</button>
+        <button class="btn primary" id="exportBtn" aria-label="필터 결과 내보내기">⤴️ 내보내기</button>
+        <div class="toggle" id="themeToggle" role="switch" aria-checked="false" tabindex="0">
+          <span aria-hidden="true">🌗</span>
+          <span>라이트/다크</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container" id="layout">
+    <aside aria-label="필터 사이드바">
+      <div class="filter-group">
+        <div class="filter-title">분류(목)</div>
+        <div class="filter-list" id="filterOrder">
+          <button class="chip" data-filter-order="나비목">나비목</button>
+          <button class="chip" data-filter-order="딱정벌레목">딱정벌레목</button>
+          <button class="chip" data-filter-order="매미목">매미목</button>
+          <button class="chip" data-filter-order="파리목">파리목</button>
+          <button class="chip" data-filter-order="벌목">벌목</button>
+          <button class="chip" data-filter-order="메뚜기목">메뚜기목</button>
+          <button class="chip" data-filter-order="바퀴목">바퀴목</button>
+          <button class="chip" data-filter-order="잠자리목">잠자리목</button>
+          <button class="chip" data-filter-order="사마귀목">사마귀목</button>
+          <button class="chip" data-filter-order="노린재목">노린재목</button>
+        </div>
+        <div class="small-muted">여러 개 선택 가능</div>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-title">서식지</div>
+        <div class="filter-list" id="filterHabitat">
+          <button class="chip" data-filter-habitat="산지">산지</button>
+          <button class="chip" data-filter-habitat="농경지">농경지</button>
+          <button class="chip" data-filter-habitat="도심">도심</button>
+          <button class="chip" data-filter-habitat="습지">습지</button>
+          <button class="chip" data-filter-habitat="하천">하천</button>
+          <button class="chip" data-filter-habitat="해안">해안</button>
+          <button class="chip" data-filter-habitat="정원">정원</button>
+          <button class="chip" data-filter-habitat="초지">초지</button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-title">먹이</div>
+        <div class="filter-list" id="filterDiet">
+          <button class="chip" data-filter-diet="초식">초식</button>
+          <button class="chip" data-filter-diet="육식">육식</button>
+          <button class="chip" data-filter-diet="잡식">잡식</button>
+          <button class="chip" data-filter-diet="흡즙">흡즙</button>
+          <button class="chip" data-filter-diet="포식성">포식성</button>
+          <button class="chip" data-filter-diet="부식성">부식성</button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-title">몸길이(mm)</div>
+        <div class="range">
+          <input type="range" id="sizeMin" min="1" max="120" value="1" />
+          <span id="sizeMinLabel" class="small-muted">최소: 1</span>
+        </div>
+        <div class="range">
+          <input type="range" id="sizeMax" min="1" max="120" value="120" />
+          <span id="sizeMaxLabel" class="small-muted">최대: 120</span>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-title">보전 상태</div>
+        <div class="filter-list" id="filterStatus">
+          <button class="chip" data-filter-status="관심대상">관심대상</button>
+          <button class="chip" data-filter-status="준위협">준위협</button>
+          <button class="chip" data-filter-status="취약">취약</button>
+          <button class="chip" data-filter-status="위기">위기</button>
+          <button class="chip" data-filter-status="미평가">미평가</button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-title">변태 유형</div>
+        <div class="filter-list" id="filterMetamorphosis">
+          <button class="chip" data-filter-meta="완전변태">완전변태</button>
+          <button class="chip" data-filter-meta="불완전변태">불완전변태</button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-title">정렬</div>
+        <div class="filter-list">
+          <button class="chip" data-sort="name">이름</button>
+          <button class="chip" data-sort="size">몸길이</button>
+          <button class="chip" data-sort="order">분류(목)</button>
+          <button class="chip" data-sort="status">보전 상태</button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <button class="btn ghost" id="resetFilters">필터 초기화</button>
+      </div>
+
+      <div class="small-muted">
+        필터와 검색은 교집합으로 적용됩니다. 결과가 없으면 조건을 완화해보세요.
+      </div>
+    </aside>
+
+    <main aria-live="polite">
+      <section class="section" aria-label="요약 정보">
+        <div class="section-title">
+          <h2>요약</h2>
+          <div class="chips">
+            <span class="chip" id="countChip">총 0종</span>
+            <span class="chip" id="activeFiltersChip">활성 필터 0개</span>
+            <span class="chip" id="likedChip">즐겨찾기 0개</span>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-item">
+            <b>검색어</b>
+            <span id="queryEcho" class="small-muted">없음</span>
+          </div>
+          <div class="meta-item">
+            <b>정렬</b>
+            <span id="sortEcho" class="small-muted">이름</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-label="알파벳 색인">
+        <div class="section-title">
+          <h2>색인</h2>
+          <div class="actions">
+            <button class="btn ghost" id="indexPrev">◀ 이전</button>
+            <button class="btn ghost" id="indexNext">다음 ▶</button>
+          </div>
+        </div>
+        <div class="filter-list" id="alphabetIndex">
+          <!-- 동적 생성 -->
+        </div>
+      </section>
+
+      <section class="section" aria-label="결과 목록">
+        <div class="section-title">
+          <h2>결과</h2>
+          <div class="small-muted" id="resultHint">필터에 맞는 곤충이 표시됩니다.</div>
+        </div>
+        <div class="grid" id="cardGrid">
+          <!-- 카드 동적 생성 -->
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- 상세 모달 -->
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <div>
+          <h3 id="modalTitle">상세 정보</h3>
+          <small id="modalSubtitle" class="small-muted">학명</small>
+        </div>
+        <button class="btn ghost close-x" id="modalClose" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-grid">
+          <div class="detail-section">
+            <h4>기본 정보</h4>
+            <div class="meta">
+              <div class="meta-item">
+                <b>분류(목)</b><span id="detailOrder"></span>
+              </div>
+              <div class="meta-item">
+                <b>보전 상태</b><span id="detailStatus"></span>
+              </div>
+              <div class="meta-item">
+                <b>변태 유형</b><span id="detailMeta"></span>
+              </div>
+              <div class="meta-item">
+                <b>몸길이</b><span id="detailSize"></span>
+              </div>
+            </div>
+          </div>
+          <div class="detail-section">
+            <h4>생태</h4>
+            <div class="meta">
+              <div class="meta-item">
+                <b>서식지</b><span id="detailHabitat"></span>
+              </div>
+              <div class="meta-item">
+                <b>먹이</b><span id="detailDiet"></span>
+              </div>
+              <div class="meta-item">
+                <b>활동 시기</b><span id="detailSeason"></span>
+              </div>
+              <div class="meta-item">
+                <b>분포</b><span id="detailRange"></span>
+              </div>
+            </div>
+          </div>
+          <div class="detail-section">
+            <h4>특징</h4>
+            <p id="detailNotes" class="small-muted"></p>
+            <div class="tags" id="detailTags"></div>
+          </div>
+          <div class="detail-section">
+            <h4>관찰 팁</h4>
+            <ul id="detailTips">
+              <!-- 동적 -->
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer" style="border-top: 1px solid var(--border);">
+        <div class="actions">
+          <button class="btn" id="copyLinkBtn">🔗 링크 복사</button>
+          <button class="btn" id="printBtn">🖨️ 인쇄</button>
+        </div>
+        <div>
+          <button class="btn primary" id="likeInModal">❤️ 즐겨찾기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 2025 곤충 지식 도감. 교육·취미 목적의 공개 데이터 예시. 현장 관찰 시 생태를 존중해주세요.
+  </footer>
+
+  <script>
+    // 데이터 정의: 한국 및 주변 지역에서 자주 언급되는 대표 예시
+    const INSECTS = [
+      {
+        id: "papilio-xuthus",
+        emoji: "🦋",
+        nameKo: "호랑나비",
+        nameEn: "Asian Swallowtail",
+        sci: "Papilio xuthus",
+        order: "나비목",
+        status: "관심대상",
+        meta: "완전변태",
+        sizeMm: 80,
+        habitat: ["산지", "정원", "농경지"],
+        diet: ["초식", "흡밀"], // 애벌레=초식, 성충=흡밀
+        season: "4–9월",
+        range: "한반도 전역, 동아시아",
+        notes: "날개의 노란 바탕과 검은 무늬, 후익의 꼬리 모양이 특징. 산초류를 선호하는 애벌레.",
+        tags: ["나비", "접형(제비나비)", "날개무늬"],
+        tips: [
+          "맑은 날 낮 시간대 꽃 주변 관찰",
+          "산초나무(황칠, 탱자) 근처에 애벌레 흔적 확인",
+          "따뜻한 남향 산비탈에서 활동이 활발"
+        ]
+      },
+      {
+        id: "graphium-sarpedon",
+        emoji: "🦋",
+        nameKo: "초록제비나비",
+        nameEn: "Common Bluebottle",
+        sci: "Graphium sarpedon",
+        order: "나비목",
+        status: "관심대상",
+        meta: "완전변태",
+        sizeMm: 70,
+        habitat: ["산지", "정원", "하천"],
+        diet: ["흡밀"],
+        season: "4–10월",
+        range: "남부 해안, 제주, 동아시아",
+        notes: "날개 중앙의 청록색 띠가 연속적으로 이어진다. 빠른 비행.",
+        tags: ["제비나비", "청록 띠", "빠른 비행"],
+        tips: [
+          "습한 하천변의 물웅덩이에서 미네랄 흡수 행동 관찰",
+          "맑은 날 나풀거리는 비행 경로 예측 어려움"
+        ]
+      },
+      {
+        id: "agrias",
+        emoji: "🦋",
+        nameKo: "제비나비류(예시)",
+        nameEn: "Swallowtail Family",
+        sci: "Papilionidae sp.",
+        order: "나비목",
+        status: "미평가",
+        meta: "완전변태",
+        sizeMm: 60,
+        habitat: ["산지", "정원"],
+        diet: ["흡밀"],
+        season: "5–9월",
+        range: "동아시아",
+        notes: "제비나비과 전반의 예시 항목.",
+        tags: ["분류 예시"],
+        tips: ["관찰 기록용 예시"]
+      },
+      {
+        id: "vespa-mandarinia",
+        emoji: "🐝",
+        nameKo: "장수말벌",
+        nameEn: "Asian Giant Hornet",
+        sci: "Vespa mandarinia",
+        order: "벌목",
+        status: "관심대상",
+        meta: "완전변태",
+        sizeMm: 45,
+        habitat: ["산지", "초지"],
+        diet: ["육식", "포식성"],
+        season: "5–10월",
+        range: "한반도 남부, 동아시아",
+        notes: "큰 체격과 강한 턱. 말벌류 중 최대급.",
+        tags: ["말벌", "포식", "경계 필요"],
+        tips: [
+          "위협하지 말고 거리를 유지",
+          "둥지 주변 접근 금지",
+          "향기가 강한 음식은 야외에서 가림"
+        ]
+      },
+      {
+        id: "apis-cerana",
+        emoji: "🐝",
+        nameKo: "토종꿀벌",
+        nameEn: "Asian Honey Bee",
+        sci: "Apis cerana",
+        order: "벌목",
+        status: "관심대상",
+        meta: "완전변태",
+        sizeMm: 12,
+        habitat: ["농경지", "정원", "산지"],
+        diet: ["흡밀"],
+        season: "3–11월",
+        range: "한반도 전역",
+        notes: "꽃가루받이 핵심 곤충. 군체 생활.",
+        tags: ["벌목", "꿀채집", "수분매개"],
+        tips: [
+          "꽃이 풍부한 시간대에 관찰",
+          "군체 근처에서는 조용히 이동"
+        ]
+      },
+      {
+        id: "coccinella-septempunctata",
+        emoji: "🐞",
+        nameKo: "무당벌레(칠성무당벌레)",
+        nameEn: "Seven-spot Ladybird",
+        sci: "Coccinella septempunctata",
+        order: "딱정벌레목",
+        status: "관심대상",
+        meta: "완전변태",
+        sizeMm: 7,
+        habitat: ["농경지", "정원", "초지"],
+        diet: ["육식", "포식성"], // 진딧물 포식
+        season: "3–11월",
+        range: "한반도 전역",
+        notes: "붉은 등판에 검은 점 7개. 진딧물 천적.",
+        tags: ["천적곤충", "생물학적방제"],
+        tips: [
+          "작물 잎 뒷면에서 진딧물과 함께 탐색",
+          "초봄·늦가을에도 관찰 가능"
+        ]
+      },
+      {
+        id: "dynastes-neptunus",
+        emoji: "🪲",
+        nameKo: "장수풍뎅이(예시)",
+        nameEn: "Rhinoceros Beetle",
+        sci: "Trypoxylus dichotomus",
+        order: "딱정벌레목",
+        status: "관심대상",
+        meta: "완전변태",
+        sizeMm: 40,
+        habitat: ["산지", "정원"],
+        diet: ["부식성", "흡밀"], // 유충=부식, 성충=수액
+        season: "6–9월",
+        range: "한반도 남부",
+        notes: "수액을 좋아하고 밤에 활동적.",
+        tags: ["풍뎅이", "수액성"],
+        tips: [
+          "밤에 수액나무 주변 확인",
+          "빛에 모여드는 습성 활용"
+        ]
+      },
+      {
+        id: "vespa-velutina",
+        emoji: "🐝",
+        nameKo: "등검은말벌",
+        nameEn: "Asian Yellow-legged Hornet",
+        sci: "Vespa velutina",
+        order: "벌목",
+        status: "관심대상",
+        meta: "완전변태",
+        sizeMm: 25,
+        habitat: ["도심", "정원", "산지"],
+        diet: ["육식", "포식성"],
+        season: "5–10월",
+        range: "한반도 일부, 도심 확산",
+        notes: "등이 검고 다리 끝이 노란색.",
+        tags: ["말벌", "포식성", "도심 확산"],
+        tips: [
+          "도심 공원에서도 관찰 가능",
+          "꿀벌 군체 주변에서 잠시 머물러 포식"
+        ]
+      },
+      {
+        id: "heptapotamon",
+        emoji: "🪰",
+        nameKo: "집파리",
+        nameEn: "Housefly",
+        sci: "Musca domestica",
+        order: "파리목",
+        status: "관심대상",
+        meta: "완전변태",
+        sizeMm: 6,
+        habitat: ["도심", "농경지"],
+        diet: ["잡식"],
+        season: "연중",
+        range: "전세계",
+        notes: "인간 생활권에 흔함.",
+        tags: ["위생곤충", "생활권"],
+        tips: [
+          "더운 계절에 활동 증가",
+          "쓰레기 관리가 관찰 밀도에 영향"
+        ]
+      },
+      {
+        id: "aedes-albopictus",
+        emoji: "🦟",
+        nameKo: "빗살무늬모기",
+        nameEn: "Asian Tiger Mosquito",
+        sci: "Aedes albopictus",
+        order: "파리목",
+        status: "관심대상",
+        meta: "완전변태",
+        sizeMm: 4,
+        habitat: ["도심", "습지"],
+        diet: ["흡혈", "흡밀"],
+        season: "5–10월",
+        range: "한반도 전역",
+        notes: "검은 몸에 흰 줄무늬. 인근 물웅덩이 번식.",
+        tags: ["모기", "도심", "위생"],
+        tips: [
+          "고인 물 제거가 개체수 감소에 효과",
+          "이른 아침·해질녘에 활동"
+        ]
+      },
+      {
+        id: "mantis-tenodera",
+        emoji: "🦗",
+        nameKo: "왕사마귀",
+        nameEn: "Chinese Mantis",
+        sci: "Tenodera sinensis",
+        order: "사마귀목",
+        status: "관심대상",
+        meta: "불완전변태",
+        sizeMm: 80,
+        habitat: ["초지", "정원"],
+        diet: ["육식", "포식성"],
+        season: "6–10월",
+        range: "한반도 전역",
+        notes: "삼각형 머리와 집게형 앞다리가 특징.",
+        tags: ["포식자", "위장"],
+        tips: [
+          "키 큰 풀 사이에서 대기 포식",
+          "가을에 난포(난괴) 관찰 가능"
+        ]
+      },
+      {
+        id: "locusta-migratoria",
+        emoji: "🦗",
+        nameKo: "메뚜기(어리연두)",
+        nameEn: "Migratory Locust (example)",
+        sci: "Locusta migratoria",
+        order: "메뚜기목",
+        status: "관심대상",
+        meta: "불완전변태",
+        sizeMm: 40,
+        habitat: ["초지", "농경지"],
+        diet: ["초식"],
+        season: "5–10월",
+        range: "한반도",
+        notes: "강한 뒷다리, 점프와 비행.",
+        tags: ["메뚜기", "초식"],
+        tips: [
+          "햇볕 드는 초지에서 활동",
+          "풀 베기 이전 시기에 밀도 높음"
+        ]
+      },
+      {
+        id: "periplaneta",
+        emoji: "🪳",
+        nameKo: "바퀴벌레(예시)",
+        nameEn: "Cockroach",
+        sci: "Periplaneta sp.",
+        order: "바퀴목",
+        status: "관심대상",
+        meta: "불완전변태",
+        sizeMm: 30,
+        habitat: ["도심"],
+        diet: ["잡식", "부식성"],
+        season: "연중",
+        range: "전세계",
+        notes: "야행성, 어두운 곳 선호.",
+        tags: ["도심", "야행성"],
+        tips: [
+          "서식처는 습하고 따뜻한 곳",
+          "청결 유지가 관찰 빈도에 영향"
+        ]
+      },
+      {
+        id: "platycnemis-pennipes",
+        emoji: "🧚",
+        nameKo: "실잠자리(예시)",
+        nameEn: "Damselfly",
+        sci: "Coenagrionidae sp.",
+        order: "잠자리목",
+        status: "관심대상",
+        meta: "불완전변태",
+        sizeMm: 35,
+        habitat: ["하천", "습지"],
+        diet: ["육식", "포식성"],
+        season: "5–9월",
+        range: "한반도",
+        notes: "가늘고 우아한 몸, 합쳐진 날개.",
+        tags: ["잠자리", "수서곤충"],
+        tips: [
+          "맑은 물가 식생 주변 정지 포식 관찰",
+          "햇살 좋은 시간대 활발"
+        ]
+      },
+      {
+        id: "anisoptera",
+        emoji: "🧚",
+        nameKo: "잠자리(왕잠자리 예시)",
+        nameEn: "Dragonfly",
+        sci: "Anisoptera sp.",
+        order: "잠자리목",
+        status: "관심대상",
+        meta: "불완전변태",
+        sizeMm: 70,
+        habitat: ["하천", "습지"],
+        diet: ["육식", "포식성"],
+        season: "5–10월",
+        range: "한반도",
+        notes: "강한 비행, 수서 유충.",
+        tags: ["포식자", "수질지표"],
+        tips: [
+          "하천변 개활지에서 사냥 비행 관찰",
+          "해질녘 활동 증가"
+        ]
+      },
+      {
+        id: "cicadidae",
+        emoji: "🪵",
+        nameKo: "매미(말매미 예시)",
+        nameEn: "Cicada",
+        sci: "Cicada sp.",
+        order: "매미목",
+        status: "관심대상",
+        meta: "불완전변태",
+        sizeMm: 35,
+        habitat: ["도심", "산지"],
+        diet: ["흡즙"],
+        season: "6–9월",
+        range: "한반도",
+        notes: "울음소리로 종 구분 가능.",
+        tags: ["매미", "여름"],
+        tips: [
+          "나무줄기에 앉아 흡즙",
+          "소리 따라 위치 파악"
+        ]
+      },
+      {
+        id: "shield-bug",
+        emoji: "🛡️",
+        nameKo: "노린재(광대노린재 예시)",
+        nameEn: "Shield Bug",
+        sci: "Pentatomidae sp.",
+        order: "노린재목",
+        status: "관심대상",
+        meta: "불완전변태",
+        sizeMm: 12,
+        habitat: ["농경지", "정원", "초지"],
+        diet: ["흡즙"],
+        season: "4–10월",
+        range: "한반도",
+        notes: "방패 모양의 몸체. 일부는 냄새 분비.",
+        tags: ["노린재", "흡즙"],
+        tips: [
+          "작물에서 흡즙 흔적 관찰",
+          "성충·약충 공존 시기 주의"
+        ]
+      },
+      {
+        id: "firefly",
+        emoji: "✨",
+        nameKo: "반딧불이(예시)",
+        nameEn: "Firefly",
+        sci: "Lampyridae sp.",
+        order: "딱정벌레목",
+        status: "준위협",
+        meta: "완전변태",
+        sizeMm: 10,
+        habitat: ["습지", "하천"],
+        diet: ["육식"], // 유충 포식성이 뚜렷
+        season: "6–7월",
+        range: "한반도 일부",
+        notes: "복부 발광 기관. 청정 수역에 많음.",
+        tags: ["발광", "청정지표"],
+        tips: [
+          "빛 공해 적은 시골 하천에서 야간 관찰",
+          "비 온 뒤 습한 밤에 활동 증가"
+        ]
+      },
+      {
+        id: "silkworm-moth",
+        emoji: "🦋",
+        nameKo: "누에나방(예시)",
+        nameEn: "Silkworm Moth",
+        sci: "Bombyx mori",
+        order: "나비목",
+        status: "사육종",
+        meta: "완전변태",
+        sizeMm: 50,
+        habitat: ["사육"],
+        diet: ["초식"], // 애벌레: 뽕잎
+        season: "사육 시기",
+        range: "전세계 사육",
+        notes: "가축화된 나방, 비행 능력 저하.",
+        tags: ["사육", "누에", "비단"],
+        tips: [
+          "사육 환경 온도·습도 유지",
+          "뽕잎 신선도 중요"
+        ]
+      },
+      {
+        id: "stag-beetle",
+        emoji: "🪲",
+        nameKo: "사슴벌레(예시)",
+        nameEn: "Stag Beetle",
+        sci: "Lucanidae sp.",
+        order: "딱정벌레목",
+        status: "관심대상",
+        meta: "완전변태",
+        sizeMm: 60,
+        habitat: ["산지", "정원"],
+        diet: ["부식성", "흡밀"],
+        season: "6–9월",
+        range: "한반도",
+        notes: "수컷 큰 턱. 그루터기 주변에 서식.",
+        tags: ["딱정벌레", "수액"],
+        tips: [
+          "밤에 수액 나무 탐색",
+          "로그피더(썩은 목재) 주변 확인"
+        ]
+      },
+      {
+        id: "praying-mantis",
+        emoji: "🦗",
+        nameKo: "좀사마귀(예시)",
+        nameEn: "Mantis",
+        sci: "Mantis religiosa",
+        order: "사마귀목",
+        status: "관심대상",
+        meta: "불완전변태",
+        sizeMm: 60,
+        habitat: ["초지", "정원"],
+        diet: ["육식", "포식성"],
+        season: "6–10월",
+        range: "한반도",
+        notes: "두 앞다리로 먹이 포획.",
+        tags: ["사마귀", "포식"],
+        tips: [
+          "개활지에서 움직임 최소화 후 관찰",
+          "사진 촬영 시 천천히 접근"
+        ]
+      },
+      {
+        id: "butterfly-small-white",
+        emoji: "🦋",
+        nameKo: "배추흰나비",
+        nameEn: "Small White",
+        sci: "Pieris rapae",
+        order: "나비목",
+        status: "관심대상",
+        meta: "완전변태",
+        sizeMm: 50,
+        habitat: ["농경지", "정원"],
+        diet: ["흡밀", "초식"],
+        season: "3–11월",
+        range: "한반도 전역",
+        notes: "흰 날개, 배추과 작물과 연관.",
+        tags: ["흰나비", "농작물"],
+        tips: [
+          "밭 가장자리 꽃에서 관찰",
+          "유충은 배추과 잎에서 발견"
+        ]
+      },
+      {
+        id: "corn-borer-moth",
+        emoji: "🦋",
+        nameKo: "벼멸구(예시: 실제는 노린재목 곡식해충 등 다양)",
+        nameEn: "Rice pest example",
+        sci: "Nilaparvata sp.",
+        order: "매미목",
+        status: "관심대상",
+        meta: "불완전변태",
+        sizeMm: 3,
+        habitat: ["농경지"],
+        diet: ["흡즙"],
+        season: "6–10월",
+        range: "한반도",
+        notes: "곡식 흡즙, 대량 발생 시 피해.",
+        tags: ["해충", "농업"],
+        tips: [
+          "논 가장자리에서 집단 관찰",
+          "기상 조건에 따라 개체군 변화"
+        ]
+      },
+      {
+        id: "green-lacewing",
+        emoji: "🪶",
+        nameKo: "풀잠자리(예시)",
+        nameEn: "Green Lacewing",
+        sci: "Chrysopidae sp.",
+        order: "뱀잠자리목",
+        status: "관심대상",
+        meta: "완전변태",
+        sizeMm: 15,
+        habitat: ["정원", "농경지"],
+        diet: ["육식", "포식성"],
+        season: "4–10월",
+        range: "한반도",
+        notes: "투명한 망상 날개, 유충은 진딧물 포식.",
+        tags: ["천적", "생물학적방제"],
+        tips: [
+          "야간에 불빛에 유인",
+          "낮에는 식생 속에 정지"
+        ]
+      },
+      {
+        id: "tiger-beetle",
+        emoji: "🐯",
+        nameKo: "범다릿길앞잡이(예시)",
+        nameEn: "Tiger Beetle",
+        sci: "Cicindelinae sp.",
+        order: "딱정벌레목",
+        status: "관심대상",
+        meta: "완전변태",
+        sizeMm: 17,
+        habitat: ["해안", "하천", "초지"],
+        diet: ["육식", "포식성"],
+        season: "4–9월",
+        range: "한반도",
+        notes: "빠른 달리기와 포식성.",
+        tags: ["길앞잡이", "포식"],
+        tips: [
+          "햇빛 좋은 모래길에서 빠르게 이동",
+          "접근 시 즉시 도주, 멀리서 관찰"
+        ]
+      }
+    ];
+
+    // 상태
+    const state = {
+      query: "",
+      filters: {
+        order: new Set(),
+        habitat: new Set(),
+        diet: new Set(),
+        status: new Set(),
+        meta: new Set(),
+        sizeMin: 1,
+        sizeMax: 120
+      },
+      sortBy: "name",
+      liked: new Set(),
+      indexLetter: null,
+      theme: "auto"
+    };
+
+    // 요소 참조
+    const el = {
+      search: document.getElementById("search"),
+      clearSearch: document.getElementById("clearSearch"),
+      randomBtn: document.getElementById("randomBtn"),
+      exportBtn: document.getElementById("exportBtn"),
+      themeToggle: document.getElementById("themeToggle"),
+      countChip: document.getElementById("countChip"),
+      activeFiltersChip: document.getElementById("activeFiltersChip"),
+      likedChip: document.getElementById("likedChip"),
+      queryEcho: document.getElementById("queryEcho"),
+      sortEcho: document.getElementById("sortEcho"),
+      alphabetIndex: document.getElementById("alphabetIndex"),
+      cardGrid: document.getElementById("cardGrid"),
+      sizeMin: document.getElementById("sizeMin"),
+      sizeMax: document.getElementById("sizeMax"),
+      sizeMinLabel: document.getElementById("sizeMinLabel"),
+      sizeMaxLabel: document.getElementById("sizeMaxLabel"),
+      resetFilters: document.getElementById("resetFilters"),
+      resultHint: document.getElementById("resultHint"),
+      indexPrev: document.getElementById("indexPrev"),
+      indexNext: document.getElementById("indexNext"),
+      modalBackdrop: document.getElementById("modalBackdrop"),
+      modalClose: document.getElementById("modalClose"),
+      modalTitle: document.getElementById("modalTitle"),
+      modalSubtitle: document.getElementById("modalSubtitle"),
+      detailOrder: document.getElementById("detailOrder"),
+      detailStatus: document.getElementById("detailStatus"),
+      detailMeta: document.getElementById("detailMeta"),
+      detailSize: document.getElementById("detailSize"),
+      detailHabitat: document.getElementById("detailHabitat"),
+      detailDiet: document.getElementById("detailDiet"),
+      detailSeason: document.getElementById("detailSeason"),
+      detailRange: document.getElementById("detailRange"),
+      detailNotes: document.getElementById("detailNotes"),
+      detailTags: document.getElementById("detailTags"),
+      detailTips: document.getElementById("detailTips"),
+      likeInModal: document.getElementById("likeInModal"),
+      copyLinkBtn: document.getElementById("copyLinkBtn"),
+      printBtn: document.getElementById("printBtn")
+    };
+
+    // 접근성: 키보드 포커스 트랩
+    let lastFocused;
+
+    // 초기화
+    function init() {
+      buildAlphabetIndex();
+      bindFilterChips("filterOrder", "order");
+      bindFilterChips("filterHabitat", "habitat");
+      bindFilterChips("filterDiet", "diet");
+      bindFilterChips("filterStatus", "status");
+      bindFilterChips("filterMetamorphosis", "meta");
+      bindSortChips();
+      bindEvents();
+      render();
+    }
+
+    function buildAlphabetIndex() {
+      const letters = [...new Set(INSECTS.map(x => x.nameKo[0]))].sort();
+      letters.forEach(L => {
+        const btn = document.createElement("button");
+        btn.className = "chip";
+        btn.textContent = L;
+        btn.setAttribute("data-letter", L);
+        btn.addEventListener("click", () => {
+          if (state.indexLetter === L) {
+            state.indexLetter = null;
+            btn.classList.remove("active");
+          } else {
+            state.indexLetter = L;
+            [...el.alphabetIndex.children].forEach(c => c.classList.remove("active"));
+            btn.classList.add("active");
+          }
+          render();
+        });
+        el.alphabetIndex.appendChild(btn);
+      });
+    }
+
+    function bindFilterChips(containerId, key) {
+      const container = document.getElementById(containerId);
+      container.querySelectorAll(".chip").forEach(chip => {
+        chip.addEventListener("click", () => {
+          const val = chip.dataset[`filter${key[0].toUpperCase() + key.slice(1)}`] || chip.textContent;
+          const set = state.filters[key];
+          if (set.has(val)) set.delete(val); else set.add(val);
+          chip.classList.toggle("active");
+          render();
+        });
+      });
+    }
+
+    function bindSortChips() {
+      document.querySelectorAll("[data-sort]").forEach(chip => {
+        chip.addEventListener("click", () => {
+          document.querySelectorAll("[data-sort]").forEach(c => c.classList.remove("active"));
+          chip.classList.add("active");
+          state.sortBy = chip.dataset.sort;
+          el.sortEcho.textContent = ({ name: "이름", size: "몸길이", order: "분류(목)", status: "보전 상태" })[state.sortBy] || state.sortBy;
+          render();
+        });
+      });
+      // 기본 활성화
+      document.querySelector("[data-sort='name']").classList.add("active");
+    }
+
+    function bindEvents() {
+      el.search.addEventListener("input", () => {
+        state.query = el.search.value.trim();
+        el.queryEcho.textContent = state.query || "없음";
+        render();
+      });
+      el.clearSearch.addEventListener("click", () => {
+        el.search.value = "";
+        state.query = "";
+        el.queryEcho.textContent = "없음";
+        render();
+      });
+
+      const clampSize = () => {
+        state.filters.sizeMin = Number(el.sizeMin.value);
+        state.filters.sizeMax = Number(el.sizeMax.value);
+        if (state.filters.sizeMin > state.filters.sizeMax) {
+          state.filters.sizeMax = state.filters.sizeMin;
+          el.sizeMax.value = state.filters.sizeMax;
+        }
+        el.sizeMinLabel.textContent = `최소: ${state.filters.sizeMin}`;
+        el.sizeMaxLabel.textContent = `최대: ${state.filters.sizeMax}`;
+        render();
+      };
+      el.sizeMin.addEventListener("input", clampSize);
+      el.sizeMax.addEventListener("input", clampSize);
+
+      el.resetFilters.addEventListener("click", () => {
+        ["filterOrder","filterHabitat","filterDiet","filterStatus","filterMetamorphosis"].forEach(id => {
+          document.getElementById(id).querySelectorAll(".chip.active").forEach(c => c.classList.remove("active"));
+        });
+        state.filters.order.clear();
+        state.filters.habitat.clear();
+        state.filters.diet.clear();
+        state.filters.status.clear();
+        state.filters.meta.clear();
+        state.indexLetter = null;
+        el.alphabetIndex.querySelectorAll(".chip.active").forEach(c => c.classList.remove("active"));
+        el.sizeMin.value = 1;
+        el.sizeMax.value = 120;
+        state.filters.sizeMin = 1;
+        state.filters.sizeMax = 120;
+        el.sizeMinLabel.textContent = "최소: 1";
+        el.sizeMaxLabel.textContent = "최대: 120";
+        render();
+      });
+
+      el.indexPrev.addEventListener("click", () => cycleIndex(-1));
+      el.indexNext.addEventListener("click", () => cycleIndex(1));
+
+      el.randomBtn.addEventListener("click", () => {
+        const list = applyAllFilters(INSECTS);
+        if (!list.length) return;
+        const pick = list[Math.floor(Math.random() * list.length)];
+        openModal(pick);
+      });
+
+      el.exportBtn.addEventListener("click", () => {
+        const list = applyAllFilters(INSECTS);
+        const blob = new Blob([JSON.stringify(list, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = "insects-export.json";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 500);
+      });
+
+      // Theme toggle
+      const root = document.documentElement;
+      el.themeToggle.addEventListener("click", toggleTheme);
+      el.themeToggle.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleTheme(); }
+      });
+
+      // Modal close
+      el.modalClose.addEventListener("click", closeModal);
+      el.modalBackdrop.addEventListener("click", (e) => {
+        if (e.target === el.modalBackdrop) closeModal();
+      });
+
+      el.copyLinkBtn.addEventListener("click", () => {
+        const id = el.modalBackdrop.dataset.currentId;
+        if (!id) return;
+        const url = new URL(window.location);
+        url.hash = `#${id}`;
+        navigator.clipboard?.writeText(url.toString());
+      });
+
+      el.printBtn.addEventListener("click", () => window.print());
+      el.likeInModal.addEventListener("click", () => {
+        const id = el.modalBackdrop.dataset.currentId;
+        if (!id) return;
+        toggleLike(id);
+      });
+
+      // Deep-link support
+      window.addEventListener("hashchange", () => {
+        const id = location.hash.replace("#", "");
+        const found = INSECTS.find(x => x.id === id);
+        if (found) openModal(found);
+      });
+      // Open if hash exists
+      const initialId = location.hash.replace("#", "");
+      const foundInit = INSECTS.find(x => x.id === initialId);
+      if (foundInit) openModal(foundInit);
+    }
+
+    function toggleTheme() {
+      if (state.theme === "auto") {
+        state.theme = "dark";
+        document.body.dataset.theme = "dark";
+        el.themeToggle.setAttribute("aria-checked", "true");
+      } else if (state.theme === "dark") {
+        state.theme = "light";
+        document.body.dataset.theme = "light";
+        el.themeToggle.setAttribute("aria-checked", "false");
+      } else {
+        state.theme = "auto";
+        delete document.body.dataset.theme;
+        el.themeToggle.setAttribute("aria-checked", "false");
+      }
+    }
+
+    function cycleIndex(dir) {
+      const letters = [...el.alphabetIndex.children].map(b => b.getAttribute("data-letter"));
+      if (!letters.length) return;
+      if (state.indexLetter == null) {
+        state.indexLetter = letters[0];
+      } else {
+        const i = letters.indexOf(state.indexLetter);
+        let ni = i + dir;
+        if (ni < 0) ni = letters.length - 1;
+        if (ni >= letters.length) ni = 0;
+        state.indexLetter = letters[ni];
+      }
+      [...el.alphabetIndex.children].forEach(c => {
+        c.classList.toggle("active", c.getAttribute("data-letter") === state.indexLetter);
+      });
+      render();
+    }
+
+    // 필터 적용
+    function applyAllFilters(list) {
+      const q = state.query.toLowerCase();
+      const f = state.filters;
+      const byQuery = (x) => {
+        if (!q) return true;
+        const hay = [
+          x.nameKo, x.nameEn, x.sci, x.order,
+          x.notes, ...x.tags, ...x.habitat, ...x.diet, x.status, x.meta
+        ].join(" ").toLowerCase();
+        return hay.includes(q);
+      };
+      const byOrder = (x) => f.order.size ? f.order.has(x.order) : true;
+      const byHabitat = (x) => f.habitat.size ? x.habitat.some(h => f.habitat.has(h)) : true;
+      const byDiet = (x) => f.diet.size ? x.diet.some(d => f.diet.has(d)) : true;
+      const byStatus = (x) => f.status.size ? f.status.has(x.status) : true;
+      const byMeta = (x) => f.meta.size ? f.meta.has(x.meta) : true;
+      const bySize = (x) => (x.sizeMm >= f.sizeMin && x.sizeMm <= f.sizeMax);
+      const byIndex = (x) => state.indexLetter ? x.nameKo.startsWith(state.indexLetter) : true;
+
+      return list.filter(x =>
+        byQuery(x) && byOrder(x) && byHabitat(x) &&
+        byDiet(x) && byStatus(x) && byMeta(x) &&
+        bySize(x) && byIndex(x)
+      );
+    }
+
+    // 정렬
+    function sortList(list) {
+      const cmp = {
+        name: (a, b) => a.nameKo.localeCompare(b.nameKo, "ko"),
+        size: (a, b) => a.sizeMm - b.sizeMm,
+        order: (a, b) => a.order.localeCompare(b.order, "ko"),
+        status: (a, b) => a.status.localeCompare(b.status, "ko")
+      }[state.sortBy] || ((a, b) => a.nameKo.localeCompare(b.nameKo, "ko"));
+      return [...list].sort(cmp);
+    }
+
+    // 렌더링
+    function render() {
+      const filtered = sortList(applyAllFilters(INSECTS));
+      el.countChip.textContent = `총 ${filtered.length}종`;
+      const activeCount =
+        state.filters.order.size +
+        state.filters.habitat.size +
+        state.filters.diet.size +
+        state.filters.status.size +
+        state.filters.meta.size +
+        (state.filters.sizeMin !== 1 || state.filters.sizeMax !== 120 ? 1 : 0) +
+        (state.indexLetter ? 1 : 0) +
+        (state.query ? 1 : 0);
+      el.activeFiltersChip.textContent = `활성 필터 ${activeCount}개`;
+      el.likedChip.textContent = `즐겨찾기 ${state.liked.size}개`;
+      el.resultHint.textContent = filtered.length ? "필터에 맞는 곤충이 표시됩니다." : "조건에 맞는 곤충이 없습니다. 필터를 완화해보세요.";
+
+      el.cardGrid.innerHTML = "";
+      filtered.forEach(x => el.cardGrid.appendChild(cardOf(x)));
+    }
+
+    function cardOf(x) {
+      const card = document.createElement("article");
+      card.className = "card";
+      card.setAttribute("data-id", x.id);
+      card.setAttribute("aria-label", `${x.nameKo} 카드`);
+
+      // Header
+      const header = document.createElement("div");
+      header.className = "card-header";
+      const emoji = document.createElement("div");
+      emoji.className = "emoji";
+      emoji.textContent = x.emoji;
+
+      const title = document.createElement("div");
+      title.className = "title";
+      const h3 = document.createElement("h3");
+      h3.textContent = x.nameKo;
+      const sm = document.createElement("small");
+      sm.textContent = `${x.nameEn} · ${x.sci}`;
+      sm.className = "small-muted";
+      title.append(h3, sm);
+
+      const status = document.createElement("span");
+      status.className = "status " + (x.status === "위기" ? "danger" : x.status === "준위협" || x.status === "취약" ? "warn" : "ok");
+      status.textContent = x.status;
+
+      header.append(emoji, title, status);
+
+      // Body
+      const body = document.createElement("div");
+      body.className = "card-body";
+      const meta = document.createElement("div");
+      meta.className = "meta";
+
+      const m1 = metaItem("분류(목)", x.order);
+      const m2 = metaItem("변태 유형", x.meta);
+      const m3 = metaItem("몸길이", `${x.sizeMm} mm`);
+      const m4 = metaItem("서식지", x.habitat.join(", "));
+      meta.append(m1, m2, m3, m4);
+
+      const tags = document.createElement("div");
+      tags.className = "tags";
+      x.tags.forEach(t => tags.appendChild(tagOf(t)));
+
+      body.append(meta, tags);
+
+      // Footer
+      const footer = document.createElement("div");
+      footer.className = "card-footer";
+      const actions = document.createElement("div");
+      actions.className = "actions";
+      const more = document.createElement("button");
+      more.className = "btn";
+      more.textContent = "🔍 자세히";
+      more.addEventListener("click", () => openModal(x));
+
+      const like = document.createElement("button");
+      like.className = "btn like-btn";
+      like.textContent = state.liked.has(x.id) ? "❤️ 즐겨찾기 해제" : "🤍 즐겨찾기";
+      like.setAttribute("data-liked", state.liked.has(x.id));
+      like.addEventListener("click", () => toggleLike(x.id));
+
+      actions.append(more, like);
+
+      const info = document.createElement("div");
+      info.className = "small-muted";
+      info.textContent = `활동 시기: ${x.season} · 분포: ${x.range}`;
+
+      footer.append(actions, info);
+
+      card.append(header, body, footer);
+      return card;
+    }
+
+    function metaItem(label, value) {
+      const d = document.createElement("div");
+      d.className = "meta-item";
+      const b = document.createElement("b"); b.textContent = label;
+      const s = document.createElement("span"); s.textContent = value;
+      d.append(b, s);
+      return d;
+    }
+
+    function tagOf(t) {
+      const span = document.createElement("span");
+      span.className = "tag";
+      span.textContent = t;
+      return span;
+    }
+
+    function toggleLike(id) {
+      if (state.liked.has(id)) state.liked.delete(id); else state.liked.add(id);
+      el.likedChip.textContent = `즐겨찾기 ${state.liked.size}개`;
+      // 버튼 텍스트 업데이트
+      document.querySelectorAll(`.card[data-id="${id}"] .like-btn`).forEach(btn => {
+        const liked = state.liked.has(id);
+        btn.textContent = liked ? "❤️ 즐겨찾기 해제" : "🤍 즐겨찾기";
+        btn.setAttribute("data-liked", liked);
+      });
+      // 모달 버튼도 동기화
+      const liked = state.liked.has(id);
+      el.likeInModal.textContent = liked ? "❤️ 즐겨찾기 해제" : "🤍 즐겨찾기";
+    }
+
+    function openModal(x) {
+      lastFocused = document.activeElement;
+      el.modalBackdrop.style.display = "flex";
+      el.modalBackdrop.setAttribute("aria-hidden", "false");
+      el.modalBackdrop.dataset.currentId = x.id;
+
+      el.modalTitle.textContent = x.nameKo;
+      el.modalSubtitle.textContent = `${x.nameEn} · ${x.sci}`;
+      el.detailOrder.textContent = x.order;
+      el.detailStatus.innerHTML = toStatusPill(x.status);
+      el.detailMeta.textContent = x.meta;
+      el.detailSize.textContent = `${x.sizeMm} mm`;
+      el.detailHabitat.textContent = x.habitat.join(", ");
+      el.detailDiet.textContent = x.diet.join(", ");
+      el.detailSeason.textContent = x.season;
+      el.detailRange.textContent = x.range;
+      el.detailNotes.textContent = x.notes;
+      el.detailTags.innerHTML = "";
+      x.tags.forEach(t => el.detailTags.appendChild(tagOf(t)));
+      el.detailTips.innerHTML = "";
+      x.tips?.forEach(t => {
+        const li = document.createElement("li"); li.textContent = t;
+        el.detailTips.appendChild(li);
+      });
+      const liked = state.liked.has(x.id);
+      el.likeInModal.textContent = liked ? "❤️ 즐겨찾기 해제" : "🤍 즐겨찾기";
+
+      // 포커스 이동
+      el.modalClose.focus();
+      document.addEventListener("keydown", escClose);
+    }
+
+    function closeModal() {
+      el.modalBackdrop.style.display = "none";
+      el.modalBackdrop.setAttribute("aria-hidden", "true");
+      document.removeEventListener("keydown", escClose);
+      if (lastFocused) lastFocused.focus();
+    }
+
+    function escClose(e) {
+      if (e.key === "Escape") closeModal();
+    }
+
+    function toStatusPill(s) {
+      const cls = s === "위기" ? "red" : (s === "취약" || s === "준위협") ? "orange" : "green";
+      return `<span class="pill ${cls}">${s}</span>`;
+    }
+
+    // 시작
+    init();
+  </script>
+</body>
+</html>
