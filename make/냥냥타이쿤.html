@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>냥냥타이쿤 - 귀여운 고양이 업그레이드</title>
+  <meta name="description" content="귀여운 고양이를 클릭하고, 업그레이드하고, 제국을 세우는 방치형 타이쿤 게임"/>
+  <style>
+    /* ------------------------------
+       기본 리셋 및 테마 변수
+       ------------------------------ */
+    :root{
+      --bg: #0f1020;
+      --panel: #1a1c3a;
+      --panel-2: #23254d;
+      --accent: #ff9fd1;
+      --accent-2: #ffd166;
+      --text: #eaeaf6;
+      --muted: #b6b8d6;
+      --good: #7ef0a6;
+      --warn: #f0d77e;
+      --bad: #ff7c7c;
+      --shadow: rgba(0,0,0,0.35);
+      --focus: #6fb5ff;
+      --cat: #ffc5de;
+      --link: #9bd1ff;
+    }
+    *{ box-sizing: border-box }
+    html, body{
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(1200px 800px at 70% 20%, #151730, var(--bg));
+      color: var(--text);
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Malgun Gothic", sans-serif;
+    }
+    a{ color: var(--link); text-decoration: none }
+    a:hover{ text-decoration: underline }
+
+    /* ------------------------------
+       레이아웃
+       ------------------------------ */
+    .app{
+      display: grid;
+      grid-template-columns: 320px 1fr 360px;
+      grid-template-rows: auto 1fr auto;
+      gap: 14px;
+      height: 100%;
+      padding: 14px;
+    }
+    header{
+      grid-column: 1 / 4;
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      box-shadow: 0 10px 24px var(--shadow);
+      border-radius: 16px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand{
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand-logo{
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background:
+        radial-gradient(16px 16px at 35% 35%, white, rgba(255,255,255,0)),
+        radial-gradient(60px 60px at 60% 60%, var(--cat), rgba(255,255,255,0));
+      border: 2px solid var(--accent);
+      box-shadow: 0 6px 14px var(--shadow);
+      position: relative;
+    }
+    .brand-logo::before{
+      content:"";
+      position:absolute; inset: 7px;
+      border-radius: 50%;
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.15);
+    }
+    .brand-title{
+      font-size: 22px; font-weight: 800; letter-spacing: .5px;
+    }
+    .brand-sub{
+      font-size: 12px; color: var(--muted);
+    }
+    .actions{
+      display: flex; gap: 10px;
+    }
+    .btn{
+      appearance: none;
+      background: var(--accent-2);
+      color: #241f05;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 14px var(--shadow);
+      transition: transform .06s ease, box-shadow .2s ease, filter .2s ease;
+    }
+    .btn:hover{ transform: translateY(-1px); filter: brightness(1.05) }
+    .btn:active{ transform: translateY(1px); }
+    .btn.secondary{
+      background: #3b3e70;
+      color: var(--text);
+    }
+    .btn.warn{
+      background: var(--warn);
+      color: #352c04;
+    }
+    .btn.bad{
+      background: var(--bad);
+      color: #2b0b0b;
+    }
+
+    nav.sidebar{
+      background: linear-gradient(180deg, var(--panel-2), var(--panel));
+      border-radius: 16px;
+      box-shadow: 0 10px 24px var(--shadow);
+      padding: 14px;
+      overflow: auto;
+    }
+    main.game{
+      background: linear-gradient(180deg, #141633, #0f1129);
+      border-radius: 16px;
+      box-shadow: 0 10px 24px var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    aside.rightbar{
+      background: linear-gradient(180deg, var(--panel-2), var(--panel));
+      border-radius: 16px;
+      box-shadow: 0 10px 24px var(--shadow);
+      padding: 14px;
+      overflow: auto;
+    }
+    footer{
+      grid-column: 1 / 4;
+      display: flex; align-items: center; justify-content: space-between;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* ------------------------------
+       사이드바: 업그레이드 목록
+       ------------------------------ */
+    .section-title{
+      font-size: 16px; font-weight: 800; letter-spacing: .2px; margin: 10px 0 6px 0;
+    }
+    .muted{ color: var(--muted) }
+    .upgrade-list{
+      display: grid; gap: 10px;
+    }
+    .card{
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 6px 18px var(--shadow);
+    }
+    .upgrade{
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
+      gap: 10px; align-items: center;
+    }
+    .upgrade .icon{
+      width: 56px; height: 56px; border-radius: 12px;
+      background: radial-gradient(24px 24px at 35% 35%, rgba(255,255,255,0.85), rgba(255,255,255,0)),
+                  linear-gradient(180deg, #ffedf6, #ffd1e6);
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,0.06), 0 6px 14px var(--shadow);
+      position: relative;
+    }
+    .upgrade .icon::after{
+      content:"🐱";
+      position:absolute; inset: 0;
+      display:flex; align-items:center; justify-content:center;
+      font-size: 28px;
+    }
+    .upgrade .info{
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .upgrade .name{
+      font-weight: 800; font-size: 14px;
+    }
+    .upgrade .desc{
+      font-size: 12px; color: var(--muted);
+    }
+    .upgrade .price{
+      font-weight: 800; font-size: 14px; color: var(--accent-2);
+      text-align: right;
+    }
+    .upgrade .controls{
+      grid-column: 1 / 4; display:flex; gap: 8px; margin-top: 8px;
+    }
+    .upgrade .buy-btn{
+      flex: 1;
+      background: #6fe3a0; color: #082012;
+      border-radius: 10px; font-weight: 800; border: none; padding: 8px 10px;
+      cursor: pointer; transition: filter .2s ease, transform .06s ease;
+      box-shadow: 0 6px 12px var(--shadow);
+    }
+    .upgrade .buy-btn:hover{ filter: brightness(1.05) }
+    .upgrade .buy-btn:active{ transform: translateY(1px) }
+    .upgrade.locked .buy-btn{
+      background: #525678; color: #cbd0ff; cursor: not-allowed;
+    }
+    .progress-bar{
+      height: 8px; border-radius: 999px; background: rgba(255,255,255,0.06);
+      overflow: hidden; margin-top: 8px;
+    }
+    .progress-fill{
+      height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      width: 0%;
+    }
+
+    /* ------------------------------
+       메인 캣 캔버스
+       ------------------------------ */
+    .game-wrap{
+      position: absolute; inset: 0; display: grid;
+      grid-template-columns: 1fr; grid-template-rows: 1fr auto;
+    }
+    .canvas{
+      position: relative;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+    .sky{
+      position:absolute; inset:0;
+      background:
+        radial-gradient(800px 400px at 20% 10%, rgba(255,255,255,0.06), rgba(255,255,255,0)),
+        radial-gradient(900px 500px at 85% 5%, rgba(255,255,255,0.06), rgba(255,255,255,0));
+      pointer-events:none;
+    }
+    .stars{
+      position:absolute; inset:0;
+      background-image:
+        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.75), rgba(255,255,255,0)),
+        radial-gradient(1px 1px at 40% 40%, rgba(255,255,255,0.65), rgba(255,255,255,0)),
+        radial-gradient(1px 1px at 75% 15%, rgba(255,255,255,0.75), rgba(255,255,255,0)),
+        radial-gradient(1px 1px at 20% 70%, rgba(255,255,255,0.8), rgba(255,255,255,0)),
+        radial-gradient(1px 1px at 60% 85%, rgba(255,255,255,0.7), rgba(255,255,255,0));
+      opacity:.6;
+      pointer-events:none;
+    }
+    .ground{
+      position:absolute; left:0; right:0; bottom:-50px; height: 240px;
+      background: linear-gradient(180deg, #0e0f22, #0a0b18);
+      box-shadow: inset 0 60px 80px rgba(0,0,0,0.35);
+      border-top-left-radius: 50% 20%;
+      border-top-right-radius: 50% 20%;
+    }
+    .big-cat{
+      width: 280px; height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(140px 140px at 40% 40%, #ffeef6, #ffd5e8);
+      box-shadow: inset 0 0 0 3px rgba(0,0,0,0.06), 0 16px 32px var(--shadow);
+      position: relative; cursor: pointer;
+      transform: translateY(-20px);
+      transition: transform .08s ease, filter .2s ease;
+    }
+    .big-cat:hover{ filter: brightness(1.03) }
+    .big-cat:active{ transform: translateY(-16px) scale(.99) }
+    .big-cat .ear{
+      position:absolute; width: 82px; height: 82px; top: -8px;
+      background: linear-gradient(180deg, #ffe3f0, #ffc7de);
+      border-radius: 10px 90px 10px 90px;
+      transform: rotate(45deg);
+      box-shadow: 0 10px 20px var(--shadow), inset 0 0 0 3px rgba(0,0,0,0.06);
+    }
+    .big-cat .ear.right{
+      right: 30px;
+    }
+    .big-cat .ear.left{
+      left: 30px; transform: rotate(-45deg);
+    }
+    .big-cat .face{
+      position:absolute; inset: 0;
+      display:flex; flex-direction: column;
+      align-items:center; justify-content:center; gap: 10px;
+    }
+    .big-cat .eyes{
+      display:flex; gap: 38px;
+    }
+    .eye{
+      width: 24px; height: 24px; border-radius: 50%;
+      background: radial-gradient(8px 8px at 35% 35%, white, rgba(255,255,255,0)),
+                  radial-gradient(13px 13px at 60% 65%, #333, #111);
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,0.25);
+      position: relative;
+      animation: blink 6s infinite;
+    }
+    @keyframes blink{
+      0%, 96%, 100%{ transform: scaleY(1) }
+      97%, 99%{ transform: scaleY(0.1) }
+    }
+    .nose{
+      width: 18px; height: 12px; background:#ff96c0; border-radius: 50% 50% 60% 60%;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+    .whiskers{
+      width: 180px; height: 40px; position: relative;
+    }
+    .whiskers::before,.whiskers::after{
+      content:"";
+      position:absolute; left:0; right:0; top: 8px; height:2px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.2), rgba(255,255,255,0.7), rgba(255,255,255,0.2));
+    }
+    .whiskers::after{ top: 20px }
+
+    .floating-text{
+      position:absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: 800; font-size: 22px; color: var(--accent-2);
+      text-shadow: 0 2px 12px rgba(0,0,0,0.35);
+      opacity: 0; pointer-events:none;
+    }
+
+    /* ------------------------------
+       메인 하단 HUD
+       ------------------------------ */
+    .hud{
+      display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0));
+      padding: 10px; border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .hud .panel{
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 10px;
+      box-shadow: 0 6px 14px var(--shadow);
+      min-height: 86px;
+    }
+    .stat{
+      display:flex; align-items:center; justify-content: space-between; gap: 8px;
+    }
+    .stat .label{ font-size: 12px; color: var(--muted) }
+    .stat .value{ font-size: 18px; font-weight: 800 }
+    .stat .delta{ font-size: 12px; color: var(--good) }
+
+    .ach-list, .log-list{
+      display: grid; gap: 8px; max-height: 160px; overflow:auto;
+    }
+    .ach{
+      display:flex; gap: 8px; align-items:center; font-size: 13px;
+    }
+    .ach .medal{
+      width: 22px; height: 22px; border-radius: 6px;
+      background: linear-gradient(180deg, #ffe8ac, #ffc24a);
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    .log{
+      font-size: 12px; color: var(--muted);
+    }
+
+    /* ------------------------------
+       오른쪽 바: 상점, 연구, 반려묘
+       ------------------------------ */
+    .tabs{
+      display:flex; gap: 8px; margin-bottom: 8px;
+    }
+    .tab{
+      flex:1; text-align:center; padding: 8px 10px; font-weight: 800; cursor: pointer;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      transition: filter .2s ease;
+    }
+    .tab.active{
+      background: linear-gradient(180deg, var(--accent), var(--accent-2));
+      color: #221b03; border-color: rgba(0,0,0,0.1);
+    }
+    .tab:hover{ filter: brightness(1.05) }
+
+    .store, .research, .companions{
+      display: none;
+    }
+    .store.active, .research.active, .companions.active{
+      display: grid; gap: 10px;
+    }
+    .item{
+      display:grid; grid-template-columns: 64px 1fr auto; gap: 10px; align-items:center;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 10px;
+      box-shadow: 0 6px 14px var(--shadow);
+    }
+    .item .icon{
+      width: 64px; height: 64px; border-radius: 12px;
+      background: radial-gradient(26px 26px at 40% 40%, rgba(255,255,255,0.9), rgba(255,255,255,0)),
+                  linear-gradient(180deg, #e8f9ff, #cdeaff);
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,0.06), 0 6px 14px var(--shadow);
+      display:flex; align-items:center; justify-content:center; font-size: 30px;
+    }
+    .item .detail{ display:flex; flex-direction: column; gap: 4px }
+    .item .name{ font-weight: 800; font-size: 14px }
+    .item .desc{ font-size: 12px; color: var(--muted) }
+    .item .price{ font-weight: 800; color: var(--accent-2); text-align:right }
+    .item .buy{ grid-column: 1 / 4; display:flex; gap: 8px; margin-top: 8px }
+    .item .btn{ flex: 1 }
+
+    .pet-card{
+      display:grid; grid-template-columns: 64px 1fr auto; gap: 10px; align-items:center;
+      border: 1px dashed rgba(255,255,255,0.18);
+      border-radius: 12px; padding: 10px;
+      background: rgba(255,255,255,0.03);
+    }
+    .pet-card .mood{ font-size: 12px; color: var(--muted) }
+    .pet-card .affection{
+      height: 8px; border-radius: 999px; background: rgba(255,255,255,0.06);
+      overflow: hidden; margin-top: 8px;
+    }
+    .pet-card .affection .fill{
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, #9be7ff, #a3ffd1);
+    }
+
+    /* ------------------------------
+       설정/모달
+       ------------------------------ */
+    .modal-backdrop{
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      display: none; align-items:center; justify-content:center; z-index: 50;
+    }
+    .modal{
+      width: min(680px, 96vw);
+      background: linear-gradient(180deg, var(--panel-2), var(--panel));
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px; padding: 16px;
+      box-shadow: 0 20px 40px var(--shadow);
+    }
+    .modal h3{ margin: 0 0 10px 0; font-size: 18px }
+    .modal .row{ display: grid; grid-template-columns: 1fr auto; align-items:center; gap: 10px; padding: 8px 0 }
+    .switch{
+      width: 56px; height: 32px; border-radius: 999px;
+      background: rgba(255,255,255,0.1);
+      position: relative; cursor: pointer;
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.08);
+    }
+    .switch .knob{
+      width: 26px; height: 26px; border-radius: 50%;
+      background: white; position: absolute; top: 3px; left: 3px;
+      transition: left .2s ease; box-shadow: 0 4px 10px var(--shadow);
+    }
+    .switch.active{ background: #aaf49c }
+    .switch.active .knob{ left: 27px }
+
+    .tooltip{
+      position: absolute; z-index: 40; pointer-events: none;
+      background: #2a2d55; color: var(--text); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px; padding: 8px 10px; font-size: 12px;
+      box-shadow: 0 10px 20px var(--shadow);
+      opacity: 0; transform: translateY(4px);
+      transition: opacity .12s ease, transform .12s ease;
+    }
+    .tooltip.show{ opacity: 1; transform: translateY(0) }
+
+    /* ------------------------------
+       반응형
+       ------------------------------ */
+    @media (max-width: 1100px){
+      .app{ grid-template-columns: 1fr; grid-template-rows: auto auto auto 1fr auto; }
+      nav.sidebar{ grid-row: 2 }
+      aside.rightbar{ grid-row: 3 }
+      main.game{ grid-row: 4 }
+    }
+  </style>
+</head>
+<body>
+  <!-- 헤더 -->
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true"></div>
+        <div>
+          <div class="brand-title">냥냥타이쿤</div>
+          <div class="brand-sub">귀여운 고양이를 클릭하고, 키우고, 제국을 만들어요</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="saveBtn" class="btn" title="수동 저장">💾 저장</button>
+        <button id="resetBtn" class="btn warn" title="초기화">♻️ 초기화</button>
+        <button id="settingsBtn" class="btn secondary" title="설정">⚙️ 설정</button>
+      </div>
+    </header>
+
+    <!-- 좌측: 업그레이드 -->
+    <nav class="sidebar">
+      <div class="section-title">업그레이드</div>
+      <div class="muted">고양이 생산과 클릭 수익을 향상시켜요.</div>
+      <div id="upgradeList" class="upgrade-list">
+        <!-- 업그레이드 항목이 JS로 채워짐 -->
+      </div>
+      <div class="section-title" style="margin-top:14px;">자동화</div>
+      <div class="muted">자동 수집과 관리 시스템을 확장해요.</div>
+      <div id="automationList" class="upgrade-list"></div>
+
+      <div class="section-title" style="margin-top:14px;">특수 강화</div>
+      <div class="muted">한계 돌파, 희귀 효과, 이벤트 버프.</div>
+      <div id="specialList" class="upgrade-list"></div>
+    </nav>
+
+    <!-- 메인: 게임 -->
+    <main class="game">
+      <div class="game-wrap">
+        <div class="canvas">
+          <div class="sky" aria-hidden="true"></div>
+          <div class="stars" aria-hidden="true"></div>
+          <div class="ground" aria-hidden="true"></div>
+
+          <!-- 클릭 대상: 빅캣 -->
+          <div id="bigCat" class="big-cat" aria-label="큰 고양이, 클릭해서 수익 얻기">
+            <div class="ear left" aria-hidden="true"></div>
+            <div class="ear right" aria-hidden="true"></div>
+            <div class="face">
+              <div class="eyes">
+                <div class="eye"></div>
+                <div class="eye"></div>
+              </div>
+              <div class="nose"></div>
+              <div class="whiskers"></div>
+            </div>
+          </div>
+
+          <div id="floatText" class="floating-text">+0</div>
+        </div>
+
+        <!-- 하단 HUD -->
+        <div class="hud">
+          <div class="panel">
+            <div class="stat">
+              <div class="label">보유</div>
+              <div id="catsTotal" class="value">0</div>
+            </div>
+            <div class="stat">
+              <div class="label">초당 수익</div>
+              <div id="incomePerSec" class="value">0</div>
+              <div id="incomeDelta" class="delta">+0</div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="stat">
+              <div class="label">클릭 당</div>
+              <div id="catsPerClick" class="value">1</div>
+            </div>
+            <div class="progress-bar" title="클릭 콤보">
+              <div id="comboFill" class="progress-fill"></div>
+            </div>
+            <div class="muted">연속 클릭 콤보: <span id="comboCount">0</span>x</div>
+          </div>
+          <div class="panel">
+            <div class="section-title">도전 과제</div>
+            <div id="achList" class="ach-list"></div>
+          </div>
+          <div class="panel">
+            <div class="section-title">로그</div>
+            <div id="logList" class="log-list"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 우측: 상점/연구/반려묘 -->
+    <aside class="rightbar">
+      <div class="tabs">
+        <div class="tab active" data-tab="store">상점</div>
+        <div class="tab" data-tab="research">연구</div>
+        <div class="tab" data-tab="companions">반려묘</div>
+      </div>
+
+      <div id="store" class="store active">
+        <!-- 상점 아이템이 JS로 채워짐 -->
+      </div>
+
+      <div id="research" class="research">
+        <!-- 연구 항목이 JS로 채워짐 -->
+      </div>
+
+      <div id="companions" class="companions">
+        <!-- 반려묘 카드가 JS로 채워짐 -->
+      </div>
+    </aside>
+
+    <!-- 푸터 -->
+    <footer>
+      <div>© 2025 NyangNyang Tycoon. All cats are adorable.</div>
+      <div>
+        <a href="#" id="exportBtn" title="내보내기">내보내기</a> ·
+        <a href="#" id="importBtn" title="가져오기">가져오기</a> ·
+        <a href="#" id="creditsBtn" title="크레딧">크레딧</a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- 모달 -->
+  <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal">
+      <h3 id="modalTitle">설정</h3>
+      <div id="modalContent">
+        <!-- 모달 내용 동적 -->
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
+        <button id="modalClose" class="btn secondary">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 툴팁 -->
+  <div id="tooltip" class="tooltip" role="tooltip"></div>
+
+  <script>
+    /* ============================================================
+       냥냥타이쿤 게임 로직
+       - 방치형 / 클릭형 혼합
+       - 저장/불러오기
+       - 업그레이드/상점/연구/반려묘
+       - 도전 과제/이벤트/콤보/버프
+       ============================================================ */
+
+    // ----------------------------
+    // 유틸리티
+    // ----------------------------
+    const fmt = {
+      num(n){
+        if(!Number.isFinite(n)) return "∞";
+        const abs = Math.abs(n);
+        if(abs < 1000) return n.toLocaleString();
+        const units = ["K","M","B","T","Qa","Qi","Sx","Sp","Oc","No","Dc"];
+        let idx = -1;
+        let v = abs;
+        while(v >= 1000 && idx < units.length - 1){
+          v /= 1000; idx++;
+        }
+        const sign = n < 0 ? "-" : "";
+        return `${sign}${v.toFixed(v < 10 ? 2 : v < 100 ? 1 : 0)}${units[idx] ?? ""}`;
+      },
+      time(ms){
+        const s = Math.floor(ms/1000);
+        const m = Math.floor(s/60);
+        const h = Math.floor(m/60);
+        const d = Math.floor(h/24);
+        if(d > 0) return `${d}일 ${h%24}시간`;
+        if(h > 0) return `${h}시간 ${m%60}분`;
+        if(m > 0) return `${m}분 ${s%60}초`;
+        return `${s}초`;
+      }
+    };
+
+    const RNG = {
+      seed: Math.floor(Math.random()*2**31),
+      next(){
+        // Park-Miller LCG
+        this.seed = (this.seed * 48271) % 0x7fffffff;
+        return this.seed / 0x7fffffff;
+      },
+      pick(arr){ return arr[Math.floor(this.next()*arr.length)] }
+    };
+
+    // ----------------------------
+    // 게임 상태
+    // ----------------------------
+    const State = {
+      version: "1.0.0",
+      cats: 0,         // 총 보유
+      totalEarned: 0,  // 누적 획득
+      perClick: 1,     // 클릭당
+      perSec: 0,       // 초당
+      combo: 0,        // 클릭 콤보
+      lastClick: 0,
+      critChance: 0.05,
+      critMult: 2.5,
+      softcaps: [],    // 소프트캡 정보
+      upgrades: {},    // 업그레이드 레벨
+      automation: {},
+      specials: {},
+      items: {},       // 상점 소유
+      research: {},    // 연구 진행
+      pets: {},        // 반려묘 상태
+      buffs: [],       // 활성 버프
+      ach: {},         // 도전 과제 완료
+      log: [],         // 활동 로그
+      settings: {
+        sound: true,
+        particle: true,
+        compactUI: false,
+        autosave: true,
+        theme: "default",
+      },
+      lastSave: Date.now(),
+      createdAt: Date.now(),
+    };
+
+    // ----------------------------
+    // 데이터 정의
+    // ----------------------------
+    const Upgrades = [
+      { id:"paw-strength", name:"발바닥 근력", group:"basic", desc:"클릭 당 수익 +1", base: 50, growth: 1.18, effect(l){ return l } },
+      { id:"whisker-wisdom", name:"수염의 지혜", group:"basic", desc:"초당 수익 +2", base: 100, growth: 1.20, effect(l){ return l*2 } },
+      { id:"nap-optimization", name:"수면 최적화", group:"basic", desc:"클릭/초당 수익 1% 증가", base: 250, growth: 1.16, effect(l){ return 1 + l*0.01 } },
+      { id:"fish-snack", name:"생선 간식", group:"basic", desc:"치명타 확률 +0.5%", base: 400, growth: 1.22, effect(l){ return l*0.005 } },
+      { id:"laser-chase", name:"레이저 추격 훈련", group:"basic", desc:"치명타 배수 +0.05", base: 550, growth: 1.22, effect(l){ return l*0.05 } },
+
+      { id:"auto-brush", name:"자동 브러시", group:"auto", desc:"초당 자동 클릭 +0.5", base: 900, growth: 1.24, effect(l){ return l*0.5 } },
+      { id:"milk-fountain", name:"우유 분수", group:"auto", desc:"초당 수익 +5", base: 1500, growth: 1.22, effect(l){ return l*5 } },
+      { id:"toy-factory", name:"장난감 공장", group:"auto", desc:"자동화 효율 +2%", base: 2200, growth: 1.18, effect(l){ return 1 + l*0.02 } },
+
+      { id:"purr-overdrive", name:"그르릉 오버드라이브", group:"special", desc:"치명타 확률/배수 대폭 증가", base: 7500, growth: 1.3, effect(l){ return { c: l*0.01, m: l*0.2 } } },
+      { id:"nine-lives", name:"아홉 생명", group:"special", desc:"소프트캡 완화", base: 12000, growth: 1.28, effect(l){ return 1 + l*0.1 } },
+      { id:"royal-cushion", name:"왕실 쿠션", group:"special", desc:"클릭 콤보 유지력↑", base: 9800, growth: 1.26, effect(l){ return 1 + l*0.15 } },
+    ];
+
+    const StoreItems = [
+      { id:"cat-cafe", name:"고양이 카페", icon:"☕️", desc:"방문객이 고양이에게 사랑을 줍니다. 초당 +20", price: 5000, effect(){ State.perSec += 20 } },
+      { id:"sunny-window", name:"햇살 가득 창문", icon:"🌞", desc:"고양이 만족도 증가. 클릭 +10", price: 4200, effect(){ State.perClick += 10 } },
+      { id:"scratching-post", name:"스크래처 타워", icon:"🗼", desc:"자동 클릭 +2", price: 6400, effect(){ State.perSec += 2 } },
+      { id:"yarn-warehouse", name:"털실 창고", icon:"🧶", desc:"자동화 효율 +5%", price: 8800, effect(){ Buffs.apply({ id:"auto-eff", name:"자동화 상승", dur: 180000, multAuto: 1.05 }) } },
+      { id:"silver-bowl", name:"은빛 그릇", icon:"🥣", desc:"치명타 확률 +1%", price: 7600, effect(){ State.critChance += 0.01 } },
+    ];
+
+    const Researches = [
+      { id:"sleep-science", name:"수면 과학", icon:"🛏️", desc:"휴식 중 초당 수익 유지", price: 12000, time: 60000, effect(){ Buffs.apply({ id:"rest-keep", name:"수면 유지", dur: 600000, restKeep: true }) } },
+      { id:"diet-balance", name:"식단 균형", icon:"🍗", desc:"치명타 배수 +0.4", price: 16000, time: 90000, effect(){ State.critMult += 0.4 } },
+      { id:"purr-physics", name:"그르릉 물리학", icon:"📐", desc:"그르릉은 에너지다. 초당 +30", price: 18000, time: 120000, effect(){ State.perSec += 30 } },
+      { id:"meow-linguistics", name:"야옹 언어학", icon:"🔤", desc:"클릭 +20", price: 14000, time: 75000, effect(){ State.perClick += 20 } },
+    ];
+
+    const Pets = [
+      { id:"momo", name:"모모", icon:"🐈", mood:"졸려요", affection:0, gain: 0.25, bonus(){ State.perClick += 1 } },
+      { id:"nabi", name:"나비", icon:"🐈‍⬛", mood:"장난쳐요", affection:0, gain: 0.35, bonus(){ State.perSec += 1 } },
+      { id:"ddochi", name:"또치", icon:"🐱", mood:"궁금해요", affection:0, gain: 0.3, bonus(){ State.critChance += 0.002 } },
+    ];
+
+    const Achievements = [
+      { id:"first-meow", name:"첫 야옹", desc:"처음으로 고양이를 획득", cond(){ return State.totalEarned >= 1 } },
+      { id:"hundred-cats", name:"백냥", desc:"100 고양이 보유", cond(){ return State.cats >= 100 } },
+      { id:"combo-10", name:"콤보 장인", desc:"콤보 10 달성", cond(){ return State.combo >= 10 } },
+      { id:"big-crit", name:"대박 치명타", desc:"한 번에 100 이상 획득", cond(){ return State.lastGain >= 100 } },
+      { id:"day-1", name:"첫 하루", desc:"플레이 시간 24시간", cond(){ return Date.now() - State.createdAt >= 86400000 } },
+    ];
+
+    // ----------------------------
+    // 버프 시스템
+    // ----------------------------
+    const Buffs = {
+      apply(b){
+        // b: { id, name, dur, multClick?, multSec?, multAuto?, restKeep?, ... }
+        const now = Date.now();
+        const buff = { ...b, start: now, end: now + b.dur };
+        // 중복 시 갱신
+        const idx = State.buffs.findIndex(x=>x.id===b.id);
+        if(idx>=0) State.buffs[idx] = buff; else State.buffs.push(buff);
+        log(`버프 획득: ${b.name} (${fmt.time(b.dur)})`);
+        renderBuffs();
+      },
+      clearExpired(){
+        const now = Date.now();
+        const before = State.buffs.length;
+        State.buffs = State.buffs.filter(b=>b.end > now);
+        if(State.buffs.length !== before) renderBuffs();
+      },
+      getMultipliers(){
+        let mClick = 1, mSec = 1, mAuto = 1;
+        let restKeep = false;
+        for(const b of State.buffs){
+          if(b.multClick) mClick *= b.multClick;
+          if(b.multSec) mSec *= b.multSec;
+          if(b.multAuto) mAuto *= b.multAuto;
+          if(b.restKeep) restKeep = true;
+        }
+        return { mClick, mSec, mAuto, restKeep };
+      }
+    };
+
+    // ----------------------------
+    // DOM 참조
+    // ----------------------------
+    const el = {
+      catsTotal: document.getElementById("catsTotal"),
+      incomePerSec: document.getElementById("incomePerSec"),
+      incomeDelta: document.getElementById("incomeDelta"),
+      catsPerClick: document.getElementById("catsPerClick"),
+      comboFill: document.getElementById("comboFill"),
+      comboCount: document.getElementById("comboCount"),
+      upgradeList: document.getElementById("upgradeList"),
+      automationList: document.getElementById("automationList"),
+      specialList: document.getElementById("specialList"),
+      store: document.getElementById("store"),
+      research: document.getElementById("research"),
+      companions: document.getElementById("companions"),
+      achList: document.getElementById("achList"),
+      logList: document.getElementById("logList"),
+      modalBackdrop: document.getElementById("modalBackdrop"),
+      modalTitle: document.getElementById("modalTitle"),
+      modalContent: document.getElementById("modalContent"),
+      modalClose: document.getElementById("modalClose"),
+      floatText: document.getElementById("floatText"),
+      tooltip: document.getElementById("tooltip"),
+      bigCat: document.getElementById("bigCat"),
+      saveBtn: document.getElementById("saveBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+      settingsBtn: document.getElementById("settingsBtn"),
+      exportBtn: document.getElementById("exportBtn"),
+      importBtn: document.getElementById("importBtn"),
+      creditsBtn: document.getElementById("creditsBtn"),
+      tabs: Array.from(document.querySelectorAll(".tab")),
+    };
+
+    // ----------------------------
+    // 렌더링
+    // ----------------------------
+    function renderStats(){
+      el.catsTotal.textContent = fmt.num(State.cats);
+      el.incomePerSec.textContent = fmt.num(getCurrentPerSec());
+      el.catsPerClick.textContent = fmt.num(getCurrentPerClick());
+      el.comboCount.textContent = State.combo;
+    }
+
+    function renderProgress(){
+      const fill = Math.min(100, State.combo * 5);
+      el.comboFill.style.width = fill + "%";
+    }
+
+    function renderUpgrades(){
+      const makeCard = (u) => {
+        const lvl = State.upgrades[u.id] ?? 0;
+        const price = Math.floor(u.base * Math.pow(u.growth, lvl));
+        const locked = State.cats < price;
+        const groupTitle = {
+          basic: "기본",
+          auto: "자동화",
+          special: "특수"
+        }[u.group];
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "card upgrade" + (locked ? " locked" : "");
+        wrapper.setAttribute("data-id", u.id);
+        wrapper.innerHTML = `
+          <div class="icon" aria-hidden="true"></div>
+          <div class="info">
+            <div class="name">${u.name} <span class="muted">Lv.${lvl}</span></div>
+            <div class="desc">${u.desc} · <span class="muted">${groupTitle}</span></div>
+          </div>
+          <div class="price">₩${fmt.num(price)}</div>
+          <div class="controls">
+            <button class="buy-btn">구매</button>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100, lvl*4)}%"></div></div>
+        `;
+        wrapper.querySelector(".buy-btn").addEventListener("click", () => buyUpgrade(u));
+        wrapper.addEventListener("mouseenter", (e)=> showTooltip(e, upgradeTooltip(u, lvl, price)));
+        wrapper.addEventListener("mouseleave", hideTooltip);
+        return wrapper;
+      };
+
+      // 그룹별 컨테이너 비우고 다시 채우기
+      el.upgradeList.innerHTML = "";
+      el.automationList.innerHTML = "";
+      el.specialList.innerHTML = "";
+
+      Upgrades.forEach(u => {
+        const card = makeCard(u);
+        if(u.group === "basic") el.upgradeList.appendChild(card);
+        else if(u.group === "auto") el.automationList.appendChild(card);
+        else el.specialList.appendChild(card);
+      });
+    }
+
+    function upgradeTooltip(u, lvl, price){
+      let preview = "";
+      try{
+        const eff = u.effect(lvl+1);
+        if(typeof eff === "number") preview = `다음 효과: +${fmt.num(eff)} (Lv.${lvl+1})`;
+        else if(typeof eff === "object"){
+          const parts = [];
+          if(eff.c) parts.push(`치확 +${(eff.c*100).toFixed(1)}%`);
+          if(eff.m) parts.push(`치배 +${eff.m.toFixed(2)}x`);
+          preview = `다음 효과: ${parts.join(", ")}`;
+        }
+      }catch(e){ preview = "효과 미리보기를 불러올 수 없어요"; }
+      return `
+        <div style="font-weight:800">${u.name} · Lv.${lvl}</div>
+        <div style="color:#b6b8d6; margin-top:4px">${u.desc}</div>
+        <div style="margin-top:6px">가격: ₩${fmt.num(price)}</div>
+        <div style="margin-top:4px; color:#a3ffd1">${preview}</div>
+      `;
+    }
+
+    function renderStore(){
+      el.store.innerHTML = "";
+      StoreItems.forEach(item=>{
+        const owned = State.items[item.id] ? "보유중" : "";
+        const locked = State.cats < item.price;
+        const wrap = document.createElement("div");
+        wrap.className = "item" + (locked ? " locked" : "");
+        wrap.setAttribute("data-id", item.id);
+        wrap.innerHTML = `
+          <div class="icon">${item.icon}</div>
+          <div class="detail">
+            <div class="name">${item.name} <span class="muted">${owned}</span></div>
+            <div class="desc">${item.desc}</div>
+          </div>
+          <div class="price">₩${fmt.num(item.price)}</div>
+          <div class="buy">
+            <button class="btn">구매</button>
+          </div>
+        `;
+        wrap.querySelector(".btn").addEventListener("click", ()=> buyStore(item));
+        wrap.addEventListener("mouseenter", (e)=> showTooltip(e, `<b style="font-weight:800">${item.name}</b><div>${item.desc}</div>`));
+        wrap.addEventListener("mouseleave", hideTooltip);
+        el.store.appendChild(wrap);
+      });
+    }
+
+    function renderResearch(){
+      el.research.innerHTML = "";
+      Researches.forEach(r=>{
+        const progress = State.research[r.id]?.progress ?? 0;
+        const running = State.research[r.id]?.running ?? false;
+        const locked = State.cats < r.price && !running;
+        const wrap = document.createElement("div");
+        wrap.className = "item" + (locked ? " locked" : "");
+        wrap.setAttribute("data-id", r.id);
+        wrap.innerHTML = `
+          <div class="icon">${r.icon}</div>
+          <div class="detail">
+            <div class="name">${r.name} <span class="muted">${running ? "진행중" : ""}</span></div>
+            <div class="desc">${r.desc}</div>
+          </div>
+          <div class="price">${running ? fmt.time(r.time - progress) : "₩"+fmt.num(r.price)}</div>
+          <div class="buy">
+            <button class="btn">${running ? "취소" : "연구 시작"}</button>
+          </div>
+        `;
+        wrap.querySelector(".btn").addEventListener("click", ()=> toggleResearch(r));
+        wrap.addEventListener("mouseenter", (e)=> showTooltip(e, `<b style="font-weight:800">${r.name}</b><div>${r.desc}</div>`));
+        wrap.addEventListener("mouseleave", hideTooltip);
+        el.research.appendChild(wrap);
+      });
+    }
+
+    function renderPets(){
+      el.companions.innerHTML = "";
+      Pets.forEach(p=>{
+        const st = State.pets[p.id] ?? { affection:0, mood:p.mood };
+        const wrap = document.createElement("div");
+        wrap.className = "pet-card";
+        wrap.setAttribute("data-id", p.id);
+        wrap.innerHTML = `
+          <div class="icon">${p.icon}</div>
+          <div class="detail">
+            <div class="name">${p.name}</div>
+            <div class="mood">${st.mood} · 호감도 ${Math.floor(st.affection)}%</div>
+            <div class="affection"><div class="fill" style="width:${Math.min(100, st.affection)}%"></div></div>
+          </div>
+          <div>
+            <button class="btn">쓰다듬기</button>
+          </div>
+        `;
+        wrap.querySelector(".btn").addEventListener("click", ()=> petPet(p));
+        wrap.addEventListener("mouseenter", (e)=> showTooltip(e, `<b style="font-weight:800">${p.name}</b><div>함께하면 보너스가 늘어나요.</div>`));
+        wrap.addEventListener("mouseleave", hideTooltip);
+        el.companions.appendChild(wrap);
+      });
+    }
+
+    function renderAchievements(){
+      el.achList.innerHTML = "";
+      Achievements.forEach(a=>{
+        const ok = !!State.ach[a.id];
+        const wrap = document.createElement("div");
+        wrap.className = "ach";
+        wrap.innerHTML = `
+          <div class="medal" style="${ok ? '' : 'filter:grayscale(1); opacity:.6'}"></div>
+          <div><b style="font-weight:800">${a.name}</b> <span class="muted">— ${a.desc}</span></div>
+        `;
+        el.achList.appendChild(wrap);
+      });
+    }
+
+    function renderBuffs(){
+      // 버프는 오른쪽 상단 툴팁에 잠정 표시하거나 로그에 기록
+      // 여기서는 로그에 간단 표시만 유지
+      // (UI 확장 포인트)
+    }
+
+    function renderAll(){
+      renderStats();
+      renderProgress();
+      renderUpgrades();
+      renderStore();
+      renderResearch();
+      renderPets();
+      renderAchievements();
+    }
+
+    // ----------------------------
+    // 상호작용
+    // ----------------------------
+    function gainCats(amount, source="기본"){
+      const mult = Buffs.getMultipliers();
+      const final = amount * mult.mClick;
+      State.cats += final;
+      State.totalEarned += final;
+      State.lastGain = final;
+      el.incomeDelta.textContent = `+${fmt.num(final)}`;
+      flashFloat(`+${fmt.num(final)}`);
+      log(`${source}: +${fmt.num(final)}`);
+      checkAchievements();
+      renderStats();
+    }
+
+    function autoGain(){
+      const mult = Buffs.getMultipliers();
+      const perSec = getCurrentPerSec() * mult.mSec * mult.mAuto;
+      const perTick = perSec / TICK_RATE;
+      State.cats += perTick;
+      State.totalEarned += perTick;
+      State.lastGain = perTick;
+      checkAchievements();
+    }
+
+    function getCurrentPerClick(){
+      const lvlOpt = State.upgrades["nap-optimization"] ?? 0;
+      const opt = Upgrades.find(u=>u.id==="nap-optimization").effect(lvlOpt);
+      return (State.perClick + (State.upgrades["paw-strength"] ?? 0)) * opt;
+    }
+
+    function getCurrentPerSec(){
+      const lvlWis = State.upgrades["whisker-wisdom"] ?? 0;
+      const base = State.perSec + (lvlWis*2);
+      const lvlToy = State.upgrades["toy-factory"] ?? 0;
+      const autoEff = Upgrades.find(u=>u.id==="toy-factory").effect(lvlToy);
+      const lvlMilk = State.upgrades["milk-fountain"] ?? 0;
+      const milk = lvlMilk*5;
+      const lvlNap = State.upgrades["nap-optimization"] ?? 0;
+      const opt = Upgrades.find(u=>u.id==="nap-optimization").effect(lvlNap);
+      return (base + milk) * autoEff * opt;
+    }
+
+    function clickCat(){
+      // 콤보 계산
+      const now = Date.now();
+      const dt = now - State.lastClick;
+      const decayMs = 1500 * ((State.upgrades["royal-cushion"] ?? 0) > 0 ? Upgrades.find(u=>u.id==="royal-cushion").effect(State.upgrades["royal-cushion"]).toFixed ? 1 : (1 + (State.upgrades["royal-cushion"] ?? 0)*0.15) : 1);
+      if(dt < decayMs) State.combo++; else State.combo = 1;
+      State.lastClick = now;
+
+      const base = getCurrentPerClick();
+      const crit = RNG.next() < State.critChance + (State.upgrades["purr-overdrive"] ? Upgrades.find(u=>u.id==="purr-overdrive").effect(State.upgrades["purr-overdrive"]).c : 0);
+      const mult = crit ? (State.critMult + (State.upgrades["laser-chase"] ?? 0)*0.05 + (State.upgrades["purr-overdrive"] ? Upgrades.find(u=>u.id==="purr-overdrive").effect(State.upgrades["purr-overdrive"]).m : 0)) : 1;
+      const comboMult = 1 + Math.min(2, State.combo * 0.03);
+      const amount = base * mult * comboMult;
+      gainCats(amount, crit ? "치명타 클릭" : "클릭");
+
+      // UI
+      el.comboCount.textContent = State.combo;
+      el.comboFill.style.width = Math.min(100, State.combo * 5) + "%";
+    }
+
+    function buyUpgrade(u){
+      const lvl = State.upgrades[u.id] ?? 0;
+      const price = Math.floor(u.base * Math.pow(u.growth, lvl));
+      if(State.cats < price) return;
+      State.cats -= price;
+      State.upgrades[u.id] = lvl + 1;
+
+      // 특수 즉시 효과
+      if(u.id === "fish-snack") State.critChance += 0.005;
+      if(u.id === "laser-chase") State.critMult += 0.05;
+      if(u.id === "milk-fountain") State.perSec += 5;
+
+      log(`업그레이드 구매: ${u.name} Lv.${lvl+1}`);
+      renderStats();
+      renderUpgrades();
+    }
+
+    function buyStore(item){
+      if(State.items[item.id]){ log("이미 보유 중입니다."); return; }
+      if(State.cats < item.price) return;
+      State.cats -= item.price;
+      State.items[item.id] = true;
+      item.effect();
+      log(`상점 구매: ${item.name}`);
+      renderStats();
+      renderStore();
+    }
+
+    function toggleResearch(r){
+      const st = State.research[r.id] ?? { running:false, progress:0 };
+      if(st.running){
+        st.running = false;
+        log(`연구 취소: ${r.name}`);
+      }else{
+        if(State.cats < r.price) return;
+        State.cats -= r.price;
+        st.running = true; st.progress = 0;
+        log(`연구 시작: ${r.name}`);
+      }
+      State.research[r.id] = st;
+      renderResearch();
+      renderStats();
+    }
+
+    function petPet(p){
+      const st = State.pets[p.id] ?? { affection:0, mood:p.mood };
+      st.affection = Math.min(100, st.affection + 3 + RNG.next()*2);
+      if(st.affection >= 100 && !st.bonusApplied){
+        p.bonus(); st.bonusApplied = true;
+        log(`반려묘 ${p.name}와의 유대가 깊어졌어요! 보너스 획득`);
+      }else{
+        log(`쓰다듬기: ${p.name} (+${(st.affection).toFixed(1)}%)`);
+      }
+      // 랜덤 기분 변화
+      if(RNG.next() < 0.15){
+        st.mood = RNG.pick(["졸려요", "장난쳐요", "배고파요", "신나요", "심심해요"]);
+      }
+      State.pets[p.id] = st;
+      renderPets();
+    }
+
+    // ----------------------------
+    // 도전 과제
+    // ----------------------------
+    function checkAchievements(){
+      Achievements.forEach(a=>{
+        if(!State.ach[a.id] && a.cond()){
+          State.ach[a.id] = true;
+          log(`도전 과제 달성: ${a.name}`);
+          renderAchievements();
+        }
+      });
+    }
+
+    // ----------------------------
+    // 저장/불러오기
+    // ----------------------------
+    const SAVE_KEY = "nyang-tycoon-save";
+    function save(){
+      try{
+        const data = JSON.stringify(State);
+        localStorage.setItem(SAVE_KEY, data);
+        State.lastSave = Date.now();
+        log("게임 저장 완료");
+      }catch(e){
+        log("저장 중 문제가 발생했어요.");
+      }
+    }
+    function load(){
+      try{
+        const raw = localStorage.getItem(SAVE_KEY);
+        if(!raw) return;
+        const obj = JSON.parse(raw);
+        Object.assign(State, obj);
+        log("게임 불러오기 완료");
+      }catch(e){
+        log("불러오기 중 문제가 발생했어요.");
+      }
+    }
+    function reset(){
+      if(!confirm("정말 초기화할까요? 진행 상황이 사라집니다.")) return;
+      const keep = { settings: State.settings };
+      Object.assign(State, {
+        ...keep,
+        version: "1.0.0",
+        cats: 0, totalEarned:0, perClick:1, perSec:0,
+        combo:0, lastClick:0, critChance:0.05, critMult:2.5,
+        softcaps:[], upgrades:{}, automation:{}, specials:{},
+        items:{}, research:{}, pets:{}, buffs:[], ach:{}, log:[],
+        lastSave: Date.now(), createdAt: Date.now(),
+      });
+      renderAll();
+      log("초기화 완료");
+      save();
+    }
+
+    // ----------------------------
+    // 툴팁
+    // ----------------------------
+    function showTooltip(e, html){
+      const tip = el.tooltip;
+      tip.innerHTML = html;
+      tip.classList.add("show");
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = rect.left + rect.width/2;
+      const y = rect.top;
+      tip.style.left = (x - tip.offsetWidth/2) + "px";
+      tip.style.top = (y - tip.offsetHeight - 10 + window.scrollY) + "px";
+    }
+    function hideTooltip(){
+      el.tooltip.classList.remove("show");
+    }
+
+    // ----------------------------
+    // 모달
+    // ----------------------------
+    function openModal(title, content){
+      el.modalTitle.textContent = title;
+      el.modalContent.innerHTML = content;
+      el.modalBackdrop.style.display = "flex";
+      el.modalBackdrop.setAttribute("aria-hidden", "false");
+    }
+    function closeModal(){
+      el.modalBackdrop.style.display = "none";
+      el.modalBackdrop.setAttribute("aria-hidden", "true");
+    }
+
+    function openSettings(){
+      const s = State.settings;
+      const row = (label, id, active) => `
+        <div class="row">
+          <div>${label}</div>
+          <div class="switch ${active ? "active":""}" data-id="${id}">
+            <div class="knob"></div>
+          </div>
+        </div>
+      `;
+      const html = `
+        ${row("사운드", "sound", s.sound)}
+        ${row("파티클", "particle", s.particle)}
+        ${row("압축 UI", "compactUI", s.compactUI)}
+        ${row("자동 저장", "autosave", s.autosave)}
+        <div class="row">
+          <div>테마</div>
+          <div>
+            <select id="themeSel" class="btn secondary">
+              <option value="default" ${s.theme==="default"?"selected":""}>기본</option>
+              <option value="spring">봄</option>
+              <option value="midnight">자정</option>
+              <option value="sunset">노을</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div>버프 목록</div>
+          <div class="muted">${State.buffs.map(b=>b.name).join(", ") || "없음"}</div>
+        </div>
+        <div class="row">
+          <div>버전</div>
+          <div class="muted">${State.version}</div>
+        </div>
+      `;
+      openModal("설정", html);
+      Array.from(el.modalContent.querySelectorAll(".switch")).forEach(sw=>{
+        sw.addEventListener("click", ()=>{
+          sw.classList.toggle("active");
+          const id = sw.getAttribute("data-id");
+          State.settings[id] = sw.classList.contains("active");
+          save();
+        });
+      });
+      el.modalContent.querySelector("#themeSel").addEventListener("change", (e)=>{
+        State.settings.theme = e.target.value;
+        applyTheme(State.settings.theme);
+        save();
+      });
+    }
+
+    function openExport(){
+      const data = btoa(unescape(encodeURIComponent(JSON.stringify(State))));
+      const html = `
+        <div class="muted">아래 저장 코드를 안전한 곳에 복사해 두세요.</div>
+        <textarea id="exportData" style="width:100%; height:180px; border-radius:8px; background:#12142a; color:${getComputedStyle(document.documentElement).getPropertyValue('--text')}; padding:10px;">${data}</textarea>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+          <button class="btn" id="copyExport">복사</button>
+        </div>
+      `;
+      openModal("내보내기", html);
+      el.modalContent.querySelector("#copyExport").addEventListener("click", ()=>{
+        const ta = el.modalContent.querySelector("#exportData");
+        ta.select(); document.execCommand("copy");
+        log("내보내기 데이터 복사 완료");
+      });
+    }
+
+    function openImport(){
+      const html = `
+        <div class="muted">저장 코드를 붙여 넣으세요.</div>
+        <textarea id="importData" style="width:100%; height:180px; border-radius:8px; background:#12142a; color:${getComputedStyle(document.documentElement).getPropertyValue('--text')}; padding:10px;"></textarea>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+          <button class="btn" id="applyImport">가져오기</button>
+        </div>
+      `;
+      openModal("가져오기", html);
+      el.modalContent.querySelector("#applyImport").addEventListener("click", ()=>{
+        try{
+          const raw = el.modalContent.querySelector("#importData").value.trim();
+          const json = JSON.parse(decodeURIComponent(escape(atob(raw))));
+          Object.assign(State, json);
+          closeModal();
+          renderAll();
+          save();
+          log("가져오기 완료");
+        }catch(e){
+          log("가져오기 실패: 저장 코드가 올바르지 않아요.");
+        }
+      });
+    }
+
+    function openCredits(){
+      const html = `
+        <div>냥냥타이쿤에 함께해 줘서 고마워요.</div>
+        <ul style="margin:8px 0 0 18px;">
+          <li>기획: 당신의 야옹</li>
+          <li>디자인: 말랑말랑 쿠션</li>
+          <li>개발: 그르릉 스튜디오</li>
+        </ul>
+        <div class="muted" style="margin-top:6px;">모든 고양이는 사랑받아야 해요.</div>
+      `;
+      openModal("크레딧", html);
+    }
+
+    // ----------------------------
+    // 비주얼 효과
+    // ----------------------------
+    function flashFloat(text){
+      const ft = el.floatText;
+      ft.textContent = text;
+      ft.style.transition = "none";
+      ft.style.opacity = "0";
+      ft.style.transform = "translate(-50%, -10px)";
+      requestAnimationFrame(()=>{
+        ft.style.transition = "opacity .12s ease, transform .24s ease";
+        ft.style.opacity = "1";
+        ft.style.transform = "translate(-50%, -28px)";
+        setTimeout(()=>{ ft.style.opacity="0" }, 300);
+      });
+    }
+
+    function applyTheme(th){
+      const root = document.documentElement;
+      if(th === "spring"){
+        root.style.setProperty("--bg", "#f7fff3");
+        root.style.setProperty("--panel", "#eaffea");
+        root.style.setProperty("--panel-2", "#def7e1");
+        root.style.setProperty("--text", "#203013");
+        root.style.setProperty("--muted", "#5a6e4f");
+        root.style.setProperty("--accent", "#ff9fd1");
+        root.style.setProperty("--accent-2", "#85e07c");
+      }else if(th === "midnight"){
+        root.style.setProperty("--bg", "#0a0b17");
+        root.style.setProperty("--panel", "#151735");
+        root.style.setProperty("--panel-2", "#1c1e47");
+        root.style.setProperty("--text", "#eaeaf6");
+        root.style.setProperty("--muted", "#b6b8d6");
+        root.style.setProperty("--accent", "#8aa8ff");
+        root.style.setProperty("--accent-2", "#a8ffea");
+      }else if(th === "sunset"){
+        root.style.setProperty("--bg", "#12080f");
+        root.style.setProperty("--panel", "#2a1320");
+        root.style.setProperty("--panel-2", "#3a1a2b");
+        root.style.setProperty("--text", "#ffeef6");
+        root.style.setProperty("--muted", "#f4cbdc");
+        root.style.setProperty("--accent", "#ff9f9f");
+        root.style.setProperty("--accent-2", "#ffd166");
+      }else{
+        // default
+        root.style.setProperty("--bg", "#0f1020");
+        root.style.setProperty("--panel", "#1a1c3a");
+        root.style.setProperty("--panel-2", "#23254d");
+        root.style.setProperty("--text", "#eaeaf6");
+        root.style.setProperty("--muted", "#b6b8d6");
+        root.style.setProperty("--accent", "#ff9fd1");
+        root.style.setProperty("--accent-2", "#ffd166");
+      }
+    }
+
+    // ----------------------------
+    // 로깅
+    // ----------------------------
+    function log(text){
+      State.log.unshift({ t: Date.now(), s: text });
+      State.log = State.log.slice(0, 50);
+      el.logList.innerHTML = State.log.map(x=> `<div class="log">[${new Date(x.t).toLocaleTimeString()}] ${x.s}</div>`).join("");
+    }
+
+    // ----------------------------
+    // 루프/타이밍
+    // ----------------------------
+    const FPS = 60;
+    const TICK_RATE = 10; // 초당 10틱
+    let acc = 0;
+    function loop(ts){
+      Buffs.clearExpired();
+      acc += 1/FPS;
+      if(acc >= 1/TICK_RATE){
+        acc = 0;
+        autoGain();
+        renderStats();
+      }
+      requestAnimationFrame(loop);
+    }
+
+    // ----------------------------
+    // 이벤트 바인딩
+    // ----------------------------
+    function bind(){
+      el.bigCat.addEventListener("click", clickCat);
+      el.saveBtn.addEventListener("click", save);
+      el.resetBtn.addEventListener("click", reset);
+      el.settingsBtn.addEventListener("click", openSettings);
+      el.modalClose.addEventListener("click", closeModal);
+      el.exportBtn.addEventListener("click", (e)=>{ e.preventDefault(); openExport(); });
+      el.importBtn.addEventListener("click", (e)=>{ e.preventDefault(); openImport(); });
+      el.creditsBtn.addEventListener("click", (e)=>{ e.preventDefault(); openCredits(); });
+
+      el.tabs.forEach(tab=>{
+        tab.addEventListener("click", ()=>{
+          el.tabs.forEach(t=> t.classList.remove("active"));
+          tab.classList.add("active");
+          const name = tab.getAttribute("data-tab");
+          ["store","research","companions"].forEach(k=>{
+            document.getElementById(k).classList.toggle("active", k===name);
+          });
+        });
+      });
+
+      // 페이지 이탈 전 자동 저장
+      window.addEventListener("beforeunload", ()=>{
+        if(State.settings.autosave) save();
+      });
+    }
+
+    // ----------------------------
+    // 초기화
+    // ----------------------------
+    function init(){
+      load();
+      applyTheme(State.settings.theme);
+      renderAll();
+      bind();
+      requestAnimationFrame(loop);
+      log("어서 와요! 고양이를 클릭해서 시작해요.");
+    }
+
+    init();
+
+    // ----------------------------
+    // 확장 아이디어 (개발용 주석)
+    // - 시즌 이벤트: 벚꽃, 여름 바캉스, 할로윈, 크리스마스
+    // - 길들임 시스템: 반려묘 특성 강화 및 시너지
+    // - 무한 확장: 환생(전생), 유산, 명예 점수
+    // - 거래소: 간식/장난감/쿠션의 교환 비율
+    // - 멀티 언어: en/ja/ko 자동 감지
+    // - 클라우드 세이브: 여러 기기 동기화
+    // ----------------------------
+  </script>
+</body>
+</html>
