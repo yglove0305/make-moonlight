@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>HTML 파일 → Data URL 변환기</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 24px; }
+    .row { margin: 12px 0; }
+    textarea { width: 100%; height: 200px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .info { font-size: 12px; color: #666; }
+    .btns button { margin-right: 8px; }
+    .preview { border: 1px solid #ddd; padding: 12px; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <h1>HTML 파일을 Data URL로 변환</h1>
+
+  <div class="row">
+    <label for="fileInput"><strong>파일 선택:</strong></label>
+    <input id="fileInput" type="file" accept=".html,text/html" />
+    <div class="info">.html 파일을 선택하면 자동으로 Data URL로 변환됩니다.</div>
+  </div>
+
+  <div class="row">
+    <label for="mimeSelect"><strong>Mime 타입:</strong></label>
+    <select id="mimeSelect">
+      <option value="text/html">text/html (기본)</option>
+      <option value="text/plain">text/plain</option>
+      <option value="application/octet-stream">application/octet-stream</option>
+    </select>
+    <div class="info">일부 환경에서 MIME 타입을 바꾸면 미리보기 동작이 달라질 수 있습니다.</div>
+  </div>
+
+  <div class="row">
+    <label for="dataUrl"><strong>Data URL 결과:</strong></label>
+    <textarea id="dataUrl" readonly placeholder="여기에 Data URL이 표시됩니다."></textarea>
+    <div class="btns">
+      <button id="copyBtn">복사</button>
+      <button id="downloadBtn">Data URL 파일로 저장</button>
+      <button id="openBtn">새 탭에서 열기</button>
+    </div>
+  </div>
+
+  <div class="row preview">
+    <strong>미리보기:</strong>
+    <iframe id="previewFrame" style="width:100%;height:300px;border:0;"></iframe>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const mimeSelect = document.getElementById('mimeSelect');
+    const dataUrlEl = document.getElementById('dataUrl');
+    const copyBtn = document.getElementById('copyBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const openBtn = document.getElementById('openBtn');
+    const previewFrame = document.getElementById('previewFrame');
+
+    let currentDataUrl = '';
+    let originalFileName = '';
+
+    function toBase64DataUrl(content, mime = 'text/html') {
+      // base64 인코딩
+      const base64 = btoa(
+        // 유니코드 안전 변환
+        encodeURIComponent(content).replace(/%([0-9A-F]{2})/g, (match, p1) =>
+          String.fromCharCode('0x' + p1)
+        )
+      );
+      return `data:${mime};base64,${base64}`;
+    }
+
+    function updatePreview(dataUrl) {
+      // iframe에 data URL 로드
+      previewFrame.src = dataUrl;
+    }
+
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files?.[0];
+      if (!file) return;
+
+      originalFileName = file.name;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const text = reader.result;
+        const mime = mimeSelect.value || 'text/html';
+        currentDataUrl = toBase64DataUrl(String(text), mime);
+        dataUrlEl.value = currentDataUrl;
+        updatePreview(currentDataUrl);
+      };
+      reader.onerror = () => {
+        alert('파일을 읽는 중 오류가 발생했습니다.');
+      };
+      reader.readAsText(file, 'utf-8');
+    });
+
+    mimeSelect.addEventListener('change', () => {
+      if (!dataUrlEl.value) return;
+      // MIME 타입 변경 반영
+      const parts = currentDataUrl.split(',');
+      const contentBase64 = parts[1] || '';
+      const newMime = mimeSelect.value || 'text/html';
+      currentDataUrl = `data:${newMime};base64,${contentBase64}`;
+      dataUrlEl.value = currentDataUrl;
+      updatePreview(currentDataUrl);
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      if (!dataUrlEl.value) return alert('먼저 파일을 변환하세요.');
+      try {
+        await navigator.clipboard.writeText(dataUrlEl.value);
+        copyBtn.textContent = '복사됨!';
+        setTimeout(() => (copyBtn.textContent = '복사'), 1200);
+      } catch {
+        alert('복사에 실패했습니다. 수동으로 복사해주세요.');
+      }
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      if (!dataUrlEl.value) return alert('먼저 파일을 변환하세요.');
+      const blob = new Blob([dataUrlEl.value], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const baseName = originalFileName ? originalFileName.replace(/\.[^.]+$/, '') : 'data-url';
+      a.href = url;
+      a.download = `${baseName}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    openBtn.addEventListener('click', () => {
+      if (!dataUrlEl.value) return alert('먼저 파일을 변환하세요.');
+      window.open(dataUrlEl.value, '_blank', 'noopener,noreferrer');
+    });
+  </script>
+</body>
+</html>
