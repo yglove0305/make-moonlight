@@ -2,752 +2,133 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>로컬 메신저 - LocalStorage + P2P</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PeerJS 메신저 (이름 표시)</title>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <style>
-    :root {
-      --bg: #0f172a;
-      --panel: #111827;
-      --muted: #9ca3af;
-      --text: #e5e7eb;
-      --accent: #22d3ee;
-      --accent2: #60a5fa;
-      --danger: #f87171;
-      --success: #34d399;
-      --border: #1f2937;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; background: var(--bg); color: var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-    }
-    header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 18px; border-bottom: 1px solid var(--border); background: #0b1222;
-      position: sticky; top: 0; z-index: 10;
-    }
-    header h1 { font-size: 18px; margin: 0; letter-spacing: .3px; }
-    header .right { display: flex; gap: 10px; align-items: center; }
-    header .badge { padding: 2px 8px; border-radius: 999px; font-size: 12px; background: #0b2830; color: var(--accent); border: 1px solid #12424c; }
-    header button { background: #12213a; color: var(--text); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; cursor: pointer; }
-    main { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 56px); }
-    aside { border-right: 1px solid var(--border); background: #0b1020; padding: 12px; }
-    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
-    .stack { display: flex; flex-direction: column; gap: 10px; }
-    .row { display: flex; align-items: center; gap: 10px; }
-    .search { width: 100%; background: #0c1426; color: var(--text); border: 1px solid var(--border); padding: 10px 12px; border-radius: 8px; }
-    .section-title { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin: 8px 2px; }
-    .user-item, .chat-item {
-      display: grid; grid-template-columns: 36px 1fr auto; gap: 10px; align-items: center;
-      padding: 8px; border-radius: 10px; cursor: pointer; border: 1px solid transparent;
-    }
-    .user-item:hover, .chat-item:hover { background: #0c1426; border-color: var(--border); }
-    .avatar {
-      width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
-      color: #02131a; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border: 1px solid #0b2236;
-    }
-    .status { width: 10px; height: 10px; border-radius: 50%; background: var(--danger); border: 1px solid #1f2937; }
-    .status.online { background: #10b981; }
-    .muted { color: var(--muted); font-size: 12px; }
-    .pill { padding: 2px 6px; border: 1px solid var(--border); border-radius: 999px; font-size: 11px; color: var(--muted); }
-    .danger { color: var(--danger); }
-    .success { color: var(--success); }
-    .content { display: grid; grid-template-rows: auto 1fr auto; }
-    .chat-header { border-bottom: 1px solid var(--border); padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
-    .messages { padding: 14px; overflow: auto; display: flex; flex-direction: column; gap: 8px; }
-    .bubble {
-      max-width: 70%; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border);
-      background: #0b162a; position: relative; word-wrap: break-word; white-space: pre-wrap;
-    }
-    .me { align-self: flex-end; background: #0b243a; border-color: #1b3857; }
-    .meta { font-size: 11px; color: var(--muted); margin-top: 4px; }
-    .composer { border-top: 1px solid var(--border); padding: 10px; display: grid; grid-template-columns: 1fr auto; gap: 8px; }
-    textarea {
-      resize: none; height: 64px; background: #0c1426; color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px;
-    }
-    .btn {
-      background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #052230; font-weight: 700; border: 0; padding: 10px 14px; border-radius: 10px; cursor: pointer;
-    }
-    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .codebox {
-      background: #06121d; border: 1px dashed #1b3b5a; padding: 10px; border-radius: 10px; color: #a3e1ff; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      word-break: break-all; white-space: pre-wrap;
-    }
-    .auth {
-      max-width: 420px; margin: 48px auto; padding: 20px; border: 1px solid var(--border); border-radius: 14px; background: var(--panel);
-    }
-    label { font-size: 13px; color: var(--muted); }
-    input {
-      width: 100%; background: #0c1426; color: var(--text); border: 1px solid var(--border); padding: 10px 12px; border-radius: 8px;
-    }
-    .gap { display: grid; gap: 8px; }
-    .hidden { display: none !important; }
-    .small { font-size: 12px; color: var(--muted); }
-    .hr { border-top: 1px solid var(--border); margin: 8px 0; }
-    .right-align { text-align: right; }
-    .center { text-align: center; }
-    .link { color: var(--accent); cursor: pointer; }
-    .toast {
-      position: fixed; bottom: 16px; right: 16px; background: #0c1426; border: 1px solid var(--border); padding: 10px 12px; border-radius: 10px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.3); z-index: 1000; max-width: 320px; font-size: 14px;
-    }
+    body { font-family:sans-serif; background:#111; color:#eee; margin:0; }
+    .container { max-width:800px; margin:20px auto; padding:20px; }
+    .card { background:#222; padding:16px; border-radius:8px; margin-bottom:16px; }
+    input,button { padding:8px; margin:4px; }
+    .messages { height:300px; overflow:auto; background:#000; padding:10px; border-radius:8px; }
+    .msg { margin:6px 0; }
+    .me { text-align:right; color:#4da3ff; }
+    .other { text-align:left; color:#7be0b0; }
+    .meta { font-size:12px; color:#aaa; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>로컬 메신저</h1>
-    <div class="right">
-      <span id="sessionUser" class="badge">미로그인</span>
-      <button id="logoutBtn" class="hidden">로그아웃</button>
-    </div>
-  </header>
+<div class="container">
 
-  <div id="authView" class="auth">
+  <!-- 로그인 화면 -->
+  <div id="loginCard" class="card">
     <h2>로그인</h2>
-    <div class="gap">
-      <label>아이디</label>
-      <input id="loginId" placeholder="아이디" />
-      <label>비밀번호</label>
-      <input id="loginPw" type="password" placeholder="비밀번호" />
-      <button id="loginBtn" class="btn">로그인</button>
-    </div>
-    <div class="hr"></div>
-    <div class="small">처음이라면 <span id="goSignup" class="link">회원가입</span></div>
+    <input id="loginUser" placeholder="아이디"><br>
+    <input id="loginPass" type="password" placeholder="비밀번호"><br>
+    <button id="loginBtn">로그인</button>
+    <p>계정이 없나요? <a href="#" id="toRegister">회원가입</a></p>
+    <div id="loginMsg"></div>
   </div>
 
-  <div id="signupView" class="auth hidden">
+  <!-- 회원가입 화면 -->
+  <div id="registerCard" class="card" style="display:none">
     <h2>회원가입</h2>
-    <div class="gap">
-      <label>아이디</label>
-      <input id="signId" placeholder="아이디" />
-      <label>닉네임</label>
-      <input id="signNick" placeholder="닉네임" />
-      <label>비밀번호</label>
-      <input id="signPw" type="password" placeholder="비밀번호" />
-      <button id="signupBtn" class="btn">가입하기</button>
-    </div>
-    <div class="hr"></div>
-    <div class="small">이미 계정이 있나요? <span id="goLogin" class="link">로그인</span></div>
+    <input id="regUser" placeholder="아이디"><br>
+    <input id="regPass" type="password" placeholder="비밀번호"><br>
+    <input id="regDisplay" placeholder="표시 이름"><br>
+    <button id="registerBtn">가입하기</button>
+    <p>이미 계정이 있나요? <a href="#" id="toLogin">로그인</a></p>
+    <div id="regMsg"></div>
   </div>
 
-  <main id="appView" class="hidden">
-    <aside>
-      <div class="stack">
-        <input id="searchBox" class="search" placeholder="메시지/유저 검색" />
-        <div class="panel stack">
-          <div class="section-title">나의 프로필</div>
-          <div class="row">
-            <div id="myAvatar" class="avatar">ME</div>
-            <div>
-              <div id="myNick">-</div>
-              <div class="muted" id="myId">-</div>
-            </div>
-            <div class="status online" title="online"></div>
-          </div>
-        </div>
+  <!-- 메신저 화면 -->
+  <div id="chatCard" class="card" style="display:none">
+    <h2>PeerJS 메신저</h2>
+    <div>내 ID: <span id="myId">생성중...</span></div>
+    <input id="peerIdInput" placeholder="상대 Peer ID">
+    <button id="connectBtn">연결</button>
+    <div id="status"></div>
+    <div class="messages" id="messages"></div>
+    <input id="msgInput" placeholder="메시지 입력" disabled>
+    <button id="sendBtn" disabled>전송</button>
+  </div>
 
-        <div class="panel stack">
-          <div class="section-title">같은 브라우저의 사용자</div>
-          <div id="tabUsers" class="stack small"></div>
-        </div>
+</div>
 
-        <div class="panel stack">
-          <div class="section-title">직접 연결(P2P)</div>
-          <div class="grid2">
-            <button id="makeOffer" class="btn">직접 연결 시작</button>
-            <button id="acceptOffer" class="btn">직접 연결 수락</button>
-          </div>
-          <div class="small">다른 기기와 연결하려면 JSON을 복붙해 교환하세요.</div>
-          <div class="hr"></div>
-          <div class="small">내 연결 코드</div>
-          <div id="localSignal" class="codebox small">-</div>
-          <div class="small">상대의 코드 붙여넣기</div>
-          <textarea id="remoteSignal" placeholder="여기에 상대 JSON을 붙여넣고 엔터/버튼으로 진행"></textarea>
-          <div class="right-align">
-            <button id="applySignal" class="btn">코드 적용</button>
-          </div>
-        </div>
+<script>
+  // --- 계정 관리 (LocalStorage) ---
+  function getAccounts(){ return JSON.parse(localStorage.getItem("accounts")||"{}"); }
+  function saveAccounts(acc){ localStorage.setItem("accounts", JSON.stringify(acc)); }
 
-        <div class="panel stack">
-          <div class="section-title">대화 목록</div>
-          <div id="chatList" class="stack"></div>
-        </div>
-      </div>
-    </aside>
+  // --- 화면 전환 ---
+  document.getElementById("toRegister").onclick = ()=>{ 
+    loginCard.style.display="none"; registerCard.style.display="block"; 
+  };
+  document.getElementById("toLogin").onclick = ()=>{ 
+    registerCard.style.display="none"; loginCard.style.display="block"; 
+  };
 
-    <section class="content">
-      <div class="chat-header">
-        <div class="avatar" id="peerAvatar">PE</div>
-        <div>
-          <div id="peerNick">상대를 선택하거나 연결하세요</div>
-          <div class="muted" id="peerId">-</div>
-        </div>
-        <div class="pill" id="connState">disconnected</div>
-        <div class="pill" id="typingState">idle</div>
-        <div class="pill" id="unreadState">0 unread</div>
-        <div style="margin-left:auto" class="small muted">대화는 브라우저 로컬스토리지에만 저장됩니다</div>
-      </div>
+  // --- 회원가입 ---
+  registerBtn.onclick = ()=>{
+    const u=regUser.value.trim(), p=regPass.value.trim(), d=regDisplay.value.trim();
+    if(!u||!p){ regMsg.textContent="아이디/비밀번호 입력"; return; }
+    const acc=getAccounts();
+    if(acc[u]){ regMsg.textContent="이미 존재하는 아이디"; return; }
+    acc[u]={pw:p, display:d||u};
+    saveAccounts(acc);
+    regMsg.textContent="가입 성공! 로그인하세요.";
+  };
 
-      <div id="messages" class="messages"></div>
+  // --- 로그인 ---
+  let currentUser=null, currentDisplay=null;
+  loginBtn.onclick=()=>{
+    const u=loginUser.value.trim(), p=loginPass.value.trim();
+    const acc=getAccounts();
+    if(acc[u] && acc[u].pw===p){
+      currentUser=u; currentDisplay=acc[u].display||u;
+      loginCard.style.display="none"; chatCard.style.display="block";
+      startPeer(u);
+    } else { loginMsg.textContent="로그인 실패"; }
+  };
 
-      <div class="composer">
-        <textarea id="msgBox" placeholder="메시지를 입력하세요. Shift+Enter 줄바꿈, Enter 전송"></textarea>
-        <button id="sendBtn" class="btn">전송</button>
-      </div>
-    </section>
-  </main>
-
-  <div id="toast" class="toast hidden"></div>
-
-  <script>
-    // -------------------------
-    // 유틸
-    // -------------------------
-    const $ = (sel) => document.querySelector(sel);
-    const el = (tag, cls) => { const e = document.createElement(tag); if (cls) e.className = cls; return e; };
-    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-    const now = () => new Date().toISOString();
-    const sha256 = async (text) => {
-      const enc = new TextEncoder().encode(text);
-      const hash = await crypto.subtle.digest("SHA-256", enc);
-      return [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2, "0")).join("");
-    };
-    const toast = (msg, ms=2500) => {
-      const t = $("#toast");
-      t.textContent = msg; t.classList.remove("hidden");
-      setTimeout(() => t.classList.add("hidden"), ms);
-    };
-
-    // -------------------------
-    // 저장키
-    // -------------------------
-    const KEY_USERS = "lm:users";           // { id, nick, passHash, createdAt }
-    const KEY_SESS  = "lm:session";         // { id }
-    const KEY_CHATS = "lm:chats";           // { [peerId]: [ {from,to,body,ts,read} ] }
-    const KEY_PROF  = "lm:profile";         // { id, nick }
-    const bc = ("BroadcastChannel" in window) ? new BroadcastChannel("lm:presence") : null;
-
-    // -------------------------
-    // 상태
-    // -------------------------
-    let state = {
-      me: null,         // { id, nick }
-      currentPeerId: null,
-      rtc: null,
-      dc: null,
-      pendingRole: null, // "offer" | "answer" | null
-      pendingDesc: null,
-      unread: {},        // { [peerId]: count }
-      typingPeers: {},   // { [peerId]: bool }
-    };
-
-    // -------------------------
-    // 로컬스토리지 접근
-    // -------------------------
-    const loadUsers = () => JSON.parse(localStorage.getItem(KEY_USERS) || "[]");
-    const saveUsers = (u) => localStorage.setItem(KEY_USERS, JSON.stringify(u));
-    const getUser = (id) => loadUsers().find(u => u.id === id);
-    const setSession = (id) => localStorage.setItem(KEY_SESS, JSON.stringify({ id }));
-    const getSession = () => JSON.parse(localStorage.getItem(KEY_SESS) || "null");
-    const clearSession = () => localStorage.removeItem(KEY_SESS);
-    const loadChats = () => JSON.parse(localStorage.getItem(KEY_CHATS) || "{}");
-    const saveChats = (c) => localStorage.setItem(KEY_CHATS, JSON.stringify(c));
-    const saveProfile = (p) => localStorage.setItem(KEY_PROF, JSON.stringify(p));
-    const loadProfile = () => JSON.parse(localStorage.getItem(KEY_PROF) || "null");
-
-    // -------------------------
-    // 인증
-    // -------------------------
-    async function signup(id, nick, pw) {
-      id = id.trim(); nick = nick.trim();
-      if (!id || !nick || !pw) throw new Error("모든 항목을 입력하세요.");
-      const users = loadUsers();
-      if (users.some(u => u.id === id)) throw new Error("이미 존재하는 아이디입니다.");
-      const passHash = await sha256(pw);
-      const user = { id, nick, passHash, createdAt: now() };
-      users.push(user); saveUsers(users);
-      toast("가입 완료. 로그인하세요.");
-    }
-
-    async function login(id, pw) {
-      const users = loadUsers();
-      const user = users.find(u => u.id === id);
-      if (!user) throw new Error("존재하지 않는 아이디입니다.");
-      const passHash = await sha256(pw);
-      if (passHash !== user.passHash) throw new Error("비밀번호가 올바르지 않습니다.");
-      setSession(user.id);
-      saveProfile({ id: user.id, nick: user.nick });
-      return { id: user.id, nick: user.nick };
-    }
-
-    function logout() {
-      clearSession();
-      location.reload();
-    }
-
-    // -------------------------
-    // UI 연결
-    // -------------------------
-    function showAuth() {
-      $("#authView").classList.remove("hidden");
-      $("#signupView").classList.add("hidden");
-      $("#appView").classList.add("hidden");
-      $("#logoutBtn").classList.add("hidden");
-      $("#sessionUser").textContent = "미로그인";
-    }
-    function showSignup() {
-      $("#authView").classList.add("hidden");
-      $("#signupView").classList.remove("hidden");
-    }
-    function showApp() {
-      $("#authView").classList.add("hidden");
-      $("#signupView").classList.add("hidden");
-      $("#appView").classList.remove("hidden");
-      $("#logoutBtn").classList.remove("hidden");
-    }
-
-    // -------------------------
-    // 존재감(같은 브라우저 탭)
-    // -------------------------
-    function announcePresence() {
-      if (!bc || !state.me) return;
-      bc.postMessage({ type: "presence", user: state.me, ts: Date.now() });
-    }
-    function setupPresence() {
-      if (!bc) return;
-      bc.onmessage = (ev) => {
-        const msg = ev.data || {};
-        if (msg.type === "presence") {
-          renderTabUsers(msg.user);
-        }
-        if (msg.type === "invite") {
-          // 수신자가 같은 브라우저 다른 탭일 때 채팅창 열도록
-          if (state.me && msg.to === state.me.id) {
-            openChatWith(msg.from);
-          }
-        }
-        if (msg.type === "im") {
-          if (state.me && msg.to === state.me.id) {
-            storeMessage(msg.from, { from: msg.from, to: msg.to, body: msg.body, ts: msg.ts, read: state.currentPeerId === msg.from });
-            if (state.currentPeerId !== msg.from) {
-              state.unread[msg.from] = (state.unread[msg.from]||0)+1;
-              updateUnreadState();
-              renderChatList();
-              toast(`새 메시지 from ${msg.from}`);
-            } else {
-              renderMessages(msg.from);
-            }
-          }
-        }
-        if (msg.type === "typing") {
-          if (state.me && msg.to === state.me.id) {
-            state.typingPeers[msg.from] = !!msg.typing;
-            updateTypingState();
-          }
-        }
-      };
-      // 주기적 브로드캐스트
-      setInterval(announcePresence, 3000);
-      announcePresence();
-    }
-    function renderTabUsers(lastUser) {
-      const wrap = $("#tabUsers");
-      if (!wrap) return;
-      if (lastUser) {
-        // 단순히 최신 사용자만 새로고침 트리거로 사용
-      }
-      wrap.innerHTML = "";
-      // 탭 기반 존재감은 리스트 자체를 유지하기 어렵고, 여기서는 "나"만 안내하고 초대 버튼으로 시작
-      const p = el("div","small");
-      p.innerHTML = "같은 브라우저의 다른 탭은 자동 발견됩니다. 새 탭에서 다른 계정으로 로그인해보세요.";
-      wrap.appendChild(p);
-    }
-
-    // -------------------------
-    // 대화 저장/렌더
-    // -------------------------
-    function chatKey(peerId) { return peerId; }
-    function storeMessage(peerId, m) {
-      const chats = loadChats();
-      const k = chatKey(peerId);
-      chats[k] = chats[k] || [];
-      chats[k].push(m);
-      saveChats(chats);
-    }
-    function readAll(peerId) {
-      const chats = loadChats();
-      const k = chatKey(peerId);
-      (chats[k]||[]).forEach(m => { if (m.from === peerId) m.read = true; });
-      saveChats(chats);
-    }
-    function getChat(peerId) {
-      const chats = loadChats();
-      return chats[chatKey(peerId)] || [];
-    }
-
-    function renderChatList() {
-      const wrap = $("#chatList");
-      wrap.innerHTML = "";
-      const chats = loadChats();
-      const list = Object.entries(chats)
-        .map(([peerId, arr]) => {
-          const last = arr[arr.length-1];
-          const u = getUser(peerId) || { id: peerId, nick: peerId };
-          return { peerId, nick: u.nick, lastMsg: last?.body || "", lastTs: last?.ts || "", unread: state.unread[peerId]||0 };
-        })
-        .sort((a,b)=> (b.lastTs||"").localeCompare(a.lastTs||""));
-      list.forEach(item => {
-        const row = el("div","chat-item");
-        const av = el("div","avatar"); av.textContent = (item.nick || item.peerId).slice(0,2).toUpperCase();
-        const info = el("div");
-        const name = el("div"); name.textContent = item.nick || item.peerId;
-        const sub = el("div"); sub.className = "muted"; sub.textContent = item.lastMsg;
-        info.appendChild(name); info.appendChild(sub);
-        const badge = el("div","pill"); badge.textContent = item.unread ? `${item.unread} new` : "읽음";
-        row.appendChild(av); row.appendChild(info); row.appendChild(badge);
-        row.onclick = () => openChatWith(item.peerId);
-        wrap.appendChild(row);
-      });
-      if (!list.length) {
-        const empty = el("div","small muted");
-        empty.textContent = "대화가 없습니다. 목록을 만들려면 상대와 연결해보세요.";
-        wrap.appendChild(empty);
-      }
-    }
-
-    function renderMessages(peerId) {
-      const msgs = getChat(peerId);
-      const box = $("#messages");
-      box.innerHTML = "";
-      msgs.forEach(m => {
-        const bubble = el("div","bubble");
-        if (m.from === (state.me?.id)) bubble.classList.add("me");
-        bubble.textContent = m.body;
-        const meta = el("div","meta");
-        const who = m.from === state.me.id ? "나" : (getUser(m.from)?.nick || m.from);
-        const read = (m.read || m.from === state.me.id) ? "✓" : "";
-        meta.textContent = `${who} · ${new Date(m.ts).toLocaleString()} ${read}`;
-        bubble.appendChild(meta);
-        box.appendChild(bubble);
-      });
-      box.scrollTop = box.scrollHeight;
-      $("#unreadState").textContent = `${state.unread[peerId]||0} unread`;
-    }
-
-    function updateTypingState() {
-      const t = !!state.typingPeers[state.currentPeerId];
-      $("#typingState").textContent = t ? "typing..." : "idle";
-    }
-
-    function updateUnreadState() {
-      const count = state.unread[state.currentPeerId] || 0;
-      $("#unreadState").textContent = `${count} unread`;
-    }
-
-    function updatePeerHeader(peerId) {
-      const u = getUser(peerId) || { id: peerId, nick: peerId };
-      $("#peerNick").textContent = u.nick || peerId;
-      $("#peerId").textContent = u.id || peerId;
-      $("#peerAvatar").textContent = (u.nick||u.id||"?").slice(0,2).toUpperCase();
-    }
-
-    function openChatWith(peerId) {
-      state.currentPeerId = peerId;
-      updatePeerHeader(peerId);
-      readAll(peerId);
-      state.unread[peerId] = 0;
-      updateUnreadState();
-      renderChatList();
-      renderMessages(peerId);
-    }
-
-    // -------------------------
-    // 로컬(같은 브라우저) 메시지 전송
-    // -------------------------
-    function sendLocalIM(to, body) {
-      if (!bc) return;
-      bc.postMessage({ type: "im", from: state.me.id, to, body, ts: now() });
-    }
-    function sendLocalTyping(to, typing) {
-      if (!bc) return;
-      bc.postMessage({ type: "typing", from: state.me.id, to, typing });
-    }
-    function inviteTab(to) {
-      if (!bc) return;
-      bc.postMessage({ type: "invite", from: state.me.id, to });
-    }
-
-    // -------------------------
-    // WebRTC P2P
-    // -------------------------
-    function resetRTC() {
-      try { state.dc?.close(); } catch {}
-      try { state.rtc?.close(); } catch {}
-      state.dc = null; state.rtc = null; state.pendingRole = null; state.pendingDesc = null;
-      $("#connState").textContent = "disconnected";
-    }
-
-    function newPeer() {
-      const cfg = {
-        iceServers: [
-          { urls: ["stun:stun.l.google.com:19302","stun:global.stun.twilio.com:3478"] }
-        ]
-      };
-      const rtc = new RTCPeerConnection(cfg);
-      rtc.onconnectionstatechange = () => {
-        $("#connState").textContent = rtc.connectionState;
-      };
-      rtc.onicecandidate = () => {
-        // 후보는 SDP에 포함되도록 trickle = false 전략
-      };
-      rtc.ondatachannel = (ev) => {
-        setupDataChannel(ev.channel);
-      };
-      state.rtc = rtc;
-      return rtc;
-    }
-
-    function setupDataChannel(dc) {
-      state.dc = dc;
-      dc.onopen = () => {
-        $("#connState").textContent = "connected";
-        toast("P2P 연결 성공");
-      };
-      dc.onclose = () => {
-        $("#connState").textContent = "closed";
-      };
-      dc.onmessage = (ev) => {
-        try {
-          const msg = JSON.parse(ev.data);
-          if (msg.type === "im") {
-            const from = msg.from || (state.currentPeerId || "peer");
-            const peerId = msg.peerId || from;
-            storeMessage(peerId, { from: peerId, to: state.me.id, body: msg.body, ts: msg.ts, read: state.currentPeerId === peerId });
-            if (state.currentPeerId !== peerId) {
-              state.unread[peerId] = (state.unread[peerId]||0)+1;
-              renderChatList();
-              updateUnreadState();
-              toast(`P2P 새 메시지 from ${peerId}`);
-            } else {
-              renderMessages(peerId);
-            }
-          } else if (msg.type === "typing") {
-            const peerId = msg.peerId || "peer";
-            state.typingPeers[peerId] = !!msg.typing;
-            updateTypingState();
-          } else if (msg.type === "hello") {
-            // 연결 직후 상호 인사 및 프로필 교환
-            const peerId = msg.peerId || "peer";
-            if (!getUser(peerId)) {
-              // 임시 유저로 로컬에 보관(닉네임 포함)
-              const users = loadUsers();
-              users.push({ id: peerId, nick: msg.nick||peerId, passHash: "__external__", createdAt: now() });
-              saveUsers(users);
-            }
-            openChatWith(peerId);
-          }
-        } catch {
-          // 텍스트 메시지 호환
-          const peerId = state.currentPeerId || "peer";
-          storeMessage(peerId, { from: peerId, to: state.me.id, body: String(ev.data), ts: now(), read: state.currentPeerId === peerId });
-          renderMessages(peerId);
-        }
-      };
-    }
-
-    async function createOffer() {
-      resetRTC();
-      const rtc = newPeer();
-      const dc = rtc.createDataChannel("chat",{ ordered: true });
-      setupDataChannel(dc);
-      const offer = await rtc.createOffer({ offerToReceiveAudio: false, offerToReceiveVideo: false });
-      await rtc.setLocalDescription(offer);
-      const sdp = await waitIceGatheringComplete(rtc);
-      const payload = { role: "offer", sdp, from: state.me.id, nick: state.me.nick, ts: now() };
-      $("#localSignal").textContent = JSON.stringify(payload);
-      state.pendingRole = "offer";
-      toast("Offer 생성 완료. 상대에게 전달하세요.");
-    }
-
-    async function acceptOffer(remote) {
-      resetRTC();
-      const rtc = newPeer();
-      await rtc.setRemoteDescription(new RTCSessionDescription(remote.sdp));
-      const answer = await rtc.createAnswer();
-      await rtc.setLocalDescription(answer);
-      const sdp = await waitIceGatheringComplete(rtc);
-      const payload = { role: "answer", sdp, from: state.me.id, nick: state.me.nick, ts: now() };
-      $("#localSignal").textContent = JSON.stringify(payload);
-      state.pendingRole = "answer";
-      toast("Answer 생성 완료. 상대에게 전달하세요.");
-    }
-
-    async function applySignal(remoteText) {
-      const data = JSON.parse(remoteText);
-      if (!data || !data.sdp || !data.role) throw new Error("잘못된 코드입니다.");
-      if (!state.rtc) newPeer();
-      if (data.role === "offer") {
-        await acceptOffer(data);
-      } else if (data.role === "answer") {
-        await state.rtc.setRemoteDescription(new RTCSessionDescription(data.sdp));
-        toast("상대 Answer 적용됨. 연결 중...");
-        // 상대에게 내 프로필 알림
-        await sleep(300);
-        sendHello();
-      }
-      // 채팅 상대 헤더
-      if (data.from) openChatWith(data.from);
-    }
-
-    function sendHello() {
-      if (!state.dc || state.dc.readyState !== "open") return;
-      state.dc.send(JSON.stringify({ type: "hello", peerId: state.me.id, nick: state.me.nick }));
-    }
-
-    function waitIceGatheringComplete(pc) {
-      return new Promise((resolve) => {
-        if (pc.iceGatheringState === "complete") {
-          resolve(pc.localDescription);
-        } else {
-          const check = () => {
-            if (pc.iceGatheringState === "complete") {
-              pc.removeEventListener("icegatheringstatechange", check);
-              resolve(pc.localDescription);
-            }
-          };
-          pc.addEventListener("icegatheringstatechange", check);
-        }
-      });
-    }
-
-    // -------------------------
-    // 전송/입력 핸들러
-    // -------------------------
-    function sendMessage() {
-      const text = $("#msgBox").value.trim();
-      if (!text) return;
-      const peerId = state.currentPeerId;
-      if (!peerId) { toast("상대를 선택하거나 연결하세요."); return; }
-
-      // 저장 및 렌더
-      storeMessage(peerId, { from: state.me.id, to: peerId, body: text, ts: now(), read: false });
-      renderMessages(peerId);
-      renderChatList();
-
-      // 같은 브라우저 탭이면 Broadcast로
-      sendLocalIM(peerId, text);
-
-      // P2P로도 시도
-      if (state.dc && state.dc.readyState === "open") {
-        state.dc.send(JSON.stringify({ type: "im", body: text, ts: now(), from: state.me.id, peerId }));
-      }
-
-      $("#msgBox").value = "";
-    }
-
-    let typingTimer = null;
-    function handleTyping() {
-      const peerId = state.currentPeerId;
-      if (!peerId) return;
-      // 같은 탭
-      sendLocalTyping(peerId, true);
-      // P2P
-      if (state.dc && state.dc.readyState === "open") {
-        state.dc.send(JSON.stringify({ type: "typing", typing: true, peerId: peerId }));
-      }
-      clearTimeout(typingTimer);
-      typingTimer = setTimeout(() => {
-        sendLocalTyping(peerId, false);
-        if (state.dc && state.dc.readyState === "open") {
-          state.dc.send(JSON.stringify({ type: "typing", typing: false, peerId: peerId }));
-        }
-      }, 1200);
-    }
-
-    // -------------------------
-    // 초기화
-    // -------------------------
-    function restoreSession() {
-      const sess = getSession();
-      const prof = loadProfile();
-      if (sess && prof && getUser(sess.id)) {
-        state.me = { id: prof.id, nick: prof.nick };
-        $("#sessionUser").textContent = state.me.nick;
-        $("#myNick").textContent = state.me.nick;
-        $("#myId").textContent = state.me.id;
-        $("#myAvatar").textContent = state.me.nick.slice(0,2).toUpperCase();
-        showApp();
-        setupPresence();
-        renderChatList();
-      } else {
-        showAuth();
-      }
-    }
-
-    // -------------------------
-    // 이벤트 바인딩
-    // -------------------------
-    $("#goSignup").onclick = showSignup;
-    $("#goLogin").onclick = showAuth;
-
-    $("#signupBtn").onclick = async () => {
-      try {
-        await signup($("#signId").value, $("#signNick").value, $("#signPw").value);
-        showAuth();
-      } catch (e) { toast(e.message); }
-    };
-    $("#loginBtn").onclick = async () => {
-      try {
-        const me = await login($("#loginId").value, $("#loginPw").value);
-        state.me = me;
-        $("#sessionUser").textContent = me.nick;
-        $("#myNick").textContent = me.nick;
-        $("#myId").textContent = me.id;
-        $("#myAvatar").textContent = me.nick.slice(0,2).toUpperCase();
-        showApp();
-        setupPresence();
-        renderChatList();
-      } catch (e) { toast(e.message); }
-    };
-    $("#logoutBtn").onclick = logout;
-
-    // 엔터 전송
-    $("#msgBox").addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      } else {
-        handleTyping();
-      }
+  // --- PeerJS ---
+  let peer, conn;
+  function startPeer(userId){
+    peer=new Peer(userId,{config:{iceServers:[{urls:"stun:stun.l.google.com:19302"}]}});
+    peer.on("open", id=>{ myId.textContent=id; status.textContent="내 Peer 준비됨"; });
+    peer.on("connection", c=>{ conn=c; setupConn(); });
+  }
+  function setupConn(){
+    conn.on("open", ()=>{ status.textContent="상대와 연결됨"; msgInput.disabled=false; sendBtn.disabled=false; });
+    conn.on("data", data=>{
+      if(data.type==="msg"){ addMsg(data.text,"other",data.from); }
     });
-    $("#sendBtn").onclick = sendMessage;
+  }
+  connectBtn.onclick=()=>{
+    conn=peer.connect(peerIdInput.value.trim());
+    setupConn();
+  };
 
-    // 검색
-    $("#searchBox").addEventListener("input", (e) => {
-      const q = e.target.value.toLowerCase();
-      const wrap = $("#chatList");
-      [...wrap.children].forEach(node => {
-        const text = node.innerText?.toLowerCase() || "";
-        node.style.display = text.includes(q) ? "" : "none";
-      });
-    });
+  // --- 메시지 전송 ---
+  sendBtn.onclick=sendMsg;
+  msgInput.addEventListener("keydown",e=>{ if(e.key==="Enter") sendMsg(); });
+  function sendMsg(){
+    const text=msgInput.value;
+    if(text && conn && conn.open){
+      const packet={type:"msg", from:currentDisplay, text:text};
+      conn.send(packet);
+      addMsg(text,"me",currentDisplay);
+      msgInput.value="";
+    }
+  }
 
-    // P2P 버튼
-    $("#makeOffer").onclick = createOffer;
-    $("#acceptOffer").onclick = () => {
-      const txt = $("#remoteSignal").value.trim();
-      if (!txt) { toast("상대 Offer JSON을 붙여넣으세요."); return; }
-      try { const data = JSON.parse(txt); acceptOffer(data); } catch (e) { toast("유효한 Offer가 아닙니다."); }
-    };
-    $("#applySignal").onclick = async () => {
-      const txt = $("#remoteSignal").value.trim();
-      if (!txt) { toast("상대 JSON을 붙여넣으세요."); return; }
-      try { await applySignal(txt); } catch (e) { toast(e.message || "코드 적용 실패"); }
-    };
-
-    // 페이지 로드
-    restoreSession();
-  </script>
+  // --- 메시지 표시 ---
+  function addMsg(text,who,from){
+    const div=document.createElement("div");
+    div.className="msg "+who;
+    div.innerHTML=`<div class="meta">${from}</div><div>${text}</div>`;
+    messages.appendChild(div);
+    messages.scrollTop=messages.scrollHeight;
+  }
+</script>
 </body>
 </html>
