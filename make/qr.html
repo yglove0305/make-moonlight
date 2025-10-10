@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>랜덤 미로 그림 생성기</title>
+  <style>
+    :root {
+      --bg: #0f0f13;
+      --panel: #1a1d24;
+      --panel-border: #2a2e37;
+      --text: #e8eaed;
+      --muted: #9aa0a6;
+      --accent: #4f8cff;
+      --accent-2: #34a853;
+      --danger: #e53935;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      margin: 0;
+    }
+
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--panel-border);
+      background: linear-gradient(180deg, #12151a, #0f0f13 60%);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0.2px;
+    }
+    header p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 16px;
+      padding: 16px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .group { margin-bottom: 14px; }
+    .group h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      color: var(--muted);
+      letter-spacing: 0.3px;
+      font-weight: 600;
+    }
+
+    label {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      align-items: center;
+      gap: 10px;
+      margin: 8px 0;
+      font-size: 14px;
+    }
+
+    input[type="number"],
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--panel-border);
+      background: #0f1217;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    input[type="color"] {
+      width: 100%;
+      height: 36px;
+      padding: 2px;
+      border-radius: 8px;
+      border: 1px solid var(--panel-border);
+      background: #0f1217;
+    }
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.15);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--panel-border);
+      background: #121620;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.02s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+    button:active { transform: translateY(1px); }
+    button.primary {
+      background: linear-gradient(180deg, #1c2bff, #4966ff);
+      border-color: #3348ff;
+    }
+    button.secondary {
+      background: #17212f;
+    }
+    button.warn { background: #2a1a1a; border-color: #432222; color: #ffd2d2; }
+
+    .canvas-wrap {
+      position: relative;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 12px;
+    }
+    .canvas-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .canvas-header .stats {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .canvas-board {
+      background: #0b0c10;
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 8px;
+      display: grid;
+      place-items: center;
+      min-height: 300px;
+    }
+    canvas {
+      max-width: 100%;
+      height: auto;
+      image-rendering: crisp-edges;
+      image-rendering: pixelated;
+      border-radius: 6px;
+    }
+
+    footer {
+      color: var(--muted);
+      font-size: 12px;
+      padding: 12px 16px 24px;
+      text-align: center;
+    }
+
+    @media (max-width: 980px) {
+      main { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>랜덤 미로 그림 생성기</h1>
+    <p>알고리즘, 크기, 색상을 조절하고 PNG로 저장하세요.</p>
+  </header>
+
+  <main>
+    <section class="panel" aria-label="controls">
+      <div class="group">
+        <h3>알고리즘 선택</h3>
+        <label>
+          <span>알고리즘</span>
+          <select id="algo">
+            <option value="dfs">재귀 백트래커 (DFS)</option>
+            <option value="prim">Prim</option>
+            <option value="aldous">Aldous-Broder</option>
+          </select>
+        </label>
+        <label>
+          <span>시드</span>
+          <input type="text" id="seed" placeholder="예: maze-2025" />
+        </label>
+        <div class="row">
+          <label>
+            <span>행 수</span>
+            <input type="number" id="rows" min="5" max="1000" value="35" />
+          </label>
+          <label>
+            <span>열 수</span>
+            <input type="number" id="cols" min="5" max="1000" value="35" />
+          </label>
+        </div>
+        <div class="row">
+          <label>
+            <span>셀 크기(px)</span>
+            <input type="number" id="cellSize" min="4" max="64" value="16" />
+          </label>
+          <label>
+            <span>선 두께(px)</span>
+            <input type="number" id="stroke" min="1" max="12" value="2" />
+          </label>
+        </div>
+        <div class="row">
+          <label>
+            <span>여백(px)</span>
+            <input type="number" id="padding" min="0" max="200" value="24" />
+          </label>
+          <label>
+            <span>스냅(안티앨리어싱)</span>
+            <select id="snap">
+              <option value="on">정밀 스냅</option>
+              <option value="off">일반</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="group">
+        <h3>색상 및 표시</h3>
+        <div class="row">
+          <label>
+            <span>배경색</span>
+            <input type="color" id="bgColor" value="#0b0c10" />
+          </label>
+          <label>
+            <span>선색</span>
+            <input type="color" id="lineColor" value="#e8eaed" />
+          </label>
+        </div>
+        <div class="row">
+          <label>
+            <span>시작/끝 표시</span>
+            <select id="showEndpoints">
+              <option value="on">표시</option>
+              <option value="off">숨김</option>
+            </select>
+          </label>
+          <label>
+            <span>엔드포인트 색</span>
+            <input type="color" id="endColor" value="#34a853" />
+          </label>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="generate" class="primary">미로 생성</button>
+        <button id="randomizeSeed" class="secondary">시드 랜덤</button>
+        <button id="save" class="secondary">저장(PNG)</button>
+        <button id="reset" class="warn">초기화</button>
+      </div>
+    </section>
+
+    <section class="panel canvas-wrap" aria-label="canvas">
+      <div class="canvas-header">
+        <div class="stats" id="stats">준비됨</div>
+        <div class="stats" id="dimInfo"></div>
+      </div>
+      <div class="canvas-board">
+        <canvas id="mazeCanvas"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    랜덤 미로 그림 생성기 · 만든 미로는 자유롭게 저장/사용하세요.
+  </footer>
+
+  <script>
+    // --------- 유틸: 시드 기반 난수 ----------
+    function xorshift32(seed) {
+      let x = seed >>> 0;
+      return function() {
+        x ^= x << 13; x >>>= 0;
+        x ^= x >>> 17; x >>>= 0;
+        x ^= x << 5; x >>>= 0;
+        return (x >>> 0) / 0xFFFFFFFF;
+      }
+    }
+    function hashString(str) {
+      let h = 2166136261 >>> 0;
+      for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return h >>> 0;
+    }
+    function rngFromSeed(seedString) {
+      if (!seedString || !seedString.trim()) {
+        seedString = 'seed-' + Date.now();
+      }
+      return xorshift32(hashString(seedString));
+    }
+
+    // --------- 그리드/셀 도우미 ----------
+    function index(r, c, cols) { return r * cols + c; }
+    function valid(rc, rows, cols) {
+      return rc.r >= 0 && rc.r < rows && rc.c >= 0 && rc.c < cols;
+    }
+    const DIRS = [
+      {dr: -1, dc: 0, name: 'N'}, // 북
+      {dr: 1, dc: 0, name: 'S'},  // 남
+      {dr: 0, dc: -1, name: 'W'}, // 서
+      {dr: 0, dc: 1, name: 'E'}   // 동
+    ];
+    function opposite(dir) {
+      switch(dir) {
+        case 'N': return 'S';
+        case 'S': return 'N';
+        case 'W': return 'E';
+        case 'E': return 'W';
+      }
+    }
+
+    // --------- 미로 생성기들 ----------
+    function generateDFS(rows, cols, rng) {
+      const grid = new Array(rows * cols).fill(null).map(() => ({ N: true, S: true, W: true, E: true, visited: false }));
+      const stack = [];
+      const start = { r: 0, c: 0 };
+      stack.push(start);
+      grid[index(start.r, start.c, cols)].visited = true;
+
+      while (stack.length) {
+        const cur = stack[stack.length - 1];
+        const neighbors = [];
+        for (const d of DIRS) {
+          const nr = cur.r + d.dr, nc = cur.c + d.dc;
+          if (!valid({r: nr, c: nc}, rows, cols)) continue;
+          const ni = index(nr, nc, cols);
+          if (!grid[ni].visited) neighbors.push({ r: nr, c: nc, dir: d.name });
+        }
+        if (neighbors.length === 0) {
+          stack.pop();
+        } else {
+          const pick = neighbors[Math.floor(rng() * neighbors.length)];
+          const ci = index(cur.r, cur.c, cols);
+          const ni = index(pick.r, pick.c, cols);
+          grid[ci][pick.dir] = false;
+          grid[ni][opposite(pick.dir)] = false;
+          grid[ni].visited = true;
+          stack.push({ r: pick.r, c: pick.c });
+        }
+      }
+      return grid;
+    }
+
+    function generatePrim(rows, cols, rng) {
+      const grid = new Array(rows * cols).fill(null).map(() => ({ N: true, S: true, W: true, E: true, inMaze: false }));
+      const start = { r: Math.floor(rng() * rows), c: Math.floor(rng() * cols) };
+      grid[index(start.r, start.c, cols)].inMaze = true;
+      const walls = [];
+
+      function addWalls(r, c) {
+        for (const d of DIRS) {
+          const nr = r + d.dr, nc = c + d.dc;
+          if (valid({r: nr, c: nc}, rows, cols)) {
+            walls.push({ r, c, nr, nc, dir: d.name });
+          }
+        }
+      }
+      addWalls(start.r, start.c);
+
+      while (walls.length) {
+        const wIndex = Math.floor(rng() * walls.length);
+        const w = walls.splice(wIndex, 1)[0];
+        const a = index(w.r, w.c, cols);
+        const b = index(w.nr, w.nc, cols);
+        const inA = grid[a].inMaze;
+        const inB = grid[b].inMaze;
+        if (inA ^ inB) {
+          // 하나는 미로, 하나는 밖
+          const from = inA ? a : b;
+          const to = inA ? b : a;
+          const dir = inA ? w.dir : opposite(w.dir);
+          grid[from][dir] = false;
+          grid[to][opposite(dir)] = false;
+          grid[to].inMaze = true;
+          addWalls(Math.floor(to / cols), to % cols);
+        }
+      }
+      return grid;
+    }
+
+    function generateAldous(rows, cols, rng) {
+      const grid = new Array(rows * cols).fill(null).map(() => ({ N: true, S: true, W: true, E: true, visited: false }));
+      let cur = { r: Math.floor(rng() * rows), c: Math.floor(rng() * cols) };
+      let visitedCount = 1;
+      grid[index(cur.r, cur.c, cols)].visited = true;
+
+      while (visitedCount < rows * cols) {
+        const d = DIRS[Math.floor(rng() * DIRS.length)];
+        const nr = cur.r + d.dr, nc = cur.c + d.dc;
+        if (!valid({r: nr, c: nc}, rows, cols)) continue;
+        const ci = index(cur.r, cur.c, cols);
+        const ni = index(nr, nc, cols);
+        if (!grid[ni].visited) {
+          grid[ci][d.name] = false;
+          grid[ni][opposite(d.name)] = false;
+          grid[ni].visited = true;
+          visitedCount++;
+        }
+        cur = { r: nr, c: nc };
+      }
+      return grid;
+    }
+
+    // --------- 캔버스 그리기 ----------
+    function drawMaze(canvas, grid, rows, cols, opts) {
+      const {
+        cellSize = 16,
+        stroke = 2,
+        padding = 24,
+        bgColor = '#0b0c10',
+        lineColor = '#e8eaed',
+        endColor = '#34a853',
+        snap = true,
+        showEndpoints = true
+      } = opts;
+
+      const totalWidth = cols * cellSize + padding * 2;
+      const totalHeight = rows * cellSize + padding * 2;
+
+      canvas.width = totalWidth;
+      canvas.height = totalHeight;
+
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.lineWidth = stroke;
+      ctx.strokeStyle = lineColor;
+      ctx.lineCap = 'square';
+
+      // 픽셀 스냅: 선명한 라인
+      function snapCoord(v) {
+        return snap ? Math.round(v) + 0.5 * (stroke % 2) : v;
+      }
+
+      const offsetX = padding;
+      const offsetY = padding;
+
+      // 외곽과 내부 벽 그리기
+      ctx.beginPath();
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const cell = grid[index(r, c, cols)];
+          const x = offsetX + c * cellSize;
+          const y = offsetY + r * cellSize;
+
+          // 북벽
+          if (cell.N) {
+            ctx.moveTo(snapCoord(x), snapCoord(y));
+            ctx.lineTo(snapCoord(x + cellSize), snapCoord(y));
+          }
+          // 서벽
+          if (cell.W) {
+            ctx.moveTo(snapCoord(x), snapCoord(y));
+            ctx.lineTo(snapCoord(x), snapCoord(y + cellSize));
+          }
+          // 남벽 (맨 마지막 행이거나 남쪽 이웃이 북벽을 지우지 않은 경우 보조로 그림)
+          if (r === rows - 1 && cell.S) {
+            ctx.moveTo(snapCoord(x), snapCoord(y + cellSize));
+            ctx.lineTo(snapCoord(x + cellSize), snapCoord(y + cellSize));
+          }
+          // 동벽
+          if (c === cols - 1 && cell.E) {
+            ctx.moveTo(snapCoord(x + cellSize), snapCoord(y));
+            ctx.lineTo(snapCoord(x + cellSize), snapCoord(y + cellSize));
+          }
+        }
+      }
+      ctx.stroke();
+
+      // 시작/끝 표시
+      if (showEndpoints) {
+        const startX = offsetX + cellSize / 2;
+        const startY = offsetY + cellSize / 2;
+        const endX = offsetX + (cols - 0.5) * cellSize;
+        const endY = offsetY + (rows - 0.5) * cellSize;
+
+        ctx.fillStyle = endColor;
+        const r = Math.max(2, Math.floor(cellSize * 0.18));
+        ctx.beginPath();
+        ctx.arc(startX, startY, r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(endX, endY, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // --------- 컨트롤 바인딩 ----------
+    const el = {
+      algo: document.getElementById('algo'),
+      seed: document.getElementById('seed'),
+      rows: document.getElementById('rows'),
+      cols: document.getElementById('cols'),
+      cellSize: document.getElementById('cellSize'),
+      stroke: document.getElementById('stroke'),
+      padding: document.getElementById('padding'),
+      bgColor: document.getElementById('bgColor'),
+      lineColor: document.getElementById('lineColor'),
+      endColor: document.getElementById('endColor'),
+      snap: document.getElementById('snap'),
+      showEndpoints: document.getElementById('showEndpoints'),
+      generate: document.getElementById('generate'),
+      randomizeSeed: document.getElementById('randomizeSeed'),
+      save: document.getElementById('save'),
+      reset: document.getElementById('reset'),
+      canvas: document.getElementById('mazeCanvas'),
+      stats: document.getElementById('stats'),
+      dimInfo: document.getElementById('dimInfo'),
+    };
+
+    function getOpts() {
+      return {
+        algo: el.algo.value,
+        seed: el.seed.value,
+        rows: clamp(parseInt(el.rows.value || '0', 10), 5, 1000),
+        cols: clamp(parseInt(el.cols.value || '0', 10), 5, 1000),
+        cellSize: clamp(parseInt(el.cellSize.value || '16', 10), 4, 64),
+        stroke: clamp(parseInt(el.stroke.value || '2', 10), 1, 12),
+        padding: clamp(parseInt(el.padding.value || '24', 10), 0, 200),
+        bgColor: el.bgColor.value,
+        lineColor: el.lineColor.value,
+        endColor: el.endColor.value,
+        snap: el.snap.value === 'on',
+        showEndpoints: el.showEndpoints.value === 'on',
+      };
+    }
+    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+    function makeGrid(opts) {
+      const rng = rngFromSeed(opts.seed);
+      let grid;
+      const t0 = performance.now();
+      if (opts.algo === 'dfs') grid = generateDFS(opts.rows, opts.cols, rng);
+      else if (opts.algo === 'prim') grid = generatePrim(opts.rows, opts.cols, rng);
+      else grid = generateAldous(opts.rows, opts.cols, rng);
+      const t1 = performance.now();
+
+      el.stats.textContent = `알고리즘: ${opts.algo.toUpperCase()} · 시드: "${opts.seed || '(자동)'}" · 생성 ${Math.round(t1 - t0)}ms`;
+      el.dimInfo.textContent = `${opts.rows} x ${opts.cols} 셀 · 캔버스 ${opts.cols * opts.cellSize + opts.padding * 2} x ${opts.rows * opts.cellSize + opts.padding * 2}px`;
+      return grid;
+    }
+
+    function generateAndDraw() {
+      const opts = getOpts();
+      const grid = makeGrid(opts);
+      drawMaze(el.canvas, grid, opts.rows, opts.cols, opts);
+    }
+
+    el.generate.addEventListener('click', generateAndDraw);
+    el.randomizeSeed.addEventListener('click', () => {
+      const s = 'mz-' + Math.random().toString(36).slice(2, 8) + '-' + Date.now().toString(36);
+      el.seed.value = s;
+      generateAndDraw();
+    });
+    el.save.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = `maze-${el.algo.value}-${el.rows.value}x${el.cols.value}.png`;
+      link.href = el.canvas.toDataURL('image/png');
+      link.click();
+    });
+    el.reset.addEventListener('click', () => {
+      el.algo.value = 'dfs';
+      el.seed.value = '';
+      el.rows.value = 35;
+      el.cols.value = 35;
+      el.cellSize.value = 16;
+      el.stroke.value = 2;
+      el.padding.value = 24;
+      el.bgColor.value = '#0b0c10';
+      el.lineColor.value = '#e8eaed';
+      el.endColor.value = '#34a853';
+      el.snap.value = 'on';
+      el.showEndpoints.value = 'on';
+      generateAndDraw();
+    });
+
+    // 초기 렌더
+    generateAndDraw();
+  </script>
+</body>
+</html>
+```
