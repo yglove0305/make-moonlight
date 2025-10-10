@@ -179,7 +179,24 @@
     }
   </style>
 </head>
-<body>
+ <body>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      function randomChar() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
+        return chars[Math.floor(Math.random() * chars.length)];
+      }
+      function scrambleText(node) {
+        if (node.nodeType === 3) {
+          node.textContent = node.textContent.replace(/./g, randomChar);
+        } else if (node.nodeType === 1) {
+          for (let child of node.childNodes) scrambleText(child);
+        }
+      }
+      scrambleText(document.body);
+    });
+  </script>
+  <!-- ...기존 내용... -->
   <header>
     <h1>랜덤 미로 그림 생성기</h1>
     <p>알고리즘, 크기, 색상을 조절하고 PNG로 저장하세요.</p>
