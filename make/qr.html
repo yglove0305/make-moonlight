@@ -180,22 +180,6 @@
   </style>
 </head>
  <body>
-  <script>
-    window.addEventListener('DOMContentLoaded', () => {
-      function randomChar() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
-        return chars[Math.floor(Math.random() * chars.length)];
-      }
-      function scrambleText(node) {
-        if (node.nodeType === 3) {
-          node.textContent = node.textContent.replace(/./g, randomChar);
-        } else if (node.nodeType === 1) {
-          for (let child of node.childNodes) scrambleText(child);
-        }
-      }
-      scrambleText(document.body);
-    });
-  </script>
   <!-- ...기존 내용... -->
   <header>
     <h1>랜덤 미로 그림 생성기</h1>
@@ -304,7 +288,23 @@
   </footer>
 
   <script>
-    // --------- 유틸: 시드 기반 난수 ----------
+
+    window.addEventListener('DOMContentLoaded', () => {
+      function randomChar() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
+        return chars[Math.floor(Math.random() * chars.length)];
+      }
+      function scrambleText(node) {
+        if (node.nodeType === 3) {
+          node.textContent = node.textContent.replace(/./g, randomChar);
+        } else if (node.nodeType === 1) {
+          for (let child of node.childNodes) scrambleText(child);
+        }
+      }
+      scrambleText(document.body);
+    });
+
+
     function xorshift32(seed) {
       let x = seed >>> 0;
       return function() {
