@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>비만 여부 확인 (BMI 계산기 · 아시아-태평양 기준)</title>
+  <meta name="description" content="키와 몸무게를 입력해 BMI(체질량지수)를 계산하고, 아시아-태평양 기준으로 비만 여부를 확인합니다." />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --focus: #60a5fa;
+      --border: #1f2937;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(1200px 800px at 10% 10%, #0b122b 0%, var(--bg) 35%, #0a0f22 100%);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+    }
+    a { color: var(--focus); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-size: 1.75rem;
+      margin: 0 0 8px;
+      letter-spacing: 0.2px;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 880px) {
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+      backdrop-filter: blur(3px);
+    }
+
+    .section-title {
+      font-weight: 700;
+      margin: 0 0 12px;
+      font-size: 1.05rem;
+    }
+    .muted {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    form {
+      display: grid;
+      gap: 14px;
+    }
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+    .label-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    label {
+      font-weight: 600;
+    }
+    .hint {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .input {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    input[type="number"], select {
+      width: 100%;
+      padding: 12px 14px;
+      background: #0b1224;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+      appearance: textfield;
+    }
+    input[type="number"]:focus, select:focus {
+      border-color: var(--focus);
+      box-shadow: 0 0 0 4px rgba(96,165,250,0.2);
+    }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .unit {
+      font-size: 0.9rem;
+      color: var(--muted);
+      padding: 0 6px;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 100ms ease, filter 100ms ease, opacity 120ms ease;
+    }
+    .primary {
+      background: linear-gradient(180deg, #2563eb, #1d4ed8);
+      color: white;
+    }
+    .primary:hover { filter: brightness(1.08); }
+    .ghost {
+      background: #0b1224;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .ghost:hover { filter: brightness(1.05); }
+    .small {
+      padding: 8px 12px;
+      font-weight: 600;
+    }
+
+    .result {
+      display: grid;
+      gap: 12px;
+    }
+    .value {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #0b1224;
+      font-weight: 700;
+    }
+    .chip.normal { color: var(--accent); border-color: #144f38; background: #0c1a15; }
+    .chip.over { color: var(--warn); border-color: #3a2e12; background: #141008; }
+    .chip.obese { color: var(--danger); border-color: #4c1d1d; background: #170c0c; }
+
+    .progress-wrap {
+      margin-top: 2px;
+    }
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .progress {
+      height: 12px;
+      background: #0b1224;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #22c55e, #f59e0b, #ef4444);
+      transition: width 200ms ease;
+    }
+
+    .advice {
+      display: grid;
+      gap: 8px;
+    }
+    .advice p {
+      margin: 0;
+    }
+    .list {
+      display: grid;
+      gap: 8px;
+    }
+    .list-item {
+      display: grid;
+      gap: 4px;
+      padding: 10px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.02);
+    }
+    .kbd {
+      background: #0b1224;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2px 6px;
+      font-size: 0.85rem;
+    }
+
+    footer {
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" role="application" aria-label="BMI 계산기">
+    <header>
+      <h1>비만 여부 확인 · BMI 계산기</h1>
+      <p class="subtitle">아시아‑태평양 기준(대한민국에서 일반적으로 사용하는 범주)에 따라 현재 상태를 간단히 확인하세요.</p>
+    </header>
+
+    <div class="grid" id="app">
+      <!-- 입력 카드 -->
+      <section class="card" aria-labelledby="input-title">
+        <h2 id="input-title" class="section-title">입력</h2>
+        <p class="muted">키와 몸무게를 정확히 입력하세요. 단위 변환은 자동으로 처리됩니다.</p>
+
+        <form id="bmiForm" novalidate>
+          <!-- 측정 단위 선택 -->
+          <div class="field">
+            <div class="label-row">
+              <label for="unit">측정 단위</label>
+              <span class="hint">국내 표준은 cm / kg</span>
+            </div>
+            <select id="unit" name="unit" aria-describedby="unit-hint">
+              <option value="metric" selected>미터법 (cm, kg)</option>
+              <option value="imperial">야드파운드법 (ft/in, lb)</option>
+            </select>
+            <span id="unit-hint" class="hint">필요하면 야드파운드법으로 변경해 입력하세요.</span>
+          </div>
+
+          <!-- 키 입력 (미터법) -->
+          <div class="field" id="heightMetricField">
+            <div class="label-row">
+              <label for="heightCm">키</label>
+              <span class="hint">예: 170</span>
+            </div>
+            <div class="input">
+              <input type="number" id="heightCm" name="heightCm" inputmode="decimal" min="80" max="250" step="0.1" placeholder="키(cm)" aria-describedby="height-hint" />
+              <span class="unit">cm</span>
+            </div>
+            <span id="height-hint" class="hint">80–250 cm 범위 내에서 입력하세요.</span>
+          </div>
+
+          <!-- 키 입력 (야드파운드법) -->
+          <div class="field" id="heightImperialField" hidden>
+            <div class="label-row">
+              <label for="heightFt">키</label>
+              <span class="hint">예: 5 ft 7 in</span>
+            </div>
+            <div class="input" style="gap:12px;">
+              <input type="number" id="heightFt" name="heightFt" inputmode="numeric" min="3" max="8" step="1" placeholder="키(ft)" />
+              <span class="unit">ft</span>
+              <input type="number" id="heightIn" name="heightIn" inputmode="decimal" min="0" max="11.99" step="0.1" placeholder="키(in)" />
+              <span class="unit">in</span>
+            </div>
+            <span class="hint">3–8 ft, 0–12 in 범위로 입력하세요.</span>
+          </div>
+
+          <!-- 체중 입력 (미터법) -->
+          <div class="field" id="weightMetricField">
+            <div class="label-row">
+              <label for="weightKg">몸무게</label>
+              <span class="hint">예: 65.5</span>
+            </div>
+            <div class="input">
+              <input type="number" id="weightKg" name="weightKg" inputmode="decimal" min="20" max="300" step="0.1" placeholder="몸무게(kg)" aria-describedby="weight-hint" />
+              <span class="unit">kg</span>
+            </div>
+            <span id="weight-hint" class="hint">20–300 kg 범위 내에서 입력하세요.</span>
+          </div>
+
+          <!-- 체중 입력 (야드파운드법) -->
+          <div class="field" id="weightImperialField" hidden>
+            <div class="label-row">
+              <label for="weightLb">몸무게</label>
+              <span class="hint">예: 150</span>
+            </div>
+            <div class="input">
+              <input type="number" id="weightLb" name="weightLb" inputmode="decimal" min="44" max="660" step="0.1" placeholder="몸무게(lb)" />
+              <span class="unit">lb</span>
+            </div>
+            <span class="hint">약 44–660 lb 범위로 입력하세요.</span>
+          </div>
+
+          <!-- 성별/연령 참고(선택) -->
+          <div class="field">
+            <div class="label-row">
+              <label for="age">연령(선택)</label>
+              <span class="hint">성인은 BMI를 그대로 사용</span>
+            </div>
+            <input type="number" id="age" name="age" inputmode="numeric" min="1" max="120" step="1" placeholder="나이" />
+            <span class="hint">18세 미만은 성장 단계로, BMI 해석이 다릅니다.</span>
+          </div>
+
+          <div class="btn-row" role="group" aria-label="계산 및 초기화">
+            <button type="button" class="primary" id="calcBtn" aria-label="BMI 계산">BMI 계산</button>
+            <button type="reset" class="ghost" id="resetBtn" aria-label="입력 초기화">초기화</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- 결과 카드 -->
+      <section class="card" aria-labelledby="result-title">
+        <h2 id="result-title" class="section-title">결과</h2>
+        <div class="result" id="resultArea">
+          <p class="muted">계산 후 BMI와 분류, 간단한 조언이 표시됩니다.</p>
+
+          <div class="list-item" id="bmiBlock" hidden>
+            <div class="value" id="bmiValue" aria-live="polite">—</div>
+            <div class="chip" id="bmiCategory">분류: —</div>
+            <div class="progress-wrap">
+              <div class="progress-labels">
+                <span>저체중</span>
+                <span>정상</span>
+                <span>과체중</span>
+                <span>비만</span>
+              </div>
+              <div class="progress" aria-hidden="true">
+                <span id="bmiProgress" style="width:0%"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="advice" id="advice" hidden>
+            <p id="adviceText">맞춤 조언이 여기에 표시됩니다.</p>
+            <div class="list">
+              <div class="list-item">
+                <strong>참고:</strong>
+                <p class="muted">BMI는 체지방률을 직접 측정하지 않으며, 근육량·체형·연령·성별에 따라 해석이 달라질 수 있습니다.</p>
+              </div>
+              <div class="list-item">
+                <strong>다음 단계:</strong>
+                <p class="muted">허리둘레, 혈압, 혈당·지질 검사 등과 함께 종합적으로 확인하면 더 정확합니다. 필요하면 전문가와 상담하세요.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="list-item" id="noteMinor" hidden>
+            <strong>청소년/아동 참고</strong>
+            <p class="muted">18세 미만은 성장 단계로, 연령·성별 백분위수 기준(BMI-for-age)을 사용합니다. 소아과 지침을 참고하세요.</p>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="ghost small" id="copyBtn" aria-label="결과 복사">결과 복사</button>
+            <button type="button" class="ghost small" id="shareBtn" aria-label="공유">공유</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card" aria-labelledby="criteria-title" style="margin-top:16px;">
+      <h2 id="criteria-title" class="section-title">아시아‑태평양 BMI 분류 기준</h2>
+      <p class="muted">대한민국에서 흔히 사용하는 범주입니다. 기준은 기관마다 조금씩 다를 수 있습니다.</p>
+      <div class="list">
+        <div class="list-item">
+          <strong>저체중:</strong>
+          <p>\(< 18.5\)</p>
+        </div>
+        <div class="list-item">
+          <strong>정상 체중:</strong>
+          <p>\(18.5\)–\(22.9\)</p>
+        </div>
+        <div class="list-item">
+          <strong>과체중(위험 체중):</strong>
+          <p>\(23.0\)–\(24.9\)</p>
+        </div>
+        <div class="list-item">
+          <strong>비만 I:</strong>
+          <p>\(\ge 25.0\)–\(29.9\)</p>
+        </div>
+        <div class="list-item">
+          <strong>비만 II(고도 비만):</strong>
+          <p>\(\ge 30.0\)</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      BMI = 몸무게(kg) ÷ [키(m)]² · 이 페이지는 참고용이며 의학적 진단을 대체하지 않습니다.
+    </footer>
+  </div>
+
+  <script>
+    // 유틸리티: 단위 변환
+    const cmToM = (cm) => cm / 100;
+    const ftInToM = (ft, inch) => ((ft || 0) * 12 + (inch || 0)) * 0.0254;
+    const lbToKg = (lb) => lb * 0.45359237;
+
+    // 범주 결정 (아시아-태평양)
+    function categorizeBMI(bmi) {
+      if (bmi < 18.5) return { key: 'under', label: '저체중', cls: 'chip' };
+      if (bmi < 23) return { key: 'normal', label: '정상 체중', cls: 'chip normal' };
+      if (bmi < 25) return { key: 'over', label: '과체중(위험 체중)', cls: 'chip over' };
+      if (bmi < 30) return { key: 'obese1', label: '비만 I', cls: 'chip obese' };
+      return { key: 'obese2', label: '비만 II(고도 비만)', cls: 'chip obese' };
+    }
+
+    // 조언 텍스트
+    function adviceFor(category) {
+      switch (category.key) {
+        case 'under':
+          return '저체중입니다. 식사 균형을 점검하고 근력 운동과 충분한 단백질 섭취를 고려하세요.';
+        case 'normal':
+          return '정상 체중입니다. 꾸준한 활동과 균형 잡힌 식사를 유지하면 좋습니다.';
+        case 'over':
+          return '과체중(위험 체중)입니다. 주 150분 이상의 유산소 + 주 2회 근력 운동, 식습관 개선을 고려하세요.';
+        case 'obese1':
+          return '비만 I 단계입니다. 칼로리 밀도 낮은 식사, 활동량 증대, 수면/스트레스 관리, 필요시 전문가 상담을 권합니다.';
+        case 'obese2':
+          return '고도 비만 단계입니다. 의료진과의 상담을 통해 맞춤 계획(영양·운동·행동요법 및 필요시 약물/수술)을 논의하세요.';
+        default:
+          return '입력을 확인해주세요.';
+      }
+    }
+
+    // 입력 요소
+    const unitSel = document.getElementById('unit');
+    const heightMetricField = document.getElementById('heightMetricField');
+    const heightImperialField = document.getElementById('heightImperialField');
+    const weightMetricField = document.getElementById('weightMetricField');
+    const weightImperialField = document.getElementById('weightImperialField');
+
+    const heightCm = document.getElementById('heightCm');
+    const heightFt = document.getElementById('heightFt');
+    const heightIn = document.getElementById('heightIn');
+    const weightKg = document.getElementById('weightKg');
+    const weightLb = document.getElementById('weightLb');
+    const age = document.getElementById('age');
+
+    const calcBtn = document.getElementById('calcBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const shareBtn = document.getElementById('shareBtn');
+
+    const bmiBlock = document.getElementById('bmiBlock');
+    const bmiValue = document.getElementById('bmiValue');
+    const bmiCategory = document.getElementById('bmiCategory');
+    const bmiProgress = document.getElementById('bmiProgress');
+    const adviceBox = document.getElementById('advice');
+    const adviceText = document.getElementById('adviceText');
+    const noteMinor = document.getElementById('noteMinor');
+
+    // 단위 토글
+    unitSel.addEventListener('change', () => {
+      const metric = unitSel.value === 'metric';
+      heightMetricField.hidden = !metric;
+      weightMetricField.hidden = !metric;
+      heightImperialField.hidden = metric;
+      weightImperialField.hidden = metric;
+    });
+
+    // 검증 및 BMI 계산
+    function computeBMI() {
+      const useMetric = unitSel.value === 'metric';
+
+      let heightM = 0;
+      let weightKgVal = 0;
+
+      if (useMetric) {
+        const h = parseFloat(heightCm.value);
+        const w = parseFloat(weightKg.value);
+        if (!isFinite(h) || !isFinite(w)) return { error: '키와 몸무게를 모두 입력하세요.' };
+        if (h < 80 || h > 250) return { error: '키는 80–250 cm 범위를 권장합니다.' };
+        if (w < 20 || w > 300) return { error: '몸무게는 20–300 kg 범위를 권장합니다.' };
+        heightM = cmToM(h);
+        weightKgVal = w;
+      } else {
+        const ft = parseFloat(heightFt.value);
+        const inch = parseFloat(heightIn.value);
+        const lb = parseFloat(weightLb.value);
+        if (!isFinite(ft) || !isFinite(inch) || !isFinite(lb)) return { error: 'ft, in, lb 값을 모두 입력하세요.' };
+        if (ft < 3 || ft > 8) return { error: '키(ft)는 3–8 범위를 권장합니다.' };
+        if (inch < 0 || inch >= 12) return { error: '키(in)는 0–12 범위를 권장합니다.' };
+        if (lb < 44 || lb > 660) return { error: '몸무게(lb)는 44–660 범위를 권장합니다.' };
+        heightM = ftInToM(ft, inch);
+        weightKgVal = lbToKg(lb);
+      }
+
+      if (heightM <= 0) return { error: '키가 0보다 커야 합니다.' };
+
+      const bmi = weightKgVal / (heightM * heightM);
+      return { bmi };
+    }
+
+    function render() {
+      const result = computeBMI();
+      if (result.error) {
+        bmiBlock.hidden = false;
+        adviceBox.hidden = true;
+        noteMinor.hidden = true;
+        bmiValue.textContent = '—';
+        bmiCategory.className = 'chip';
+        bmiCategory.textContent = '오류: ' + result.error;
+        bmiProgress.style.width = '0%';
+        return;
+      }
+
+      const bmi = result.bmi;
+      const bmiRounded = Math.round(bmi * 10) / 10;
+      const category = categorizeBMI(bmi);
+
+      bmiBlock.hidden = false;
+      bmiValue.textContent = `BMI: ${bmiRounded}`;
+      bmiCategory.className = category.cls;
+      bmiCategory.textContent = `분류: ${category.label}`;
+
+      // 진행바 (대략적 위치 표시: 0–40 범위로 정규화)
+      const pos = Math.max(0, Math.min(40, bmi)) / 40 * 100;
+      bmiProgress.style.width = pos + '%';
+
+      // 조언 및 미성년자 안내
+      adviceBox.hidden = false;
+      adviceText.textContent = adviceFor(category);
+
+      const ageVal = parseInt(age.value, 10);
+      noteMinor.hidden = !(isFinite(ageVal) && ageVal < 18);
+    }
+
+    calcBtn.addEventListener('click', render);
+
+    resetBtn.addEventListener('click', () => {
+      setTimeout(() => {
+        bmiBlock.hidden = true;
+        adviceBox.hidden = true;
+        noteMinor.hidden = true;
+        bmiValue.textContent = '—';
+        bmiCategory.textContent = '분류: —';
+        bmiCategory.className = 'chip';
+        bmiProgress.style.width = '0%';
+      }, 0);
+    });
+
+    // 결과 복사
+    copyBtn.addEventListener('click', async () => {
+      const parts = [];
+      const unit = unitSel.value === 'metric' ? '(cm/kg)' : '(ft/in, lb)';
+      parts.push(`BMI 계산 결과 ${unit}`);
+
+      // 키/몸무게 요약
+      if (unitSel.value === 'metric') {
+        if (heightCm.value) parts.push(`키: ${heightCm.value} cm`);
+        if (weightKg.value) parts.push(`몸무게: ${weightKg.value} kg`);
+      } else {
+        if (heightFt.value || heightIn.value) parts.push(`키: ${heightFt.value || 0} ft ${heightIn.value || 0} in`);
+        if (weightLb.value) parts.push(`몸무게: ${weightLb.value} lb`);
+      }
+
+      // 결과
+      if (!bmiBlock.hidden) {
+        parts.push(`${bmiValue.textContent}`);
+        parts.push(`${bmiCategory.textContent}`);
+      }
+
+      const text = parts.join('\n');
+      try {
+        await navigator.clipboard.writeText(text);
+        copyBtn.textContent = '복사됨';
+        setTimeout(() => (copyBtn.textContent = '결과 복사'), 1500);
+      } catch {
+        copyBtn.textContent = '복사 실패';
+        setTimeout(() => (copyBtn.textContent = '결과 복사'), 1500);
+      }
+    });
+
+    // 공유 (Web Share API가 있으면 사용)
+    shareBtn.addEventListener('click', async () => {
+      const payload = {
+        title: 'BMI 계산 결과',
+        text: `${bmiValue.textContent} · ${bmiCategory.textContent}`,
+      };
+      try {
+        if (navigator.share) {
+          await navigator.share(payload);
+        } else {
+          await navigator.clipboard.writeText(`${payload.title}\n${payload.text}`);
+          shareBtn.textContent = '클립보드로 공유됨';
+          setTimeout(() => (shareBtn.textContent = '공유'), 1500);
+        }
+      } catch {
+        shareBtn.textContent = '공유 취소됨';
+        setTimeout(() => (shareBtn.textContent = '공유'), 1500);
+      }
+    });
+
+    // Enter로 계산
+    document.getElementById('bmiForm').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        render();
+      }
+    });
+  </script>
+</body>
+</html>
