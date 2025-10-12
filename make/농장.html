@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>캔버스 농사 경영 게임 — 대규모 작물 확장판</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    html, body {
+      background: #1b1f2a;
+      color: #e6edf3;
+      margin: 0;
+      font-family: "Pretendard", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Apple SD Gothic Neo, Noto Sans KR, "Malgun Gothic", sans-serif;
+      height: 100%;
+      overflow: hidden;
+    }
+    #game-wrap {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      grid-template-rows: auto 1fr;
+      height: 100vh;
+    }
+    header {
+      grid-column: 1 / span 2;
+      padding: 10px 14px;
+      background: #12161f;
+      border-bottom: 1px solid #2a3241;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    header h1 {
+      font-size: 18px;
+      margin: 0;
+      font-weight: 700;
+    }
+    header .meta {
+      margin-left: auto;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-size: 13px;
+    }
+    header .meta span {
+      background: #0f1320;
+      border: 1px solid #2a3241;
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+
+    #canvas-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #101522;
+      border-right: 1px solid #2a3241;
+    }
+    canvas {
+      background: #2b5d3a;
+      image-rendering: pixelated;
+      box-shadow: 0 0 0 2px #0a0e16 inset;
+    }
+    #ui-wrap {
+      background: #0f1320;
+      border-left: 1px solid #2a3241;
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      gap: 12px;
+      overflow-y: auto;
+    }
+
+    .panel {
+      border: 1px solid #2a3241;
+      border-radius: 10px;
+      background: #0c111b;
+      padding: 10px;
+    }
+    .panel h3 {
+      margin: 0 0 8px 0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .col { display: flex; flex-direction: column; gap: 6px; }
+
+    button, select, input[type="number"], input[type="text"] {
+      background: #182032;
+      color: #e6edf3;
+      border: 1px solid #32415a;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    button:hover { background: #1c2840; }
+    .badge {
+      background: #21324a;
+      border: 1px solid #2a3241;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #cfe2ff;
+    }
+
+    .seed-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      border: 1px solid #2a3241;
+      border-radius: 10px;
+      padding: 8px;
+      margin: 6px 0;
+      gap: 8px;
+      background: #0b1624;
+    }
+    .seed-card .name { font-weight: 700; font-size: 14px; }
+    .seed-card .desc { font-size: 12px; color: #b8c3d6; }
+    .price { font-size: 13px; color: #9dc2ff; }
+
+    .sell-table, .inv-table, .slot-table, .buff-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .sell-table th, .sell-table td,
+    .inv-table th, .inv-table td,
+    .slot-table th, .slot-table td,
+    .buff-table th, .buff-table td {
+      border-bottom: 1px dashed #2a3241;
+      padding: 6px 4px;
+      text-align: left;
+    }
+
+    .hint { font-size: 12px; color: #9aa7b8; }
+    .footer {
+      font-size: 12px;
+      color: #90a0b4;
+      text-align: center;
+      padding: 6px;
+      border-top: 1px dashed #2a3241;
+    }
+
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      display: none; align-items: center; justify-content: center; z-index: 50;
+    }
+    .modal {
+      width: 600px; max-width: 92vw; background: #0c111b; border: 1px solid #2a3241; border-radius: 12px; padding: 12px;
+    }
+    .modal h4 { margin: 0 0 8px; font-size: 16px; }
+    .modal textarea {
+      width: 100%; height: 220px; background: #0f1320; border: 1px solid #2a3241; color: #e6edf3; border-radius: 8px; padding: 8px; font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-wrap">
+    <header>
+      <h1>작은 농장: 대규모 작물 확장판</h1>
+      <div class="meta">
+        <span id="money">₩ 0</span>
+        <span id="day">날짜: 1일차</span>
+        <span id="season">계절: 봄</span>
+        <span id="weather">날씨: 맑음</span>
+        <span id="growthInfo" class="badge">성장 x1.00</span>
+        <span id="tips" class="badge">도움말: 좌클릭 심기 / 우클릭 수확</span>
+        <span id="saveMeta" class="badge">최근 저장: 없음</span>
+      </div>
+    </header>
+
+    <div id="canvas-wrap">
+      <canvas id="game" width="960" height="640"></canvas>
+    </div>
+
+    <div id="ui-wrap">
+      <div class="panel">
+        <h3>도구 및 선택</h3>
+        <div class="row">
+          <button id="toolPlant">심기</button>
+          <button id="toolHarvest">수확</button>
+          <button id="toolWater">물주기</button>
+          <button id="toolHoe">괭이질</button>
+          <button id="toolClear">제거</button>
+          <select id="seedSelect"></select>
+        </div>
+        <p class="hint">밭 타일을 좌클릭으로 사용, 우클릭으로 빠른 수확. 괭이질 후 심기가 가능합니다.</p>
+      </div>
+
+      <div class="panel">
+        <h3>상점(씨앗/비료/스프링클러)</h3>
+        <div id="shopList"></div>
+        <p class="hint">씨앗은 성장시간/단계/물 필요량이 모두 다릅니다. 계절/날씨에 따라 보너스가 적용됩니다.</p>
+      </div>
+
+      <div class="panel">
+        <h3>인벤토리</h3>
+        <table class="inv-table">
+          <thead>
+            <tr><th>아이템</th><th>수량</th><th>사용</th></tr>
+          </thead>
+          <tbody id="invBody"></tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h3>판매</h3>
+        <table class="sell-table">
+          <thead><tr><th>작물</th><th>보유</th><th>단가</th><th>판매</th></tr></thead>
+          <tbody id="sellBody"></tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h3>성장/날씨/계절</h3>
+        <p class="hint">계절은 10일마다 바뀝니다(봄→여름→가을→겨울). 날씨는 맑음/흐림/비/폭염/눈이 랜덤으로 바뀝니다.</p>
+        <div class="row">
+          <span class="badge" id="rainInfo">강우 없음</span>
+          <span class="badge" id="seasonInfo">계절 보정 x1.00</span>
+          <span class="badge" id="weatherInfo">날씨 보정 x1.00</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>농장 버프(비료/스프링클러)</h3>
+        <table class="buff-table">
+          <thead><tr><th>버프</th><th>상태</th><th>설명</th><th>관리</th></tr></thead>
+          <tbody id="buffBody"></tbody>
+        </table>
+        <p class="hint">비료는 성장속도 보너스, 스프링클러는 자동 수분 증가. 지속시간/범위가 있습니다.</p>
+      </div>
+
+      <div class="panel">
+        <h3>저장 관리(로컬)</h3>
+        <div class="row">
+          <button id="saveBtn">현재 슬롯에 저장</button>
+          <button id="loadBtn">현재 슬롯 불러오기</button>
+          <button id="resetBtn">새로 시작</button>
+          <button id="exportBtn">JSON 내보내기</button>
+          <button id="importBtn">JSON 가져오기</button>
+        </div>
+        <div class="row" style="margin-top:8px;">
+          <label class="badge">슬롯 선택</label>
+          <select id="slotSelect"></select>
+          <button id="renameSlotBtn">슬롯 이름 변경</button>
+          <button id="deleteSlotBtn">슬롯 삭제</button>
+        </div>
+        <div class="row" style="margin-top:8px;">
+          <label class="badge">자동저장(초)</label>
+          <input id="autoSaveInterval" type="number" min="10" max="600" value="90" style="width:90px;">
+          <button id="autoSaveToggle">자동저장: 꺼짐</button>
+        </div>
+        <table class="slot-table" style="margin-top:8px;">
+          <thead><tr><th>슬롯</th><th>이름</th><th>최근 저장</th><th>요약</th></tr></thead>
+          <tbody id="slotInfoBody"></tbody>
+        </table>
+        <p class="hint">슬롯은 최대 6개. JSON으로 내보내서 다른 브라우저/기기에도 가져올 수 있습니다.</p>
+      </div>
+
+      <div class="footer">저장은 브라우저 LocalStorage에 기록됩니다. 브라우저/기기 변경 시 데이터가 다를 수 있습니다.</div>
+    </div>
+  </div>
+
+  <!-- 내보내기/가져오기/이름 변경 모달 -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+      <h4 id="modalTitle">데이터 내보내기</h4>
+      <div class="col">
+        <textarea id="modalTextarea" placeholder="여기에 JSON이 표시되거나 붙여넣으세요"></textarea>
+        <div class="row">
+          <button id="modalConfirmBtn">확인</button>
+          <button id="modalCancelBtn">닫기</button>
+        </div>
+        <p class="hint" id="modalHint"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====== 버전/저장 키 ======
+    const SAVE_VERSION = '2.0.0';
+    const SAVE_KEY_PREFIX = 'farm_ext_save_slot_';
+    const SLOT_MAX = 6;
+
+    // ====== 기본 상수 ======
+    const TILE_SIZE = 40;
+    const GRID_W = 20;
+    const GRID_H = 14;
+    const CANVAS_W = 960;
+    const CANVAS_H = 640;
+    const FIELD_OFFSET_X = (CANVAS_W - GRID_W * TILE_SIZE) / 2;
+    const FIELD_OFFSET_Y = (CANVAS_H - GRID_H * TILE_SIZE) / 2;
+
+    const TOOLS = { PLANT:'plant', HARVEST:'harvest', WATER:'water', HOE:'hoe', CLEAR:'clear' };
+    const SEASONS = ['봄', '여름', '가을', '겨울'];
+    const WEATHER_TYPES = ['sunny', 'cloudy', 'rainy', 'heatwave', 'snow'];
+
+    // ====== 유틸 ======
+    const rand = (min, max) => Math.random() * (max - min) + min;
+    const randint = (min, max) => Math.floor(rand(min, max + 1));
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const nowISO = () => new Date().toISOString();
+
+    // ====== 씨앗/작물 데이터(대규모) ======
+    // 필드: id, name, buyPrice, sellPrice, growTime(ms), stages, waterNeed, color, desc,
+    //       bonuses: { weather:{type:mult}, season:{name:mult}, chainHarvest:boolean, regrowTime?, yield? }
+    const SEEDS = [
+      { id:'wheat', name:'밀 씨앗', buyPrice:20, sellPrice:40, growTime:30000, stages:3, waterNeed:2, color:'#d9c17a', desc:'빠른 성장, 안정적 수익.' },
+      { id:'carrot', name:'당근 씨앗', buyPrice:35, sellPrice:80, growTime:45000, stages:4, waterNeed:3, color:'#f59f45', desc:'중간 성장, 높은 수익.' },
+      { id:'strawberry', name:'딸기 묘목', buyPrice:60, sellPrice:140, growTime:65000, stages:4, waterNeed:3, color:'#ff5a78', desc:'비 오는 날 성장 보너스.', bonuses:{weather:{rainy:1.12}} },
+      { id:'pumpkin', name:'호박 씨앗', buyPrice:90, sellPrice:220, growTime:90000, stages:5, waterNeed:4, color:'#ffb03b', desc:'느리지만 고가.' },
+      { id:'potato', name:'감자 씨앗', buyPrice:28, sellPrice:65, growTime:50000, stages:4, waterNeed:2, color:'#c8a46b', desc:'수확량이 약간 높음.', bonuses:{yield:1.2} },
+      { id:'corn', name:'옥수수 씨앗', buyPrice:55, sellPrice:130, growTime:70000, stages:5, waterNeed:3, color:'#ffd24d', desc:'여름 계절 보너스.', bonuses:{season:{'여름':1.15}} },
+      { id:'tomato', name:'토마토 묘종', buyPrice:50, sellPrice:120, growTime:60000, stages:4, waterNeed:3, color:'#ff4d4d', desc:'비 가뭄에 약간 둔감.' },
+      { id:'cabbage', name:'양배추 씨앗', buyPrice:40, sellPrice:95, growTime:55000, stages:4, waterNeed:2, color:'#85c77c', desc:'흐림 날씨 보너스.', bonuses:{weather:{cloudy:1.1}} },
+      { id:'rice', name:'벼 종자', buyPrice:60, sellPrice:150, growTime:80000, stages:5, waterNeed:4, color:'#e0cf77', desc:'비가 잦을수록 잘 자람.', bonuses:{weather:{rainy:1.18}} },
+      { id:'soybean', name:'콩 씨앗', buyPrice:38, sellPrice:92, growTime:52000, stages:4, waterNeed:2, color:'#c2b596', desc:'가을 보너스.', bonuses:{season:{'가을':1.12}} },
+      { id:'peanut', name:'땅콩 씨앗', buyPrice:34, sellPrice:85, growTime:54000, stages:4, waterNeed:2, color:'#b98c64', desc:'사막 날씨(폭염) 약간 버프.', bonuses:{weather:{heatwave:1.08}} },
+      { id:'blueberry', name:'블루베리 묘목', buyPrice:70, sellPrice:160, growTime:68000, stages:4, waterNeed:3, color:'#5a7cff', desc:'연속 수확(재생산).', bonuses:{chainHarvest:true, regrowTime:28000, yield:1.0} },
+      { id:'raspberry', name:'라즈베리 묘목', buyPrice:72, sellPrice:165, growTime:70000, stages:4, waterNeed:3, color:'#ff6b88', desc:'연속 수확, 비 보너스.', bonuses:{chainHarvest:true, regrowTime:30000, weather:{rainy:1.08}} },
+      { id:'apple', name:'사과 묘목', buyPrice:120, sellPrice:280, growTime:120000, stages:5, waterNeed:4, color:'#e74c3c', desc:'나무 작물, 겨울 약함.', bonuses:{season:{'겨울':0.8}} },
+      { id:'pear', name:'배 묘목', buyPrice:115, sellPrice:270, growTime:115000, stages:5, waterNeed:4, color:'#e2d06c', desc:'나무 작물, 봄 보너스.', bonuses:{season:{'봄':1.12}} },
+      { id:'peach', name:'복숭아 묘목', buyPrice:130, sellPrice:300, growTime:125000, stages:5, waterNeed:4, color:'#ffb0a8', desc:'나무 작물, 여름 보너스.', bonuses:{season:{'여름':1.12}} },
+      { id:'grape', name:'포도 묘목', buyPrice:140, sellPrice:320, growTime:130000, stages:5, waterNeed:4, color:'#7b55c5', desc:'흐림 보너스, 연속 수확.', bonuses:{chainHarvest:true, regrowTime:35000, weather:{cloudy:1.12}} },
+      { id:'tea', name:'차나무 묘목', buyPrice:150, sellPrice:340, growTime:135000, stages:5, waterNeed:4, color:'#567e4a', desc:'비 보너스, 연속 수확.', bonuses:{chainHarvest:true, regrowTime:36000, weather:{rainy:1.1}} },
+      { id:'coffee', name:'커피나무 묘목', buyPrice:160, sellPrice:360, growTime:140000, stages:5, waterNeed:4, color:'#6b4f3b', desc:'폭염 약함, 흐림 보너스.', bonuses:{weather:{heatwave:0.9, cloudy:1.1}} },
+      { id:'cocoa', name:'카카오 묘목', buyPrice:170, sellPrice:390, growTime:145000, stages:5, waterNeed:4, color:'#5a3b2e', desc:'폭염 보너스.', bonuses:{weather:{heatwave:1.12}} },
+      { id:'banana', name:'바나나 묘목', buyPrice:180, sellPrice:420, growTime:150000, stages:5, waterNeed:4, color:'#f9d64d', desc:'열대성, 폭염 보너스.', bonuses:{weather:{heatwave:1.15}} },
+      { id:'mango', name:'망고 묘목', buyPrice:185, sellPrice:430, growTime:152000, stages:5, waterNeed:4, color:'#ffbd3d', desc:'여름/폭염 보너스.', bonuses:{season:{'여름':1.1}, weather:{heatwave:1.08}} },
+      { id:'watermelon', name:'수박 씨앗', buyPrice:95, sellPrice:230, growTime:95000, stages:5, waterNeed:4, color:'#2bd66f', desc:'여름 보너스.', bonuses:{season:{'여름':1.12}} },
+      { id:'melon', name:'메론 씨앗', buyPrice:90, sellPrice:210, growTime:90000, stages:5, waterNeed:4, color:'#a6d670', desc:'여름/흐림 보너스.', bonuses:{season:{'여름':1.08}, weather:{cloudy:1.06}} },
+      { id:'onion', name:'양파 씨앗', buyPrice:26, sellPrice:60, growTime:42000, stages:4, waterNeed:2, color:'#d9c6a5', desc:'저렴, 빠른 회전.' },
+      { id:'garlic', name:'마늘 씨앗', buyPrice:30, sellPrice:72, growTime:50000, stages:4, waterNeed:2, color:'#e8e0cf', desc:'겨울 보너스.', bonuses:{season:{'겨울':1.12}} },
+      { id:'ginger', name:'생강 씨앗', buyPrice:44, sellPrice:100, growTime:60000, stages:4, waterNeed:3, color:'#e1c26b', desc:'폭염 보너스.', bonuses:{weather:{heatwave:1.06}} },
+      { id:'pepper', name:'고추 씨앗', buyPrice:48, sellPrice:115, growTime:62000, stages:4, waterNeed:3, color:'#ff3b3b', desc:'연속 수확.', bonuses:{chainHarvest:true, regrowTime:26000} },
+      { id:'eggplant', name:'가지 씨앗', buyPrice:42, sellPrice:100, growTime:58000, stages:4, waterNeed:3, color:'#7e4bb8', desc:'흐림 보너스.', bonuses:{weather:{cloudy:1.08}} },
+      { id:'lettuce', name:'상추 씨앗', buyPrice:22, sellPrice:50, growTime:32000, stages:3, waterNeed:2, color:'#6ecc5a', desc:'아주 빠름, 저가.' },
+      { id:'spinach', name:'시금치 씨앗', buyPrice:26, sellPrice:58, growTime:36000, stages:3, waterNeed:2, color:'#5aa85a', desc:'겨울 보너스.', bonuses:{season:{'겨울':1.08}} },
+      { id:'broccoli', name:'브로콜리 씨앗', buyPrice:46, sellPrice:108, growTime:60000, stages:4, waterNeed:3, color:'#6dbf6d', desc:'비 보너스.', bonuses:{weather:{rainy:1.06}} },
+      { id:'cauliflower', name:'콜리플라워 씨앗', buyPrice:52, sellPrice:125, growTime:65000, stages:4, waterNeed:3, color:'#d9e6cf', desc:'봄/가을 보너스.', bonuses:{season:{'봄':1.06,'가을':1.06}} },
+      { id:'beet', name:'비트 씨앗', buyPrice:40, sellPrice:95, growTime:56000, stages:4, waterNeed:3, color:'#b0162c', desc:'당분 많아 판매가 양호.' },
+      { id:'sunflower', name:'해바라기 씨앗', buyPrice:62, sellPrice:150, growTime:76000, stages:4, waterNeed:2, color:'#ffdd4d', desc:'맑음 보너스.', bonuses:{weather:{sunny:1.1}} },
+      { id:'lavender', name:'라벤더 묘목', buyPrice:68, sellPrice:160, growTime:78000, stages:4, waterNeed:2, color:'#b57edc', desc:'흐림/비 향기 보너스.', bonuses:{weather:{cloudy:1.06, rainy:1.06}} },
+      { id:'rose', name:'장미 묘목', buyPrice:90, sellPrice:220, growTime:90000, stages:5, waterNeed:3, color:'#ff5577', desc:'장식용, 날씨 둔감.' },
+      { id:'orchid', name:'난초 묘목', buyPrice:110, sellPrice:260, growTime:105000, stages:5, waterNeed:3, color:'#e4a6ff', desc:'고급 장식, 폭염 약함.', bonuses:{weather:{heatwave:0.92}} },
+      { id:'pumpkin_white', name:'화이트 호박 씨앗', buyPrice:95, sellPrice:240, growTime:95000, stages:5, waterNeed:4, color:'#ffe9c7', desc:'희귀 변종, 겨울 +', bonuses:{season:{'겨울':1.06}} },
+    ];
+
+    // ====== 버프/시설(간단) ======
+    const BUFFS = [
+      { id:'fertilizer_basic', name:'기본 비료', desc:'성장 속도 +8%, 1일 지속', price:120, mult:1.08, durationDays:1 },
+      { id:'fertilizer_advanced', name:'고급 비료', desc:'성장 속도 +15%, 2일 지속', price:240, mult:1.15, durationDays:2 },
+      { id:'sprinkler_small', name:'소형 스프링클러', desc:'자동 수분 +0.5, 1일 지속', price:180, moistPerTick:0.0008, durationDays:1 },
+      { id:'sprinkler_large', name:'대형 스프링클러', desc:'자동 수분 +1.0, 2일 지속', price:360, moistPerTick:0.0016, durationDays:2 },
+    ];
+
+    // ====== 상태 ======
+    const state = {
+      version: SAVE_VERSION,
+      money: 300,
+      day: 1,
+      seasonIndex: 0, // 0:봄 1:여름 2:가을 3:겨울
+      weather: 'sunny', // sunny | cloudy | rainy | heatwave | snow
+      weatherTimer: 0,
+      growthMultiplier: 1.0,
+      tool: TOOLS.PLANT,
+      selectedSeedId: SEEDS[0].id,
+      inventory: {
+        water: 12,
+        // 씨앗/작물은 동적으로 사용
+      },
+      field: [],
+      effects: [],
+      lastTick: performance.now(),
+      timeAccum: 0,
+
+      // 버프 상태
+      activeBuffs: [], // {id, expiresDay}
+
+      // 저장 상태
+      slotIndex: 0,
+      autoSaveEnabled: false,
+      autoSaveIntervalMs: 90_000,
+      autoSaveTimer: 0,
+      lastSavedAt: null,
+    };
+
+    // ====== DOM 참조 ======
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+
+    const moneyEl = document.getElementById('money');
+    const dayEl = document.getElementById('day');
+    const seasonEl = document.getElementById('season');
+    const weatherEl = document.getElementById('weather');
+    const growthInfoEl = document.getElementById('growthInfo');
+    const rainInfoEl = document.getElementById('rainInfo');
+    const seasonInfoEl = document.getElementById('seasonInfo');
+    const weatherInfoEl = document.getElementById('weatherInfo');
+    const saveMetaEl = document.getElementById('saveMeta');
+
+    const toolPlantBtn = document.getElementById('toolPlant');
+    const toolHarvestBtn = document.getElementById('toolHarvest');
+    const toolWaterBtn = document.getElementById('toolWater');
+    const toolHoeBtn = document.getElementById('toolHoe');
+    const toolClearBtn = document.getElementById('toolClear');
+
+    const seedSelect = document.getElementById('seedSelect');
+    const shopList = document.getElementById('shopList');
+    const invBody = document.getElementById('invBody');
+    const sellBody = document.getElementById('sellBody');
+
+    const buffBody = document.getElementById('buffBody');
+
+    const saveBtn = document.getElementById('saveBtn');
+    const loadBtn = document.getElementById('loadBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const importBtn = document.getElementById('importBtn');
+
+    const slotSelect = document.getElementById('slotSelect');
+    const renameSlotBtn = document.getElementById('renameSlotBtn');
+    const deleteSlotBtn = document.getElementById('deleteSlotBtn');
+    const autoSaveIntervalInput = document.getElementById('autoSaveInterval');
+    const autoSaveToggleBtn = document.getElementById('autoSaveToggle');
+    const slotInfoBody = document.getElementById('slotInfoBody');
+
+    // 모달
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalTextarea = document.getElementById('modalTextarea');
+    const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+    const modalCancelBtn = document.getElementById('modalCancelBtn');
+    const modalHint = document.getElementById('modalHint');
+    let modalMode = 'export'; // export | import | rename
+
+    // ====== 필드 초기화 ======
+    function initField() {
+      state.field = [];
+      for (let y = 0; y < GRID_H; y++) {
+        const row = [];
+        for (let x = 0; x < GRID_W; x++) {
+          row.push({
+            tilled: false,
+            moist: 0,
+            plant: null, // {id, plantedAt, stage, waterCount, growProgress, chainReadyAt?}
+            rock: Math.random() < 0.02,
+            weed: Math.random() < 0.04,
+            fertilizerMult: 1.0, // 타일 비료 효과
+          });
+        }
+        state.field.push(row);
+      }
+    }
+
+    // ====== 기본 UI ======
+    function updateTopUI() {
+      moneyEl.textContent = `₩ ${state.money}`;
+      dayEl.textContent = `날짜: ${state.day}일차`;
+      seasonEl.textContent = `계절: ${SEASONS[state.seasonIndex]}`;
+      const wtMap = { sunny:'맑음', cloudy:'흐림', rainy:'비', heatwave:'폭염', snow:'눈' };
+      weatherEl.textContent = '날씨: ' + wtMap[state.weather];
+      growthInfoEl.textContent = `성장 x${state.growthMultiplier.toFixed(2)}`;
+      rainInfoEl.textContent = state.weather === 'rainy' ? '강우: 비가 내립니다 (수분 +)' :
+                               state.weather === 'snow' ? '강설: 수분 - (성장 둔화)' : '강우 없음';
+      saveMetaEl.textContent = '최근 저장: ' + (state.lastSavedAt ? state.lastSavedAt : '없음');
+      const seasonMult = seasonMultiplier();
+      const weatherMult = weatherMultiplier();
+      seasonInfoEl.textContent = `계절 보정 x${seasonMult.toFixed(2)}`;
+      weatherInfoEl.textContent = `날씨 보정 x${weatherMult.toFixed(2)}`;
+    }
+
+    function buildSeedSelect() {
+      seedSelect.innerHTML = '';
+      for (const s of SEEDS) {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        const qty = state.inventory['seed_' + s.id] || 0;
+        opt.textContent = `${s.name} (보유: ${qty})`;
+        seedSelect.appendChild(opt);
+      }
+      seedSelect.value = state.selectedSeedId;
+    }
+
+    function buildShop() {
+      shopList.innerHTML = '';
+      // 씨앗 카드
+      for (const s of SEEDS) {
+        const card = document.createElement('div');
+        card.className = 'seed-card';
+        const left = document.createElement('div');
+        left.innerHTML = `
+          <div class="name">${s.name}</div>
+          <div class="desc">${s.desc}</div>
+          <div class="price">가격: ₩ ${s.buyPrice} | 판매가: ₩ ${s.sellPrice} | 성장 ${Math.round(s.growTime/1000)}초 | 단계 ${s.stages} | 물 ${s.waterNeed}</div>
+        `;
+        const right = document.createElement('div');
+        const buyBtn = document.createElement('button');
+        buyBtn.textContent = '구매';
+        buyBtn.onclick = () => {
+          if (state.money >= s.buyPrice) {
+            state.money -= s.buyPrice;
+            const key = 'seed_' + s.id;
+            state.inventory[key] = (state.inventory[key] || 0) + 1;
+            updateTopUI(); buildSeedSelect(); buildInventory();
+            flashTip(`${s.name} 1개 구매!`);
+          } else {
+            flashTip('돈이 부족합니다.');
+          }
+        };
+        right.appendChild(buyBtn);
+        card.appendChild(left);
+        card.appendChild(right);
+        shopList.appendChild(card);
+      }
+
+      // 버프/시설 카드
+      for (const b of BUFFS) {
+        const card = document.createElement('div');
+        card.className = 'seed-card';
+        const left = document.createElement('div');
+        left.innerHTML = `
+          <div class="name">${b.name}</div>
+          <div class="desc">${b.desc}</div>
+          <div class="price">가격: ₩ ${b.price} | 지속: ${b.durationDays}일</div>
+        `;
+        const right = document.createElement('div');
+        const buyBtn = document.createElement('button');
+        buyBtn.textContent = '구매/사용';
+        buyBtn.onclick = () => {
+          if (state.money < b.price) { flashTip('돈이 부족합니다.'); return; }
+          state.money -= b.price;
+          applyBuff(b);
+          updateTopUI();
+          buildBuffs();
+          flashTip(`${b.name} 적용!`);
+        };
+        right.appendChild(buyBtn);
+        card.appendChild(left);
+        card.appendChild(right);
+        shopList.appendChild(card);
+      }
+    }
+
+    function buildInventory() {
+      invBody.innerHTML = '';
+      const entries = [];
+      for (const s of SEEDS) {
+        entries.push([`씨앗(${s.name})`, state.inventory['seed_' + s.id] || 0, () => { seedSelect.value = s.id; state.selectedSeedId = s.id; }]);
+      }
+      entries.push(['물', state.inventory.water, () => state.tool = TOOLS.WATER]);
+
+      for (const [name, qty, use] of entries) {
+        const tr = document.createElement('tr');
+        const tdN = document.createElement('td'); tdN.textContent = name;
+        const tdQ = document.createElement('td'); tdQ.textContent = qty;
+        const tdU = document.createElement('td');
+        const btn = document.createElement('button'); btn.textContent = '선택'; btn.onclick = use;
+        tdU.appendChild(btn);
+        tr.appendChild(tdN); tr.appendChild(tdQ); tr.appendChild(tdU);
+        invBody.appendChild(tr);
+      }
+    }
+
+    function buildSell() {
+      sellBody.innerHTML = '';
+      for (const s of SEEDS) {
+        const key = 'crop_' + s.id;
+        const tr = document.createElement('tr');
+        const tdN = document.createElement('td'); tdN.textContent = s.name.replace('씨앗','').replace('묘목','').trim();
+        const tdQ = document.createElement('td'); tdQ.textContent = state.inventory[key] || 0;
+        const tdP = document.createElement('td'); tdP.textContent = '₩ ' + s.sellPrice;
+        const tdB = document.createElement('td');
+        const btn = document.createElement('button');
+        btn.textContent = '모두 판매';
+        btn.onclick = () => {
+          const qty = state.inventory[key] || 0;
+          if (qty > 0) {
+            const earn = Math.round(qty * s.sellPrice);
+            state.money += earn;
+            state.inventory[key] = 0;
+            updateTopUI(); buildSell();
+            flashTip(`판매 완료! +₩ ${earn}`);
+          } else {
+            flashTip('판매할 작물이 없습니다.');
+          }
+        };
+        tdB.appendChild(btn);
+        tr.appendChild(tdN); tr.appendChild(tdQ); tr.appendChild(tdP); tr.appendChild(tdB);
+        sellBody.appendChild(tr);
+      }
+    }
+
+    function buildBuffs() {
+      buffBody.innerHTML = '';
+      // 현재 활성 버프 나열
+      const today = state.day;
+      const buffs = state.activeBuffs.map(b => {
+        const def = BUFFS.find(x => x.id === b.id);
+        const remain = Math.max(0, b.expiresDay - today);
+        return { def, remain };
+      });
+      for (const item of buffs) {
+        const tr = document.createElement('tr');
+        const tdN = document.createElement('td'); tdN.textContent = item.def.name;
+        const tdS = document.createElement('td'); tdS.textContent = `남은 ${item.remain}일`;
+        const tdD = document.createElement('td'); tdD.textContent = item.def.desc;
+        const tdB = document.createElement('td');
+        const btn = document.createElement('button');
+        btn.textContent = '해제';
+        btn.onclick = () => {
+          const idx = state.activeBuffs.findIndex(b => b.id === item.def.id);
+          if (idx >= 0) state.activeBuffs.splice(idx, 1);
+          buildBuffs();
+          flashTip('버프 해제');
+        };
+        tdB.appendChild(btn);
+        tr.appendChild(tdN); tr.appendChild(tdS); tr.appendChild(tdD); tr.appendChild(tdB);
+        buffBody.appendChild(tr);
+      }
+      if (buffs.length === 0) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 4; td.textContent = '활성화된 버프가 없습니다.';
+        tr.appendChild(td); buffBody.appendChild(tr);
+      }
+    }
+
+    // ====== 힌트/이펙트 ======
+    function addEffect(x, y, color) {
+      state.effects.push({ x, y, vx: rand(-0.4, 0.4), vy: rand(-1.2, -0.4), life: 820, color, size: rand(2, 4) });
+    }
+    function flashTip(msg) {
+      const el = document.getElementById('tips');
+      el.textContent = '도움말: ' + msg;
+      clearTimeout(flashTip._t);
+      flashTip._t = setTimeout(() => {
+        el.textContent = '도움말: 좌클릭 심기 / 우클릭 수확';
+      }, 2500);
+    }
+
+    // ====== 입력 처리 ======
+    let mouse = { x:0, y:0, gridX:0, gridY:0, inside:false, down:false, rdown:false };
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      mouse.x = mx; mouse.y = my;
+      mouse.gridX = Math.floor((mx - FIELD_OFFSET_X) / TILE_SIZE);
+      mouse.gridY = Math.floor((my - FIELD_OFFSET_Y) / TILE_SIZE);
+      mouse.inside = mouse.gridX >= 0 && mouse.gridY >= 0 && mouse.gridX < GRID_W && mouse.gridY < GRID_H;
+    });
+    canvas.addEventListener('mousedown', (e) => {
+      if (e.button === 0) { mouse.down = true; handleClick(false); }
+      if (e.button === 2) { mouse.rdown = true; handleClick(true); }
+    });
+    canvas.addEventListener('mouseup', (e) => {
+      if (e.button === 0) mouse.down = false;
+      if (e.button === 2) mouse.rdown = false;
+    });
+    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    function handleClick(isRight) {
+      if (!mouse.inside) return;
+      const tile = state.field[mouse.gridY][mouse.gridX];
+      if (isRight || state.tool === TOOLS.HARVEST) { harvestTile(tile, mouse.gridX, mouse.gridY); return; }
+      switch (state.tool) {
+        case TOOLS.PLANT: plantTile(tile, mouse.gridX, mouse.gridY); break;
+        case TOOLS.WATER: waterTile(tile); break;
+        case TOOLS.HOE: hoeTile(tile); break;
+        case TOOLS.CLEAR: clearTile(tile); break;
+      }
+    }
+
+    // ====== 타일 동작 ======
+    function hoeTile(tile) {
+      if (tile.rock) { flashTip('돌은 제거부터 하세요.'); return; }
+      if (tile.weed) { flashTip('잡초를 먼저 제거하세요.'); return; }
+      tile.tilled = true;
+      addEffect(mouse.x, mouse.y, '#9fb6ff');
+      flashTip('괭이질 완료!');
+    }
+    function clearTile(tile) {
+      if (tile.plant) { tile.plant = null; addEffect(mouse.x, mouse.y, '#ff7878'); flashTip('작물 제거'); return; }
+      if (tile.weed) { tile.weed = false; addEffect(mouse.x, mouse.y, '#98d58b'); flashTip('잡초 제거'); return; }
+      if (tile.rock) { tile.rock = false; addEffect(mouse.x, mouse.y, '#c4c9d4'); flashTip('돌 제거'); return; }
+      tile.tilled = false; tile.moist = 0; tile.fertilizerMult = 1.0; flashTip('밭 초기화');
+    }
+    function waterTile(tile) {
+      if (state.inventory.water <= 0) { flashTip('물이 부족합니다.'); return; }
+      state.inventory.water -= 1;
+      tile.moist = clamp(tile.moist + 1, 0, 3);
+      if (tile.plant) tile.plant.waterCount += 1;
+      addEffect(mouse.x, mouse.y, '#6ec2ff');
+      buildInventory();
+      flashTip('물주기 완료');
+    }
+    function plantTile(tile, gx, gy) {
+      if (!tile.tilled) { flashTip('먼저 괭이질이 필요합니다.'); return; }
+      if (tile.plant) { flashTip('이미 작물이 자라는 중입니다.'); return; }
+      if (tile.weed || tile.rock) { flashTip('장애물을 제거하세요.'); return; }
+      const seedId = seedSelect.value;
+      const invKey = 'seed_' + seedId;
+      if ((state.inventory[invKey] || 0) <= 0) { flashTip('해당 씨앗이 없습니다. 상점에서 구매하세요.'); return; }
+      state.inventory[invKey] -= 1;
+      const sDef = SEEDS.find(s => s.id === seedId);
+      tile.plant = { id: seedId, plantedAt: performance.now(), stage: 0, waterCount: 0, growProgress: 0, chainReadyAt: null };
+      addEffect(FIELD_OFFSET_X + gx * TILE_SIZE + TILE_SIZE/2, FIELD_OFFSET_Y + gy * TILE_SIZE + TILE_SIZE/2, sDef.color);
+      buildSeedSelect(); buildInventory();
+      flashTip(`${sDef.name} 심기 완료!`);
+    }
+    function harvestTile(tile, gx, gy) {
+      if (!tile.plant) { flashTip('수확할 작물이 없습니다.'); return; }
+      const sDef = SEEDS.find(s => s.id === tile.plant.id);
+      const isMature = tile.plant.stage >= sDef.stages - 1 && tile.plant.growProgress >= 1.0;
+      // 연속 수확 처리: regrowTime 존재 시 성숙 후 수확하면 growProgress를 약간 초기화
+      if (!isMature) {
+        // 체인 레디 상태(연속 수확 대기 시간 완료)인지 확인
+        if (sDef.bonuses?.chainHarvest && tile.plant.chainReadyAt && performance.now() >= tile.plant.chainReadyAt) {
+          // 체인 수확 가능
+        } else {
+          flashTip('아직 덜 익었습니다.');
+          return;
+        }
+      }
+      const yieldMult = sDef.bonuses?.yield || 1.0;
+      const cropKey = 'crop_' + sDef.id;
+      const amount = Math.max(1, Math.round(yieldMult));
+      state.inventory[cropKey] = (state.inventory[cropKey] || 0) + amount;
+
+      addEffect(FIELD_OFFSET_X + gx * TILE_SIZE + TILE_SIZE/2, FIELD_OFFSET_Y + gy * TILE_SIZE + TILE_SIZE/2, '#eaff9b');
+      buildSell(); buildInventory();
+
+      if (sDef.bonuses?.chainHarvest) {
+        // 재성장: 마지막 단계의 일부로 되돌리고, regrowTime 만큼 지나면 다시 수확 가능
+        tile.plant.growProgress = (sDef.stages - 1) / sDef.stages; // 마지막 단계 시작점
+        tile.plant.stage = sDef.stages - 2; // 한 단계 낮춰서 다시 성장
+        const reg = sDef.bonuses.regrowTime || 30000;
+        tile.plant.chainReadyAt = performance.now() + reg;
+        flashTip('연속 수확! 다시 자라나는 중');
+      } else {
+        tile.plant = null;
+        tile.moist = Math.max(0, tile.moist - 1);
+        flashTip('수확 성공!');
+      }
+    }
+
+    // ====== 계절/날씨/성장 ======
+    function seasonMultiplierForSeed(seed) {
+      const seas = SEASONS[state.seasonIndex];
+      const base = 1.0;
+      const sBonus = seed.bonuses?.season?.[seas] ?? 1.0;
+      return base * sBonus;
+    }
+    function weatherMultiplierForSeed(seed) {
+      const baseMap = { sunny:1.0, cloudy:0.95, rainy:1.08, heatwave:0.9, snow:0.88 };
+      const base = baseMap[state.weather] || 1.0;
+      const wBonus = seed.bonuses?.weather?.[state.weather] ?? 1.0;
+      return base * wBonus;
+    }
+    function seasonMultiplier() {
+      // 평균적 계절 보정(표시용)
+      return 1.0;
+    }
+    function weatherMultiplier() {
+      const baseMap = { sunny:1.0, cloudy:0.95, rainy:1.08, heatwave:0.9, snow:0.88 };
+      return baseMap[state.weather] || 1.0;
+    }
+
+    function applyBuff(def) {
+      const expiresDay = state.day + def.durationDays;
+      state.activeBuffs.push({ id: def.id, expiresDay });
+    }
+    function currentBuffGrowthMult() {
+      let mult = 1.0;
+      for (const b of state.activeBuffs) {
+        const def = BUFFS.find(x => x.id === b.id);
+        if (!def) continue;
+        if (def.mult) mult *= def.mult;
+      }
+      return mult;
+    }
+    function currentBuffMoistPerTick() {
+      let amt = 0;
+      for (const b of state.activeBuffs) {
+        const def = BUFFS.find(x => x.id === b.id);
+        if (!def) continue;
+        if (def.moistPerTick) amt += def.moistPerTick;
+      }
+      return amt;
+    }
+
+    function tick(dt) {
+      // 계절 진행: 10일마다
+      const prevSeasonIndex = state.seasonIndex;
+      state.seasonIndex = Math.floor((state.day - 1) / 10) % 4;
+      if (prevSeasonIndex !== state.seasonIndex) {
+        flashTip(`계절이 ${SEASONS[prevSeasonIndex]}에서 ${SEASONS[state.seasonIndex]}으로 바뀌었습니다.`);
+      }
+
+      // 날씨 변경: 약 25~40초
+      state.weatherTimer += dt;
+      const nextWeatherIn = 26_000 + (state.day % 5) * 2_000;
+      if (state.weatherTimer >= nextWeatherIn) {
+        state.weatherTimer = 0;
+        const r = Math.random();
+        if (r < 0.5) state.weather = 'sunny';
+        else if (r < 0.7) state.weather = 'cloudy';
+        else if (r < 0.85) state.weather = 'rainy';
+        else if (r < 0.95) state.weather = 'heatwave';
+        else state.weather = 'snow';
+        // 날씨에 따른 전체 성장 배율(표시용)
+        state.growthMultiplier = weatherMultiplier();
+        updateTopUI();
+      }
+
+      // 자동 수분(비/스프링클러)
+      const moistAuto = (state.weather === 'rainy' ? 0.002 * dt / 16 : 0) + currentBuffMoistPerTick() * dt;
+      for (let y = 0; y < GRID_H; y++) for (let x = 0; x < GRID_W; x++) {
+        const t = state.field[y][x];
+        if (t.tilled) t.moist = clamp(t.moist + moistAuto, 0, 3);
+      }
+
+      // 성장
+      for (let y = 0; y < GRID_H; y++) for (let x = 0; x < GRID_W; x++) {
+        const t = state.field[y][x]; const p = t.plant; if (!p) continue;
+        const sDef = SEEDS.find(s => s.id === p.id);
+        // 기본 성장 속도
+        let speed = (1 / sDef.growTime) * dt;
+        // 수분/물주기 보정
+        const moistureBonus = 1 + (t.moist >= 2 ? 0.15 : (t.moist >= 1 ? 0.05 : -0.08));
+        const waterBonus = 1 + (p.waterCount >= sDef.waterNeed ? 0.12 : 0);
+        // 씨앗별 계절/날씨 보정
+        const seasonB = seasonMultiplierForSeed(sDef);
+        const weatherB = weatherMultiplierForSeed(sDef);
+        // 비료/버프 보정(타일/농장)
+        const buffMult = currentBuffGrowthMult() * (t.fertilizerMult || 1.0);
+
+        // 폭염/눈 추가 페널티 수분 기반
+        let harshPenalty = 1.0;
+        if (state.weather === 'snow') harshPenalty *= 0.94;
+        if (state.weather === 'heatwave' && t.moist <= 1) harshPenalty *= 0.92;
+
+        speed *= moistureBonus * waterBonus * seasonB * weatherB * buffMult * harshPenalty;
+
+        // 연속 수확 대기시간 중이면 서서히 진행(느리게)
+        if (sDef.bonuses?.chainHarvest && p.chainReadyAt && performance.now() < p.chainReadyAt) {
+          speed *= 0.5;
+        }
+
+        p.growProgress = Math.min(1.0, p.growProgress + speed);
+        const stageSpan = 1.0 / sDef.stages;
+        const newStage = Math.min(sDef.stages - 1, Math.floor(p.growProgress / stageSpan));
+        if (newStage !== p.stage) {
+          p.stage = newStage;
+          addEffect(FIELD_OFFSET_X + x * TILE_SIZE + TILE_SIZE / 2, FIELD_OFFSET_Y + y * TILE_SIZE + TILE_SIZE / 2, sDef.color);
+        }
+      }
+
+      // 버프 만료
+      for (let i = state.activeBuffs.length - 1; i >= 0; i--) {
+        if (state.activeBuffs[i].expiresDay <= state.day) state.activeBuffs.splice(i, 1);
+      }
+
+      // 이펙트
+      for (let i = state.effects.length - 1; i >= 0; i--) {
+        const e = state.effects[i];
+        e.life -= dt; e.x += e.vx * dt * 0.08; e.y += e.vy * dt * 0.08;
+        if (e.life <= 0) state.effects.splice(i, 1);
+      }
+
+      // 날짜 경과(1일 = 95초)
+      state.timeAccum += dt;
+      if (state.timeAccum >= 95_000) {
+        state.timeAccum = 0;
+        state.day += 1;
+        state.inventory.water += 5;
+        sprinkleWeeds();
+        updateTopUI();
+        buildInventory();
+      }
+
+      // 자동저장
+      if (state.autoSaveEnabled) {
+        state.autoSaveTimer += dt;
+        if (state.autoSaveTimer >= state.autoSaveIntervalMs) {
+          state.autoSaveTimer = 0;
+          saveGameToSlot(state.slotIndex, { silent:true });
+        }
+      }
+    }
+
+    function sprinkleWeeds() {
+      for (let y = 0; y < GRID_H; y++) for (let x = 0; x < GRID_W; x++) {
+        const t = state.field[y][x];
+        if (!t.plant && !t.rock && !t.weed && Math.random() < 0.02) t.weed = true;
+      }
+    }
+
+    // ====== 렌더링 ======
+    function draw() {
+      ctx.fillStyle = '#2b5d3a'; ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+      ctx.fillStyle = '#244f32'; ctx.fillRect(FIELD_OFFSET_X - 10, FIELD_OFFSET_Y - 10, GRID_W * TILE_SIZE + 20, GRID_H * TILE_SIZE + 20);
+
+      // 타일
+      for (let y = 0; y < GRID_H; y++) for (let x = 0; x < GRID_W; x++) {
+        const t = state.field[y][x]; const px = FIELD_OFFSET_X + x * TILE_SIZE; const py = FIELD_OFFSET_Y + y * TILE_SIZE;
+        ctx.fillStyle = t.tilled ? '#7a5231' : '#327346';
+        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+
+        // 수분
+        if (t.tilled && t.moist > 0) {
+          const alpha = Math.min(0.25 + 0.15 * t.moist, 0.6);
+          ctx.fillStyle = `rgba(80,140,180,${alpha})`;
+          ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+        }
+
+        // 돌/잡초
+        if (t.rock) { ctx.fillStyle = '#9aa3ad'; ctx.fillRect(px + 10, py + 10, 20, 20); }
+        if (t.weed) { ctx.fillStyle = '#89c77b'; ctx.fillRect(px + 6, py + 6, TILE_SIZE - 12, 8); }
+
+        // 작물
+        if (t.plant) {
+          const sDef = SEEDS.find(s => s.id === t.plant.id);
+          const st = t.plant.stage;
+          ctx.fillStyle = sDef.color;
+          const h = 6 + st * 6 + Math.floor(6 * t.plant.growProgress);
+          ctx.fillRect(px + TILE_SIZE / 2 - 6, py + TILE_SIZE - h - 4, 12, h);
+
+          // 성숙 테두리
+          const mature = t.plant.stage >= sDef.stages - 1 && t.plant.growProgress >= 1.0;
+          if (mature) {
+            ctx.strokeStyle = '#eaff9b'; ctx.lineWidth = 2; ctx.strokeRect(px + 2, py + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+          }
+
+          // 연속 수확 대기 표시
+          if (sDef.bonuses?.chainHarvest && t.plant.chainReadyAt) {
+            const leftMs = Math.max(0, t.plant.chainReadyAt - performance.now());
+            if (leftMs > 0) {
+              ctx.fillStyle = 'rgba(255,255,255,0.4)';
+              const w = clamp(1 - leftMs / (sDef.bonuses.regrowTime || 30000), 0, 1) * (TILE_SIZE - 6);
+              ctx.fillRect(px + 3, py + 3, w, 4);
+            }
+          }
+        }
+
+        // 격자
+        ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+        ctx.strokeRect(px, py, TILE_SIZE, TILE_SIZE);
+      }
+
+      // 하이라이트
+      if (mouse.inside) {
+        const px = FIELD_OFFSET_X + mouse.gridX * TILE_SIZE;
+        const py = FIELD_OFFSET_Y + mouse.gridY * TILE_SIZE;
+        ctx.strokeStyle = '#cfe2ff';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(px + 1, py + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+      }
+
+      // 날씨 연출
+      if (state.weather === 'rainy') drawRain();
+      else if (state.weather === 'cloudy') drawClouds();
+      else if (state.weather === 'heatwave') drawHeat();
+      else if (state.weather === 'snow') drawSnow();
+      else drawSunlight();
+
+      // 이펙트
+      for (const e of state.effects) {
+        ctx.fillStyle = e.color;
+        ctx.globalAlpha = Math.max(0, e.life / 820);
+        ctx.fillRect(e.x, e.y, e.size, e.size);
+        ctx.globalAlpha = 1.0;
+      }
+
+      // 좌상단 도구 표시
+      ctx.fillStyle = '#0f1320'; ctx.fillRect(12, 12, 220, 78);
+      ctx.strokeStyle = '#2a3241'; ctx.strokeRect(12, 12, 220, 78);
+      ctx.fillStyle = '#e6edf3'; ctx.font = '14px sans-serif';
+      ctx.fillText('도구: ' + toolLabel(state.tool), 20, 36);
+      ctx.fillText('씨앗: ' + seedName(state.selectedSeedId), 20, 58);
+    }
+
+    function toolLabel(t) {
+      return t === TOOLS.PLANT ? '심기' :
+             t === TOOLS.HARVEST ? '수확' :
+             t === TOOLS.WATER ? '물주기' :
+             t === TOOLS.HOE ? '괭이질' :
+             t === TOOLS.CLEAR ? '제거' : '';
+    }
+    function seedName(id) {
+      const s = SEEDS.find(s => s.id === id);
+      return s ? s.name : '-';
+    }
+
+    function drawRain() {
+      ctx.strokeStyle = 'rgba(160,210,255,0.35)';
+      for (let i = 0; i < 130; i++) {
+        const x = (i * 8 + (performance.now() / 12) % CANVAS_W) % CANVAS_W;
+        const y = (i * 6 + (performance.now() / 3) % CANVAS_H) % CANVAS_H;
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + 8); ctx.stroke();
+      }
+    }
+    function drawClouds() {
+      ctx.fillStyle = 'rgba(220,230,240,0.15)';
+      for (let i = 0; i < 6; i++) {
+        const x = (i * 160 + (performance.now() / 40) % CANVAS_W) % CANVAS_W;
+        const y = 60 + Math.sin((performance.now() / 1000) + i) * 12;
+        ctx.beginPath();
+        ctx.arc(x, y, 40, 0, Math.PI * 2);
+        ctx.arc(x + 40, y + 10, 30, 0, Math.PI * 2);
+        ctx.arc(x - 30, y + 8, 28, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    function drawSunlight() {
+      const t = performance.now() / 1200;
+      ctx.fillStyle = `rgba(255,240,150,${0.05 + 0.03 * Math.sin(t)})`;
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+    }
+    function drawHeat() {
+      const t = performance.now() / 900;
+      ctx.fillStyle = `rgba(255,150,80,${0.05 + 0.04 * Math.sin(t)})`;
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+    }
+    function drawSnow() {
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      for (let i = 0; i < 80; i++) {
+        const x = (i * 12 + (performance.now() / 20) % CANVAS_W) % CANVAS_W;
+        const y = (i * 7 + (performance.now() / 15) % CANVAS_H) % CANVAS_H;
+        ctx.fillRect(x, y, 2, 2);
+      }
+    }
+
+    // ====== 루프 ======
+    function loop() {
+      const now = performance.now(); const dt = now - state.lastTick; state.lastTick = now;
+      tick(dt); draw(); requestAnimationFrame(loop);
+    }
+
+    // ====== 저장/불러오기 ======
+    function slotKey(i) { return SAVE_KEY_PREFIX + i; }
+    function buildSlotSelect() {
+      slotSelect.innerHTML = '';
+      for (let i = 0; i < SLOT_MAX; i++) {
+        const meta = readSlotMeta(i);
+        const opt = document.createElement('option');
+        opt.value = i;
+        const name = meta?.name || `슬롯 ${i+1}`;
+        const updated = meta?.updatedAt ? ` (${meta.updatedAt})` : ' (빈 슬롯)';
+        opt.textContent = `${name}${updated}`;
+        slotSelect.appendChild(opt);
+      }
+      slotSelect.value = state.slotIndex;
+      buildSlotInfoTable();
+    }
+    function readSlotMeta(i) {
+      try {
+        const raw = localStorage.getItem(slotKey(i));
+        if (!raw) return null;
+        const data = JSON.parse(raw);
+        return data?.meta || null;
+      } catch { return null; }
+    }
+    function buildSlotInfoTable() {
+      slotInfoBody.innerHTML = '';
+      for (let i = 0; i < SLOT_MAX; i++) {
+        const meta = readSlotMeta(i);
+        const tr = document.createElement('tr');
+        const tdSlot = document.createElement('td'); tdSlot.textContent = `${i+1}`;
+        const tdName = document.createElement('td'); tdName.textContent = meta?.name || `슬롯 ${i+1}`;
+        const tdUpdated = document.createElement('td'); tdUpdated.textContent = meta?.updatedAt || '빈 슬롯';
+        const tdSummary = document.createElement('td'); tdSummary.textContent = meta?.summary || '-';
+        tr.appendChild(tdSlot); tr.appendChild(tdName); tr.appendChild(tdUpdated); tr.appendChild(tdSummary);
+        slotInfoBody.appendChild(tr);
+      }
+    }
+
+    function makeSummary() {
+      const crops = SEEDS.map(s => `${s.id}:${state.inventory['crop_' + s.id] || 0}`).join(' ');
+      return `돈 ₩${state.money}, 일자 ${state.day}, 계절 ${SEASONS[state.seasonIndex]}, 작물 ${crops}`;
+    }
+    function getSerializableState() {
+      return {
+        version: SAVE_VERSION,
+        meta: {
+          name: readSlotMeta(state.slotIndex)?.name || `슬롯 ${state.slotIndex+1}`,
+          updatedAt: nowISO(),
+          summary: makeSummary(),
+        },
+        payload: {
+          money: state.money,
+          day: state.day,
+          seasonIndex: state.seasonIndex,
+          weather: state.weather,
+          inventory: state.inventory,
+          field: state.field,
+          selectedSeedId: state.selectedSeedId,
+          activeBuffs: state.activeBuffs,
+        }
+      };
+    }
+    function applySerializableState(data) {
+      const v = data?.version || '0.0.0';
+      const majorOk = v.split('.')[0] === SAVE_VERSION.split('.')[0];
+      if (!majorOk) { flashTip('버전이 크게 달라 불러오기를 건너뜁니다.'); return false; }
+      const p = data.payload;
+      if (!p) return false;
+      state.money = p.money ?? state.money;
+      state.day = p.day ?? state.day;
+      state.seasonIndex = p.seasonIndex ?? state.seasonIndex;
+      state.weather = p.weather ?? state.weather;
+      state.inventory = p.inventory ?? state.inventory;
+      state.field = p.field ?? state.field;
+      state.selectedSeedId = p.selectedSeedId ?? state.selectedSeedId;
+      state.activeBuffs = p.activeBuffs ?? [];
+      // 런타임 리셋
+      state.effects = []; state.timeAccum = 0; state.weatherTimer = 0; state.lastTick = performance.now();
+      updateTopUI(); buildSeedSelect(); buildSell(); buildInventory(); buildBuffs();
+      return true;
+    }
+
+    function saveGameToSlot(slotIndex, { silent=false } = {}) {
+      try {
+        // 이름 유지
+        const name = readSlotMeta(slotIndex)?.name || `슬롯 ${slotIndex+1}`;
+        const snapshot = getSerializableState();
+        snapshot.meta.name = name;
+        localStorage.setItem(slotKey(slotIndex), JSON.stringify(snapshot));
+        state.lastSavedAt = snapshot.meta.updatedAt;
+        buildSlotSelect(); updateTopUI();
+        if (!silent) flashTip(`저장 완료: ${name}`);
+      } catch (e) {
+        console.error(e); flashTip('저장 실패(용량/권한 문제일 수 있음)');
+      }
+    }
+    function loadGameFromSlot(slotIndex) {
+      try {
+        const raw = localStorage.getItem(slotKey(slotIndex));
+        if (!raw) { flashTip('해당 슬롯에 저장 데이터가 없습니다.'); return false; }
+        const data = JSON.parse(raw);
+        const ok = applySerializableState(data);
+        if (ok) { flashTip(`불러오기 완료: ${data.meta?.name || '슬롯 ' + (slotIndex+1)}`); state.lastSavedAt = data.meta?.updatedAt || null; updateTopUI(); }
+        return ok;
+      } catch (e) {
+        console.error(e); flashTip('불러오기 실패(데이터 손상 가능)'); return false;
+      }
+    }
+    function deleteSlot(slotIndex) {
+      const name = readSlotMeta(slotIndex)?.name || `슬롯 ${slotIndex+1}`;
+      if (!confirm(`정말 삭제할까요? (${name})`)) return;
+      localStorage.removeItem(slotKey(slotIndex));
+      buildSlotSelect();
+      flashTip('슬롯 삭제 완료');
+    }
+    function renameSlot(slotIndex, newName) {
+      const raw = localStorage.getItem(slotKey(slotIndex));
+      if (!raw) {
+        // 빈 슬롯의 메타 생성
+        const base = { version: SAVE_VERSION, meta: { name: newName, updatedAt: null, summary: '' }, payload: null };
+        localStorage.setItem(slotKey(slotIndex), JSON.stringify(base));
+      } else {
+        const data = JSON.parse(raw);
+        data.meta = data.meta || {};
+        data.meta.name = newName;
+        localStorage.setItem(slotKey(slotIndex), JSON.stringify(data));
+      }
+      buildSlotSelect();
+      flashTip('슬롯 이름 변경 완료');
+    }
+
+    function resetGame() {
+      state.money = 300; state.day = 1; state.seasonIndex = 0; state.weather = 'sunny';
+      state.inventory = { water: 12 };
+      for (const s of SEEDS) {
+        state.inventory['seed_' + s.id] = 0;
+        state.inventory['crop_' + s.id] = 0;
+      }
+      initField();
+      state.selectedSeedId = SEEDS[0].id;
+      state.activeBuffs = [];
+      state.effects = []; state.timeAccum = 0; state.weatherTimer = 0; state.lastTick = performance.now();
+      updateTopUI(); buildSeedSelect(); buildInventory(); buildSell(); buildBuffs();
+      flashTip('새로 시작!');
+    }
+
+    // ====== 모달 ======
+    function openModal(mode, content='') {
+      modalMode = mode;
+      modalBackdrop.style.display = 'flex';
+      modalTitle.textContent = mode === 'export' ? '데이터 내보내기(JSON)' :
+                                mode === 'import' ? '데이터 가져오기(JSON 붙여넣기)' :
+                                '슬롯 이름 변경';
+      modalTextarea.value = content;
+      modalTextarea.placeholder = mode === 'rename' ? '새 슬롯 이름을 입력하세요' : '여기에 JSON이 표시되거나 붙여넣으세요';
+      modalHint.textContent = mode === 'export'
+        ? '아래 JSON을 복사해 안전한 곳에 보관하세요.'
+        : mode === 'import'
+          ? '저장한 JSON을 아래에 붙여넣고 확인을 누르세요.'
+          : '슬롯 이름은 간단하고 알아보기 쉽게 설정하세요.';
+    }
+    function closeModal() { modalBackdrop.style.display = 'none'; }
+
+    modalConfirmBtn.onclick = () => {
+      if (modalMode === 'export') {
+        closeModal(); flashTip('JSON 복사 후 안전하게 보관하세요.');
+      } else if (modalMode === 'import') {
+        try {
+          const data = JSON.parse(modalTextarea.value);
+          const ok = applySerializableState(data);
+          if (ok) {
+            localStorage.setItem(slotKey(state.slotIndex), JSON.stringify(data));
+            state.lastSavedAt = data.meta?.updatedAt || nowISO();
+            buildSlotSelect(); updateTopUI();
+            flashTip('가져오기 완료 및 현재 슬롯에 저장');
+          } else {
+            flashTip('가져오기 실패(버전/형식 문제)');
+          }
+        } catch (e) {
+          console.error(e); flashTip('JSON 파싱 실패');
+        } finally { closeModal(); }
+      } else if (modalMode === 'rename') {
+        const name = modalTextarea.value.trim();
+        if (!name) { flashTip('이름을 입력하세요.'); return; }
+        renameSlot(state.slotIndex, name);
+        closeModal();
+      }
+    };
+    modalCancelBtn.onclick = () => closeModal();
+
+    // ====== 이벤트 바인딩 ======
+    toolPlantBtn.onclick = () => state.tool = TOOLS.PLANT;
+    toolHarvestBtn.onclick = () => state.tool = TOOLS.HARVEST;
+    toolWaterBtn.onclick = () => state.tool = TOOLS.WATER;
+    toolHoeBtn.onclick = () => state.tool = TOOLS.HOE;
+    toolClearBtn.onclick = () => state.tool = TOOLS.CLEAR;
+    seedSelect.onchange = () => { state.selectedSeedId = seedSelect.value; };
+
+    saveBtn.onclick = () => saveGameToSlot(state.slotIndex);
+    loadBtn.onclick = () => loadGameFromSlot(state.slotIndex);
+    resetBtn.onclick = () => resetGame();
+    exportBtn.onclick = () => {
+      const snapshot = getSerializableState();
+      openModal('export', JSON.stringify(snapshot, null, 2));
+    };
+    importBtn.onclick = () => openModal('import', '');
+
+    slotSelect.onchange = () => { state.slotIndex = parseInt(slotSelect.value, 10); };
+    renameSlotBtn.onclick = () => openModal('rename', readSlotMeta(state.slotIndex)?.name || '');
+    deleteSlotBtn.onclick = () => deleteSlot(state.slotIndex);
+
+    autoSaveIntervalInput.onchange = () => {
+      const sec = parseInt(autoSaveIntervalInput.value, 10);
+      if (isNaN(sec) || sec < 10 || sec > 600) {
+        flashTip('자동저장 간격은 10~600초 사이로 설정하세요.');
+        autoSaveIntervalInput.value = Math.round(state.autoSaveIntervalMs / 1000);
+        return;
+      }
+      state.autoSaveIntervalMs = sec * 1000;
+      flashTip(`자동저장 간격: ${sec}초`);
+    };
+    autoSaveToggleBtn.onclick = () => {
+      state.autoSaveEnabled = !state.autoSaveEnabled;
+      state.autoSaveTimer = 0;
+      autoSaveToggleBtn.textContent = `자동저장: ${state.autoSaveEnabled ? '켜짐' : '꺼짐'}`;
+      flashTip(state.autoSaveEnabled ? '자동저장 활성화' : '자동저장 비활성화');
+    };
+
+    // ====== 시작 ======
+    function start() {
+      // 인벤토리 초기화(씨앗/작물 키 생성)
+      for (const s of SEEDS) {
+        state.inventory['seed_' + s.id] = state.inventory['seed_' + s.id] || 0;
+        state.inventory['crop_' + s.id] = state.inventory['crop_' + s.id] || 0;
+      }
+      initField();
+      buildSeedSelect();
+      buildShop();
+      buildInventory();
+      buildSell();
+      buildBuffs();
+      updateTopUI();
+
+      // 초기 슬롯 메타 생성
+      for (let i = 0; i < SLOT_MAX; i++) {
+        const meta = readSlotMeta(i);
+        if (!meta) {
+          const base = { version: SAVE_VERSION, meta: { name: `슬롯 ${i+1}`, updatedAt: null, summary: '' }, payload: null };
+          localStorage.setItem(slotKey(i), JSON.stringify(base));
+        }
+      }
+      buildSlotSelect();
+
+      loop();
+    }
+    start();
+  </script>
+</body>
+</html>
