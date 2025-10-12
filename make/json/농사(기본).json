@@ -1,0 +1,2367 @@
+{
+  "version": "2.0.0",
+  "meta": {
+    "name": "슬롯 1",
+    "updatedAt": "2025-10-12T05:35:15.364Z",
+    "summary": "돈 ₩300, 일자 1, 계절 봄, 작물 wheat:0 carrot:0 strawberry:0 pumpkin:0 potato:0 corn:0 tomato:0 cabbage:0 rice:0 soybean:0 peanut:0 blueberry:0 raspberry:0 apple:0 pear:0 peach:0 grape:0 tea:0 coffee:0 cocoa:0 banana:0 mango:0 watermelon:0 melon:0 onion:0 garlic:0 ginger:0 pepper:0 eggplant:0 lettuce:0 spinach:0 broccoli:0 cauliflower:0 beet:0 sunflower:0 lavender:0 rose:0 orchid:0 pumpkin_white:0"
+  },
+  "payload": {
+    "money": 300,
+    "day": 1,
+    "seasonIndex": 0,
+    "weather": "sunny",
+    "inventory": {
+      "water": 12,
+      "seed_wheat": 0,
+      "crop_wheat": 0,
+      "seed_carrot": 0,
+      "crop_carrot": 0,
+      "seed_strawberry": 0,
+      "crop_strawberry": 0,
+      "seed_pumpkin": 0,
+      "crop_pumpkin": 0,
+      "seed_potato": 0,
+      "crop_potato": 0,
+      "seed_corn": 0,
+      "crop_corn": 0,
+      "seed_tomato": 0,
+      "crop_tomato": 0,
+      "seed_cabbage": 0,
+      "crop_cabbage": 0,
+      "seed_rice": 0,
+      "crop_rice": 0,
+      "seed_soybean": 0,
+      "crop_soybean": 0,
+      "seed_peanut": 0,
+      "crop_peanut": 0,
+      "seed_blueberry": 0,
+      "crop_blueberry": 0,
+      "seed_raspberry": 0,
+      "crop_raspberry": 0,
+      "seed_apple": 0,
+      "crop_apple": 0,
+      "seed_pear": 0,
+      "crop_pear": 0,
+      "seed_peach": 0,
+      "crop_peach": 0,
+      "seed_grape": 0,
+      "crop_grape": 0,
+      "seed_tea": 0,
+      "crop_tea": 0,
+      "seed_coffee": 0,
+      "crop_coffee": 0,
+      "seed_cocoa": 0,
+      "crop_cocoa": 0,
+      "seed_banana": 0,
+      "crop_banana": 0,
+      "seed_mango": 0,
+      "crop_mango": 0,
+      "seed_watermelon": 0,
+      "crop_watermelon": 0,
+      "seed_melon": 0,
+      "crop_melon": 0,
+      "seed_onion": 0,
+      "crop_onion": 0,
+      "seed_garlic": 0,
+      "crop_garlic": 0,
+      "seed_ginger": 0,
+      "crop_ginger": 0,
+      "seed_pepper": 0,
+      "crop_pepper": 0,
+      "seed_eggplant": 0,
+      "crop_eggplant": 0,
+      "seed_lettuce": 0,
+      "crop_lettuce": 0,
+      "seed_spinach": 0,
+      "crop_spinach": 0,
+      "seed_broccoli": 0,
+      "crop_broccoli": 0,
+      "seed_cauliflower": 0,
+      "crop_cauliflower": 0,
+      "seed_beet": 0,
+      "crop_beet": 0,
+      "seed_sunflower": 0,
+      "crop_sunflower": 0,
+      "seed_lavender": 0,
+      "crop_lavender": 0,
+      "seed_rose": 0,
+      "crop_rose": 0,
+      "seed_orchid": 0,
+      "crop_orchid": 0,
+      "seed_pumpkin_white": 0,
+      "crop_pumpkin_white": 0
+    },
+    "field": [
+      [
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": true,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        }
+      ],
+      [
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": true,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": true,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": true,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": true,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        }
+      ],
+      [
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": true,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": true,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        }
+      ],
+      [
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": true,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        }
+      ],
+      [
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": true,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": true,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": true,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        }
+      ],
+      [
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        }
+      ],
+      [
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": true,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": true,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": true,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        }
+      ],
+      [
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        }
+      ],
+      [
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": true,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        }
+      ],
+      [
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        }
+      ],
+      [
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": true,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        }
+      ],
+      [
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": true,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": true,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        }
+      ],
+      [
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": true,
+          "weed": true,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        }
+      ],
+      [
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": true,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": true,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": true,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        },
+        {
+          "tilled": false,
+          "moist": 0,
+          "plant": null,
+          "rock": false,
+          "weed": false,
+          "fertilizerMult": 1
+        }
+      ]
+    ],
+    "selectedSeedId": "wheat",
+    "activeBuffs": []
+  }
+}
