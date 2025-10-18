@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>이윤설 소개 💜✨</title>
+  <meta name="description" content="7살 소녀 이윤설의 반짝반짝 소개 사이트! 로블록스, 피아노, 엄마 사랑, 그리고 귀여운 반려동물 이야기 🌈🎹🐾"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- 귀엽고 또렷한 폰트 조합 -->
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg-1: #A18CD1;
+      --bg-2: #FBC2EB;
+      --bg-3: #FFD3A5;
+      --bg-4: #FD6585;
+      --bg-5: #A6FFCB;
+      --text: #2a2450;
+      --text-light: rgba(42,36,80,0.75);
+      --white: #ffffff;
+      --card: rgba(255,255,255,0.18);
+      --glass: rgba(255,255,255,0.35);
+      --shadow: 0 20px 35px rgba(0,0,0,0.15);
+      --radius-1: 24px;
+      --radius-2: 18px;
+      --radius-pill: 999px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: radial-gradient(1200px 900px at 90% -20%, var(--bg-2), transparent),
+                  radial-gradient(1200px 900px at -10% 110%, var(--bg-4), transparent),
+                  linear-gradient(135deg, var(--bg-1), var(--bg-3) 45%, var(--bg-5));
+      color: var(--text);
+      font-family: "Baloo 2", "Nunito", system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* 반짝반짝 파티클 */
+    .sparkles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      background-image:
+        radial-gradient(4px 4px at 10% 20%, rgba(255,255,255,0.8), transparent 50%),
+        radial-gradient(3px 3px at 80% 15%, rgba(255,255,255,0.7), transparent 50%),
+        radial-gradient(5px 5px at 30% 70%, rgba(255,255,255,0.85), transparent 50%),
+        radial-gradient(4px 4px at 60% 50%, rgba(255,255,255,0.75), transparent 50%),
+        radial-gradient(3px 3px at 20% 85%, rgba(255,255,255,0.9), transparent 50%);
+      animation: twinkle 6s ease-in-out infinite alternate;
+      filter: drop-shadow(0 0 4px rgba(255,255,255,0.5));
+    }
+    @keyframes twinkle {
+      0% { opacity: 0.5; transform: translateY(0); }
+      100% { opacity: 1; transform: translateY(-6px); }
+    }
+
+    header {
+      position: relative;
+      z-index: 2;
+      padding: 40px 24px 16px;
+      text-align: center;
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 18px;
+      background: linear-gradient(120deg, rgba(255,255,255,0.7), rgba(255,255,255,0.35));
+      border: 2px solid rgba(255,255,255,0.8);
+      border-radius: var(--radius-pill);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(6px);
+    }
+    .logo-badge .emoji {
+      font-size: 28px;
+      filter: drop-shadow(0 3px 6px rgba(0,0,0,0.2));
+    }
+    .logo-text {
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: 0.5px;
+      color: #5b4aa4;
+    }
+
+    .hero {
+      position: relative;
+      z-index: 2;
+      padding: 12px 24px 40px;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 6vw, 60px);
+      margin: 16px 0 8px;
+      line-height: 1.15;
+      color: #2b235d;
+      text-shadow: 0 6px 18px rgba(0,0,0,0.18);
+    }
+    .hero p {
+      font-size: clamp(16px, 3.2vw, 22px);
+      margin: 0 auto;
+      max-width: 740px;
+      color: var(--text-light);
+    }
+
+    .hero-tags {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: var(--radius-pill);
+      border: 1.5px dashed rgba(255,255,255,0.85);
+      background: linear-gradient(145deg, rgba(255,255,255,0.85), rgba(255,255,255,0.55));
+      box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+      font-weight: 700;
+      color: #4a3aa4;
+    }
+    .tag .emoji { font-size: 20px; }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      margin: 24px auto 80px;
+      padding: 0 24px;
+      max-width: 1100px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+    @media (min-width: 900px){
+      .grid { grid-template-columns: 1.1fr 0.9fr; }
+    }
+
+    .card {
+      position: relative;
+      background: linear-gradient(180deg, rgba(255,255,255,0.65), rgba(255,255,255,0.35));
+      border: 2px solid rgba(255,255,255,0.85);
+      border-radius: var(--radius-1);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+    }
+    .card::before{
+      content: "";
+      position: absolute;
+      inset: -40% -30% auto auto;
+      width: 80%;
+      height: 160%;
+      background: radial-gradient(400px 300px at 80% 0%, rgba(255,255,255,0.75), transparent 60%),
+                  radial-gradient(500px 300px at 40% 40%, rgba(255,255,255,0.35), transparent 60%);
+      transform: rotate(12deg);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 20px;
+      border-bottom: 2px dashed rgba(255,255,255,0.75);
+    }
+    .card-header .title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #3a2f7a;
+      letter-spacing: 0.3px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-header .title .emoji {
+      font-size: 24px;
+      transform: translateY(1px);
+    }
+
+    .card-body {
+      padding: 18px 20px 22px;
+      color: var(--text-light);
+      font-size: 18px;
+      line-height: 1.6;
+    }
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .pill {
+      padding: 10px 14px;
+      border-radius: var(--radius-pill);
+      background: linear-gradient(120deg, #ffffff, #ffe9f7);
+      border: 1.5px solid rgba(255,255,255,0.85);
+      color: #4c378f;
+      font-weight: 700;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pill .emoji { font-size: 18px; }
+
+    .feature {
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 12px 0;
+      border-bottom: 1px dashed rgba(255,255,255,0.7);
+    }
+    .feature:last-child { border-bottom: none; }
+    .feature .icon {
+      width: 64px; height: 64px;
+      display: grid; place-items: center;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #fff, #ffe3f5);
+      border: 2px solid rgba(255,255,255,0.85);
+      box-shadow: 0 10px 16px rgba(0,0,0,0.08);
+      font-size: 30px;
+    }
+    .feature .content .name {
+      font-weight: 800;
+      color: #402f8c;
+      margin-bottom: 6px;
+      font-size: 18px;
+      letter-spacing: 0.2px;
+    }
+    .feature .content .desc { color: var(--text-light); }
+
+    /* 로블록스 좋아요 섹션 */
+    .roblox-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4));
+    }
+    .roblox-banner {
+      position: relative;
+      margin: 8px 20px 16px;
+      padding: 16px;
+      border-radius: var(--radius-2);
+      background: linear-gradient(120deg, #ffe7f6, #fff);
+      border: 2px solid rgba(255,255,255,0.85);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .roblox-banner .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+    }
+    .rbx-pill {
+      padding: 10px 14px;
+      border-radius: var(--radius-pill);
+      background: linear-gradient(120deg, #fff, #e9f6ff);
+      border: 1.5px solid rgba(255,255,255,0.85);
+      color: #2b4d95;
+      font-weight: 800;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* 플레이 카드들 */
+    .cards-3 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 12px;
+    }
+    @media (min-width: 700px){
+      .cards-3 { grid-template-columns: repeat(3, 1fr); }
+    }
+    .mini-card {
+      padding: 14px;
+      border-radius: var(--radius-2);
+      background: linear-gradient(135deg, #ffffff, #f7f8ff);
+      border: 2px solid rgba(255,255,255,0.85);
+      box-shadow: 0 12px 20px rgba(0,0,0,0.08);
+    }
+    .mini-card .top {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+    }
+    .mini-card .top .badge {
+      padding: 6px 10px;
+      border-radius: var(--radius-pill);
+      background: linear-gradient(120deg, #fff, #ffe9f7);
+      border: 1.5px solid rgba(255,255,255,0.85);
+      color: #4c378f; font-weight: 800;
+    }
+    .mini-card .emoji { font-size: 22px; }
+    .mini-card p { margin: 0; color: var(--text-light); }
+
+    /* 하이라이트 애니메이션 */
+    .shine {
+      position: relative;
+      display: inline-block;
+    }
+    .shine::after {
+      content: "";
+      position: absolute;
+      top: 0; left: -120%;
+      width: 120%; height: 100%;
+      background: linear-gradient(120deg, rgba(255,255,255,0.0) 0%, rgba(255,255,255,0.6) 20%, rgba(255,255,255,0.0) 40%);
+      transform: skewX(-20deg);
+      animation: shine 3.8s ease-in-out infinite;
+    }
+    @keyframes shine {
+      0% { left: -120%; }
+      100% { left: 120%; }
+    }
+
+    /* 버튼 */
+    .btns {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border-radius: var(--radius-pill);
+      font-weight: 800;
+      border: 2px solid rgba(255,255,255,0.9);
+      box-shadow: 0 12px 20px rgba(0,0,0,0.12);
+      background: linear-gradient(120deg, #ffffff, #ffeaf6);
+      color: #3b2f86;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.2s ease;
+    }
+    .btn .emoji { font-size: 20px; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 16px 26px rgba(0,0,0,0.18); }
+    .btn.primary {
+      background: linear-gradient(120deg, #ffffff 0%, #eaf7ff 55%, #fff 100%);
+      color: #204a84;
+    }
+
+    /* 푸터 */
+    footer{
+      position: relative;
+      z-index: 2;
+      margin: 24px auto 40px;
+      padding: 14px 24px;
+      text-align: center;
+      color: var(--text-light);
+    }
+
+    /* 접근성 향상 */
+    .sr-only {
+      position: absolute !important;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0);
+      white-space: nowrap; border: 0;
+    }
+
+    /* 스크롤 분위기 */
+    .scroll-hint {
+      position: fixed;
+      bottom: 14px; left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+      padding: 8px 14px;
+      border-radius: var(--radius-pill);
+      background: linear-gradient(120deg, rgba(255,255,255,0.85), rgba(255,255,255,0.55));
+      border: 1.5px dashed rgba(255,255,255,0.95);
+      color: #483aa6; font-weight: 800;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+      display: inline-flex;
+      align-items: center; gap: 10px;
+      animation: float 3.5s ease-in-out infinite;
+    }
+    .scroll-hint .emoji { font-size: 20px; }
+    @keyframes float {
+      0% { transform: translate(-50%, 0); }
+      50% { transform: translate(-50%, -6px); }
+      100% { transform: translate(-50%, 0); }
+    }
+
+    /* 섹션 구분 장식선 */
+    .divider {
+      width: 100%;
+      height: 18px;
+      background:
+        radial-gradient(10px 10px at 8px 8px, rgba(255,255,255,0.85), transparent 60%) repeat-x;
+      background-size: 18px 18px;
+      opacity: 0.8;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.08));
+      margin: 18px 0;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="sparkles" aria-hidden="true"></div>
+
+  <header>
+    <div class="logo-badge" aria-label="이윤설의 반짝반짝 소개">
+      <span class="emoji" role="img" aria-label="무지개">🌈</span>
+      <strong class="logo-text">윤설의 반짝반짝 놀이터</strong>
+      <span class="emoji" role="img" aria-label="반짝별">✨</span>
+    </div>
+  </header>
+
+  <section class="hero" aria-labelledby="hero-title">
+    <h1 id="hero-title" class="shine">안녕! 나는 <strong style="color:#6b54d4;">이윤설</strong>이야 💜</h1>
+    <p>
+      7살이고, 피아노를 좋아하고 잘 치는 귀염둥이야. 로블록스로 친구들이랑 노는 걸 좋아하고,
+      엄마를 가장 사랑해! 반려동물 똥 치우기는… 음, 아직은 좀 어려워 😅
+    </p>
+
+    <div class="hero-tags" aria-label="윤설 키워드">
+      <div class="tag"><span class="emoji" aria-hidden="true">🎹</span> 피아노 천재(될 예정)</div>
+      <div class="tag"><span class="emoji" aria-hidden="true">🕹️</span> 로블록스 러버</div>
+      <div class="tag"><span class="emoji" aria-hidden="true">👩‍👧</span> 엄마 찐사랑</div>
+      <div class="tag"><span class="emoji" aria-hidden="true">🐾</span> 반려동물 집사 연습중</div>
+    </div>
+
+    <div class="btns" role="group" aria-label="빠른 이동">
+      <button class="btn primary" onclick="scrollToId('about')"><span class="emoji" aria-hidden="true">💫</span> 윤설 소개</button>
+      <button class="btn" onclick="scrollToId('roblox')"><span class="emoji" aria-hidden="true">🎮</span> 로블록스</button>
+      <button class="btn" onclick="scrollToId('piano')"><span class="emoji" aria-hidden="true">🎹</span> 피아노</button>
+      <button class="btn" onclick="scrollToId('pet')"><span class="emoji" aria-hidden="true">🐶</span> 반려동물</button>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true"></div>
+
+  <main class="container">
+
+    <section id="about" class="card" aria-labelledby="about-title">
+      <div class="card-header">
+        <div class="title"><span class="emoji" aria-hidden="true">💖</span> 윤설 한눈에 보기</div>
+      </div>
+      <div class="card-body">
+        <div class="feature">
+          <div class="icon"><span class="emoji" aria-hidden="true">👧</span></div>
+          <div class="content">
+            <div class="name">나이는 7살</div>
+            <div class="desc">호기심 많은 꼬마 탐험가! 새로운 놀이와 예쁜 색깔을 좋아해요.</div>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="icon"><span class="emoji" aria-hidden="true">👩‍👧</span></div>
+          <div class="content">
+            <div class="name">가장 좋아하는 사람: 엄마</div>
+            <div class="desc">엄마랑 함께 요리 놀이, 그림 그리기, 산책하기가 제일 행복해요.</div>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="icon"><span class="emoji" aria-hidden="true">🎹</span></div>
+          <div class="content">
+            <div class="name">잘하는 것: 피아노</div>
+            <div class="desc">새로운 곡을 연습하고, 반짝반짝 리듬을 맞춰 연주하는 걸 좋아해요!</div>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="icon"><span class="emoji" aria-hidden="true">🐾</span></div>
+          <div class="content">
+            <div class="name">못하는 것: 반려동물 똥 치우기</div>
+            <div class="desc">냄새가 좀 낯설어서 아직은 어려워요. 그래도 조금씩 연습 중이에요! 🧼</div>
+          </div>
+        </div>
+
+        <div class="pill-list" aria-label="좋아하는 것들">
+          <span class="pill"><span class="emoji" aria-hidden="true">🕹️</span> 로블록스</span>
+          <span class="pill"><span class="emoji" aria-hidden="true">🎨</span> 색칠놀이</span>
+          <span class="pill"><span class="emoji" aria-hidden="true">🍓</span> 딸기우유</span>
+          <span class="pill"><span class="emoji" aria-hidden="true">🌟</span> 반짝 스티커</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="roblox" class="card roblox-card" aria-labelledby="roblox-title" style="margin-top:18px;">
+      <div class="card-header">
+        <div class="title"><span class="emoji" aria-hidden="true">🎮</span> 로블록스 좋아하는 이유</div>
+      </div>
+      <div class="card-body">
+        <div class="roblox-banner" role="region" aria-label="로블록스 하이라이트">
+          <div class="row">
+            <span class="rbx-pill"><span class="emoji" aria-hidden="true">🧱</span> 블록으로 만드는 상상 세계</span>
+            <span class="rbx-pill"><span class="emoji" aria-hidden="true">👯</span> 친구들이랑 같이 놀기</span>
+            <span class="rbx-pill"><span class="emoji" aria-hidden="true">🏃‍♀️</span> 재미있는 모험 게임</span>
+            <span class="rbx-pill"><span class="emoji" aria-hidden="true">✨</span> 내 캐릭터 꾸미기</span>
+          </div>
+        </div>
+
+        <div class="cards-3" aria-label="로블록스 즐기는 방법">
+          <div class="mini-card">
+            <div class="top">
+              <span class="emoji" aria-hidden="true">🎯</span>
+              <span class="badge">목표</span>
+            </div>
+            <p>하루에 짧게! 재미있게! 약속한 시간만 플레이하고, 엄마랑 계획을 세워요 ⏱️</p>
+          </div>
+          <div class="mini-card">
+            <div class="top">
+              <span class="emoji" aria-hidden="true">🛡️</span>
+              <span class="badge">안전</span>
+            </div>
+            <p>모르는 사람과 채팅은 조심! 오빠와 함께 안전하게 즐겨요 🧩</p>
+          </div>
+          <div class="mini-card">
+            <div class="top">
+              <span class="emoji" aria-hidden="true">🌈</span>
+              <span class="badge">즐거움</span>
+            </div>
+            <p>새로운 맵을 탐험하고, 귀여운 코스튬으로 나만의 스타일을 만들어요 💖</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="piano" class="card" aria-labelledby="piano-title" style="margin-top:18px;">
+      <div class="card-header">
+        <div class="title"><span class="emoji" aria-hidden="true">🎹</span> 피아노 잘하는 윤설</div>
+      </div>
+      <div class="card-body">
+        <div class="feature">
+          <div class="icon"><span class="emoji" aria-hidden="true">🧠</span></div>
+          <div class="content">
+            <div class="name">리듬을 기억해요</div>
+            <div class="desc">박자 따라 손가락이 야무지게 움직여요. 연습하면 더 반짝반짝!</div>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="icon"><span class="emoji" aria-hidden="true">🎼</span></div>
+          <div class="content">
+            <div class="name">악보 읽기 연습</div>
+            <div class="desc">큰 음표부터 차근차근, 즐거운 곡으로 자신감을 키워요.</div>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="icon"><span class="emoji" aria-hidden="true">🏆</span></div>
+          <div class="content">
+            <div class="name">목표: 매주 한 곡 완주</div>
+            <div class="desc">엄마랑 함께 작은 콘서트 열기! 가족 앞에서 뿌듯한 미니 공연 💫</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pet" class="card" aria-labelledby="pet-title" style="margin-top:18px;">
+      <div class="card-header">
+        <div class="title"><span class="emoji" aria-hidden="true">🐶</span> 반려동물 이야기</div>
+      </div>
+      <div class="card-body">
+        <div class="feature">
+          <div class="icon"><span class="emoji" aria-hidden="true">🧼</span></div>
+          <div class="content">
+            <div class="name">도전 과제: 똥 치우기</div>
+            <div class="desc">장갑 끼고, 휴지로 집고, 봉투에 쏙! 냄새는 코로 살짝 숨쉬기 팁도 있어요 😮‍💨</div>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="icon"><span class="emoji" aria-hidden="true">💗</span></div>
+          <div class="content">
+            <div class="name">천천히 해보기</div>
+            <div class="desc">처음엔 엄마와 같이, 다음엔 스스로 한 번! 성공하면 스티커 보상도 받아요 🌟</div>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="icon"><span class="emoji" aria-hidden="true">🥇</span></div>
+          <div class="content">
+            <div class="name">작은 용기 모으기</div>
+            <div class="desc">한 걸음씩 연습하면 어느새 멋진 반려동물 케어 전문가가 될 거예요!</div>
+          </div>
+        </div>
+
+        <div class="pill-list" aria-label="반려동물과 즐거움">
+          <span class="pill"><span class="emoji" aria-hidden="true">🚿</span> 씻는 날 도와주기</span>
+          <span class="pill"><span class="emoji" aria-hidden="true">🍖</span> 간식 주기</span>
+          <span class="pill"><span class="emoji" aria-hidden="true">🏃‍♀️</span> 산책하기</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="gallery-title" style="margin-top:18px;">
+      <div class="card-header">
+        <div class="title"><span class="emoji" aria-hidden="true">🖼️</span> 윤설의 작은 갤러리</div>
+      </div>
+      <div class="card-body">
+        <div class="cards-3">
+          <div class="mini-card">
+            <div class="top">
+              <span class="emoji" aria-hidden="true">🎨</span>
+              <span class="badge">그림</span>
+            </div>
+            <p>무지개와 별이 반짝이는 하늘을 그렸어요. 색은 분홍+보라 조합이 최고!</p>
+          </div>
+          <div class="mini-card">
+            <div class="top">
+              <span class="emoji" aria-hidden="true">🎹</span>
+              <span class="badge">연주</span>
+            </div>
+            <p>새로 배운 곡을 가족에게 들려주는 미니 콘서트 준비 중이에요.</p>
+          </div>
+          <div class="mini-card">
+            <div class="top">
+              <span class="emoji" aria-hidden="true">📚</span>
+              <span class="badge">배움</span>
+            </div>
+            <p>알파벳과 한글 읽기 연습! 스티커로 재미있게 기록하고 있어요.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="btns">
+      <button class="btn" onclick="scrollToId('about')"><span class="emoji" aria-hidden="true">🔝</span> 맨 위로</button>
+      <button class="btn primary" onclick="celebrate()"><span class="emoji" aria-hidden="true">🎉</span> 반짝 축하</button>
+    </div>
+    <p style="margin-top:10px;">© 윤설의 반짝반짝 하루. 사랑을 담아 만든 소개 페이지 🌈</p>
+  </footer>
+
+  <div class="scroll-hint">
+    <span class="emoji" aria-hidden="true">👇</span> 아래로 스크롤해서 더 보기!
+  </div>
+
+  <script>
+    function scrollToId(id){
+      const el = document.getElementById(id);
+      if(el){
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    // 간단한 축하 애니메이션 (이모지 콘페티)
+    function celebrate(){
+      const count = 18;
+      const emojis = ["✨","🌈","🎉","💖","⭐","🎈","🦄"];
+      for(let i=0;i<count;i++){
+        const e = document.createElement("div");
+        e.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+        e.style.position = "fixed";
+        e.style.left = (Math.random()*100) + "vw";
+        e.style.top = "-10vh";
+        e.style.fontSize = (18 + Math.random()*22) + "px";
+        e.style.filter = "drop-shadow(0 6px 8px rgba(0,0,0,0.15))";
+        e.style.zIndex = 9;
+        e.style.transition = "transform 0.8s ease";
+        document.body.appendChild(e);
+
+        const duration = 3000 + Math.random()*2000;
+        const translateX = (Math.random()*80 - 40);
+        const rotate = (Math.random()*180 - 90);
+
+        e.animate([
+          { transform: `translate(0, -10vh) rotate(0deg)`, opacity: 0 },
+          { transform: `translate(${translateX}vw, 50vh) rotate(${rotate}deg)`, opacity: 1 },
+          { transform: `translate(${translateX/2}vw, 100vh) rotate(${rotate*1.6}deg)`, opacity: 0.9 }
+        ], { duration, easing: "cubic-bezier(.2,.8,.2,1)" });
+
+        setTimeout(()=>{ e.remove(); }, duration + 200);
+      }
+    }
+  </script>
+
+</body>
+</html>
+```
