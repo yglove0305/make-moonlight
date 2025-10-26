@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <title>스피드 클릭 게임 · 모바일</title>
+
+  <!-- 기본 스타일: 모바일 친화적, 다크 테마, 고대비 -->
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #111827;
+      --panel-2: #0f172a;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #22c55e;      /* 초록: 성공 */
+      --accent-2: #38bdf8;    /* 하늘: 포커스 */
+      --warn: #f59e0b;        /* 노랑: 주의 */
+      --danger: #ef4444;      /* 빨강: 종료 */
+      --btn: #1f2937;
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans KR, Helvetica, Arial, sans-serif;
+      background: linear-gradient(180deg, var(--bg), #0e172f 70%, #0b132a);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+    }
+
+    .app {
+      width: 100%;
+      max-width: 680px;
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    header {
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+      backdrop-filter: blur(8px);
+    }
+    header .title {
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .chip {
+      font-size: 12px;
+      color: var(--muted);
+      border: 1px solid rgba(148,163,184,0.35);
+      border-radius: 999px;
+      padding: 4px 10px;
+    }
+
+    .content {
+      padding: 14px 18px 18px;
+    }
+
+    .hud {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .hud .card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 12px;
+      text-align: center;
+    }
+    .hud .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .hud .value {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .bar-wrap {
+      height: 10px;
+      background: rgba(148,163,184,0.2);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 6px 0 12px;
+      border: 1px solid rgba(148,163,184,0.3);
+    }
+    .bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #22c55e, #16a34a);
+      transition: width 0.08s linear;
+    }
+
+    .pad {
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse at 50% -20%, rgba(34,197,94,0.25), transparent 45%),
+        radial-gradient(ellipse at 120% 120%, rgba(56,189,248,0.25), transparent 45%),
+        rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      min-height: 320px;
+    }
+
+    .tap-button {
+      -webkit-tap-highlight-color: transparent;
+      appearance: none;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      width: min(86vw, 360px);
+      height: min(86vw, 360px);
+      border-radius: 50%;
+      color: var(--text);
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      font-size: clamp(20px, 5vw, 32px);
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.12), transparent 40%),
+        linear-gradient(180deg, #111827, #0f172a);
+      box-shadow:
+        inset 0 10px 30px rgba(255,255,255,0.06),
+        0 18px 35px rgba(0,0,0,0.45);
+      border: 1px solid rgba(255,255,255,0.08);
+      position: relative;
+      transition: transform 70ms ease, filter 100ms ease;
+      display: grid;
+      place-items: center;
+    }
+    .tap-button:active {
+      transform: scale(0.98);
+      filter: brightness(1.06);
+    }
+    .tap-button .pulse {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      box-shadow: 0 0 0 0 rgba(34,197,94,0.6);
+      animation: pulse 2.4s infinite;
+      pointer-events: none;
+    }
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(34,197,94,0.6); }
+      70%  { box-shadow: 0 0 0 22px rgba(34,197,94,0); }
+      100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .btn {
+      -webkit-tap-highlight-color: transparent;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: var(--btn);
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      cursor: pointer;
+      transition: transform 80ms ease, filter 120ms ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn:active { transform: scale(0.98); filter: brightness(1.05); }
+    .btn.primary {
+      background: linear-gradient(90deg, #22c55e, #16a34a);
+      color: #0c0f14;
+      border: none;
+    }
+    .btn.warn {
+      background: linear-gradient(90deg, #f59e0b, #f97316);
+      color: #0c0f14;
+      border: none;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .select, .input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.12);
+      outline: none;
+      font-weight: 600;
+    }
+
+    .footer {
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .switch {
+      width: 40px; height: 22px;
+      background: rgba(148,163,184,0.35);
+      border: 1px solid rgba(148,163,184,0.45);
+      border-radius: 999px;
+      position: relative;
+    }
+    .switch .dot {
+      position: absolute; top: 2px; left: 2px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      transition: left 160ms ease;
+    }
+    .switch.active { background: #22c55e; border-color: #22c55e; }
+    .switch.active .dot { left: 20px; }
+
+    /* 반응형 보정 */
+    @media (max-width: 380px) {
+      .hud { grid-template-columns: 1fr 1fr; }
+      .controls { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; }
+    }
+
+    /* 접근성: 포커스 링 */
+    :focus-visible {
+      outline: 2px solid var(--accent-2);
+      outline-offset: 3px;
+      border-radius: 8px;
+    }
+
+    /* 숨김 텍스트 (스크린리더용) */
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
+      white-space: nowrap; border: 0;
+    }
+  </style>
+</head>
+<body>
+  <main class="app" role="main" aria-labelledby="game-title">
+    <header>
+      <div class="title">
+        <span id="game-title">스피드 클릭</span>
+        <span class="chip">모바일 최적화</span>
+      </div>
+      <button id="reset-data" class="btn warn" aria-label="기록 전체 초기화">
+        기록 초기화
+      </button>
+    </header>
+
+    <section class="content">
+      <!-- 상단 HUD -->
+      <div class="hud" aria-label="게임 정보">
+        <div class="card" aria-live="polite">
+          <div class="label">남은 시간</div>
+          <div class="value"><span id="time-label">10.0</span>s</div>
+          <div class="bar-wrap" aria-hidden="true"><div id="time-bar" class="bar"></div></div>
+        </div>
+        <div class="card" aria-live="polite">
+          <div class="label">클릭 수</div>
+          <div class="value" id="clicks">0</div>
+          <div class="label" style="margin-top:6px;">CPS</div>
+          <div class="value" id="cps">0.00</div>
+        </div>
+        <div class="card" aria-live="polite">
+          <div class="label">최고 기록</div>
+          <div class="value" id="best-score">0</div>
+          <div class="label" style="margin-top:6px;">세션 최고</div>
+          <div class="value" id="session-best">0</div>
+        </div>
+      </div>
+
+      <!-- 게임 패드 -->
+      <div class="pad" id="pad">
+        <button id="tap" class="tap-button" aria-label="클릭하세요" disabled>
+          <span class="pulse" aria-hidden="true"></span>
+          <span>탭! 탭! 탭!</span>
+          <span class="sr-only">게임이 시작되면 누르세요</span>
+        </button>
+      </div>
+
+      <!-- 컨트롤 -->
+      <div class="controls">
+        <button id="start" class="btn primary" aria-label="게임 시작">
+          게임 시작
+        </button>
+        <button id="stop" class="btn" aria-label="게임 중지" disabled>
+          중지
+        </button>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="duration" class="label">라운드 길이</label>
+          <select id="duration" class="select" aria-label="라운드 길이 선택">
+            <option value="5">5초</option>
+            <option value="10" selected>10초</option>
+            <option value="15">15초</option>
+            <option value="30">30초</option>
+            <option value="60">60초</option>
+          </select>
+        </div>
+        <div>
+          <label for="debounce" class="label">탭 딜레이(중복 방지)</label>
+          <select id="debounce" class="select" aria-label="탭 딜레이 선택">
+            <option value="0">즉시(0ms)</option>
+            <option value="20">20ms</option>
+            <option value="40">40ms</option>
+            <option value="60" selected>60ms</option>
+            <option value="100">100ms</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label class="label">진동 피드백</label>
+          <div class="toggle" id="vibration-toggle" role="switch" aria-checked="true" tabindex="0">
+            <div class="switch active"><div class="dot"></div></div>
+            <span>ON</span>
+          </div>
+        </div>
+        <div>
+          <label class="label">사운드 효과</label>
+          <div class="toggle" id="sound-toggle" role="switch" aria-checked="false" tabindex="0">
+            <div class="switch"><div class="dot"></div></div>
+            <span>OFF</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div>팁: 화면 아무 곳이나 탭해도 버튼이 눌립니다.</div>
+        <div>오프라인에서도 작동합니다.</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 소리: 클릭/완료(작은 Beep) -->
+  <audio id="click-sound" preload="auto">
+    <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAAAAAAACAgICA" type="audio/wav" />
+  </audio>
+  <audio id="done-sound" preload="auto">
+    <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAAAAAAACAgICA" type="audio/wav" />
+  </audio>
+
+  <script>
+    // 상태
+    const state = {
+      running: false,
+      duration: 10,         // 초
+      remaining: 10,
+      clicks: 0,
+      startTs: 0,
+      lastTapTs: 0,
+      debounceMs: 60,
+      vibrate: true,
+      sound: false,
+      best: Number(localStorage.getItem('speedclick.best') || 0),
+      sessionBest: 0,
+      raf: null,
+      timerId: null
+    };
+
+    // 요소
+    const el = {
+      timeLabel: document.getElementById('time-label'),
+      timeBar: document.getElementById('time-bar'),
+      clicks: document.getElementById('clicks'),
+      cps: document.getElementById('cps'),
+      best: document.getElementById('best-score'),
+      sessionBest: document.getElementById('session-best'),
+      tap: document.getElementById('tap'),
+      pad: document.getElementById('pad'),
+      start: document.getElementById('start'),
+      stop: document.getElementById('stop'),
+      durationSel: document.getElementById('duration'),
+      debounceSel: document.getElementById('debounce'),
+      vibToggle: document.getElementById('vibration-toggle'),
+      sndToggle: document.getElementById('sound-toggle'),
+      resetData: document.getElementById('reset-data'),
+      sndClick: document.getElementById('click-sound'),
+      sndDone: document.getElementById('done-sound'),
+    };
+
+    // 유틸
+    const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+    const fmt = (n) => (Math.round(n * 10) / 10).toFixed(1);
+    const fmt2 = (n) => (Math.round(n * 100) / 100).toFixed(2);
+
+    function updateHUD() {
+      el.timeLabel.textContent = fmt(state.remaining);
+      const pct = clamp(100 * (1 - state.remaining / state.duration), 0, 100);
+      el.timeBar.style.width = pct + '%';
+      el.clicks.textContent = state.clicks;
+      const elapsed = Math.max(0.001, (performance.now() - state.startTs) / 1000);
+      el.cps.textContent = state.running ? fmt2(state.clicks / elapsed) : '0.00';
+      el.best.textContent = state.best;
+      el.sessionBest.textContent = state.sessionBest;
+    }
+
+    function setRunning(r) {
+      state.running = r;
+      el.tap.disabled = !r;
+      el.stop.disabled = !r;
+      el.start.disabled = r;
+      document.body.style.cursor = r ? 'crosshair' : 'default';
+    }
+
+    function startGame() {
+      if (state.running) return;
+      state.duration = Number(el.durationSel.value);
+      state.debounceMs = Number(el.debounceSel.value);
+      state.remaining = state.duration;
+      state.clicks = 0;
+      state.startTs = performance.now();
+      state.lastTapTs = 0;
+      setRunning(true);
+      updateHUD();
+
+      const tick = () => {
+        const now = performance.now();
+        const elapsed = (now - state.startTs) / 1000;
+        state.remaining = clamp(state.duration - elapsed, 0, state.duration);
+        updateHUD();
+        if (state.remaining <= 0) {
+          endGame();
+        } else {
+          state.raf = requestAnimationFrame(tick);
+        }
+      };
+      state.raf = requestAnimationFrame(tick);
+    }
+
+    function endGame() {
+      cancelAnimationFrame(state.raf);
+      setRunning(false);
+      el.tap.disabled = true;
+      el.stop.disabled = true;
+      const score = state.clicks;
+      state.sessionBest = Math.max(state.sessionBest, score);
+      if (score > state.best) {
+        state.best = score;
+        localStorage.setItem('speedclick.best', String(score));
+      }
+      updateHUD();
+      if (state.sound) safePlay(el.sndDone);
+      vibrate([20, 30, 20]);
+      flashPad('#ef4444');
+      // 1초 후 버튼 다시 가능
+      setTimeout(() => {
+        el.start.disabled = false;
+      }, 800);
+    }
+
+    function stopGame() {
+      if (!state.running) return;
+      endGame();
+    }
+
+    function onTap() {
+      if (!state.running) return;
+      const now = performance.now();
+      if (state.debounceMs > 0 && now - state.lastTapTs < state.debounceMs) return;
+
+      state.lastTapTs = now;
+      state.clicks += 1;
+      updateHUD();
+
+      // 피드백
+      vibrate(state.vibrate ? 6 : 0);
+      flashPad('#22c55e');
+      if (state.sound) safePlay(el.sndClick);
+
+      // 애니메이션
+      el.tap.style.transform = 'scale(0.96)';
+      el.tap.style.filter = 'brightness(1.1)';
+      setTimeout(() => {
+        el.tap.style.transform = '';
+        el.tap.style.filter = '';
+      }, 80);
+    }
+
+    function vibrate(pattern) {
+      // pattern: ms 또는 배열
+      if (!state.vibrate) return;
+      try {
+        if (navigator.vibrate) {
+          navigator.vibrate(pattern);
+        }
+      } catch (e) { /* 무시 */ }
+    }
+
+    function flashPad(color) {
+      const old = el.pad.style.boxShadow;
+      el.pad.style.boxShadow = `0 0 0 0 ${color}`;
+      el.pad.animate([
+        { boxShadow: `0 0 0 0 ${color}` },
+        { boxShadow: `0 0 0 22px ${color}00` }
+      ], { duration: 300, easing: 'ease-out' });
+      setTimeout(() => { el.pad.style.boxShadow = old; }, 300);
+    }
+
+    function safePlay(audioEl) {
+      try {
+        audioEl.currentTime = 0;
+        audioEl.play().catch(() => {});
+      } catch (e) { /* 무음 처리 */ }
+    }
+
+    // 토글 UI 업데이트
+    function setToggle(toggleEl, on) {
+      const switchEl = toggleEl.querySelector('.switch');
+      const labelEl = toggleEl.querySelector('span:last-child');
+      switchEl.classList.toggle('active', on);
+      toggleEl.setAttribute('aria-checked', String(on));
+      labelEl.textContent = on ? 'ON' : 'OFF';
+    }
+
+    // 이벤트 바인딩
+    function bindEvents() {
+      // 시작/중지
+      el.start.addEventListener('click', startGame);
+      el.stop.addEventListener('click', stopGame);
+
+      // 탭 버튼
+      el.tap.addEventListener('click', onTap);
+      el.tap.addEventListener('touchstart', (e) => {
+        // iOS에서 딜레이 방지
+        e.preventDefault();
+        onTap();
+      }, { passive: false });
+
+      // 패드 전체 탭 영역
+      const padTap = (ev) => {
+        if (!state.running) return;
+        // 버튼 외부 탭도 허용
+        onTap();
+      };
+      el.pad.addEventListener('click', padTap);
+      el.pad.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        padTap(e);
+      }, { passive: false });
+
+      // 길이/디바운스 변경 시 즉시 반영(다음 라운드부터 적용)
+      el.durationSel.addEventListener('change', () => {
+        state.duration = Number(el.durationSel.value);
+        if (!state.running) {
+          state.remaining = state.duration;
+          updateHUD();
+        }
+      });
+      el.debounceSel.addEventListener('change', () => {
+        state.debounceMs = Number(el.debounceSel.value);
+      });
+
+      // 진동 토글
+      const toggleVib = () => {
+        state.vibrate = !state.vibrate;
+        setToggle(el.vibToggle, state.vibrate);
+        if (state.vibrate) vibrate(12);
+      };
+      el.vibToggle.addEventListener('click', toggleVib);
+      el.vibToggle.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleVib(); }
+      });
+
+      // 사운드 토글
+      const toggleSnd = () => {
+        state.sound = !state.sound;
+        setToggle(el.sndToggle, state.sound);
+        if (state.sound) safePlay(el.sndClick);
+      };
+      el.sndToggle.addEventListener('click', toggleSnd);
+      el.sndToggle.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSnd(); }
+      });
+
+      // 기록 초기화
+      el.resetData.addEventListener('click', () => {
+        const ok = confirm('최고 기록을 초기화하시겠어요?');
+        if (!ok) return;
+        localStorage.removeItem('speedclick.best');
+        state.best = 0;
+        state.sessionBest = 0;
+        updateHUD();
+        flashPad('#f59e0b');
+      });
+
+      // 화면 꺼짐 방지(모바일 대안: 사용자 상호작용 중 진동 또는 오디오 활용)
+      document.addEventListener('visibilitychange', () => {
+        // 페이지가 숨김 상태로 갈 때 게임 중이면 중지
+        if (document.hidden && state.running) stopGame();
+      });
+    }
+
+    // 초기화
+    function init() {
+      updateHUD();
+      setToggle(el.vibToggle, state.vibrate);
+      setToggle(el.sndToggle, state.sound);
+      bindEvents();
+
+      // iOS에서 오디오 정책 완화용 최초 사용자 제스처 유도
+      ['click', 'touchstart'].forEach(ev =>
+        document.body.addEventListener(ev, () => {
+          try {
+            el.sndClick.play().then(() => { el.sndClick.pause(); el.sndClick.currentTime = 0; });
+            el.sndDone.play().then(() => { el.sndDone.pause(); el.sndDone.currentTime = 0; });
+          } catch(_) {}
+        }, { once: true, passive: true })
+      );
+    }
+
+    // 서비스워커 없이 오프라인 동작: 모든 자원이 단일 파일 내 포함됨
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
