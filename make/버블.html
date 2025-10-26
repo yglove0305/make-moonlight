@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bubble Shooter</title>
+  <style>
+    :root {
+      --bg: #0f1220;
+      --panel: #1c2140;
+      --accent: #59d4ff;
+      --text: #e8ecff;
+      --muted: #9aa3c7;
+      --danger: #ff5f7a;
+      --success: #54eaa3;
+      --warn: #ffc857;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at 30% 20%, #171a32 0%, var(--bg) 60%);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+    .wrap {
+      width: 960px;
+      max-width: 95vw;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0.2px;
+      color: var(--accent);
+    }
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    button, select {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid #2b325e;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.05s ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+    .stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #2b325e;
+      background: #141832;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, #131736 0%, #0f132a 100%);
+      border: 1px solid #2b325e;
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    }
+
+    canvas {
+      width: 640px;
+      height: 800px;
+      display: block;
+      border-radius: 12px;
+      background:
+        radial-gradient(1200px 800px at 10% -100%, rgba(89,212,255,0.1), transparent 50%),
+        radial-gradient(1000px 900px at 120% -100%, rgba(255,200,87,0.08), transparent 52%),
+        linear-gradient(180deg, #0c1024 0%, #0a0e20 100%);
+      border: 1px solid #2b325e;
+    }
+
+    .hud {
+      display: grid;
+      gap: 10px;
+    }
+    .hud .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .meter {
+      height: 10px;
+      background: #101432;
+      border: 1px solid #2b325e;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .meter > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #73ffd5);
+      width: 0%;
+    }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+    }
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #2b325e;
+      border-radius: 10px;
+      padding: 8px;
+      background: #141832;
+    }
+    .dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.1), 0 2px 8px rgba(0,0,0,0.35);
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+    .badge {
+      border: 1px solid #2b325e;
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: #141832;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .danger { color: var(--danger); }
+    .success { color: var(--success); }
+    .warn { color: var(--warn); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Bubble Shooter</h1>
+      <div class="controls">
+        <button id="btnStart">새 게임</button>
+        <button id="btnPause">일시정지</button>
+        <button id="btnReset">리셋</button>
+        <select id="selDifficulty" title="난이도">
+          <option value="easy">쉬움</option>
+          <option value="normal" selected>보통</option>
+          <option value="hard">어려움</option>
+        </select>
+        <span class="stat">발사: 좌클릭 / 조준: 마우스 이동</span>
+      </div>
+    </header>
+
+    <div class="board">
+      <div class="panel">
+        <canvas id="game" width="640" height="800"></canvas>
+      </div>
+
+      <div class="panel hud">
+        <div class="row">
+          <div class="stat"><strong>스코어</strong> <span id="score">0</span></div>
+          <div class="stat"><strong>스테이지</strong> <span id="stage">1</span></div>
+          <div class="stat"><strong>남은 줄</strong> <span id="rowsLeft">0</span></div>
+        </div>
+
+        <div>
+          <div class="stat"><strong>게이지</strong> 다음 줄 하강까지</div>
+          <div class="meter"><span id="dropMeter"></span></div>
+        </div>
+
+        <div>
+          <div class="stat"><strong>다음 버블</strong></div>
+          <div class="legend" id="nextColors"></div>
+        </div>
+
+        <div>
+          <div class="stat"><strong>색상 범위</strong></div>
+          <div class="legend" id="colorLegend"></div>
+        </div>
+
+        <div class="note">
+          - 같은 색 3개 이상 연결 시 제거됩니다.<br/>
+          - 제거 후 천장에 연결되지 않은 버블은 함께 떨어집니다.<br/>
+          - 일정 발사 수마다 상단 줄이 내려옵니다. 게이지가 차면 하강!<br/>
+          - 쉬움/보통/어려움에 따라 버블 반경, 하강 텀, 색상 수가 달라집니다.
+        </div>
+
+        <div class="footer">
+          <div class="badge">Made with Canvas 2D</div>
+          <div class="badge">Collision: circle-grid snap</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --------- 설정 및 유틸 ---------
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+
+    const ui = {
+      score: document.getElementById('score'),
+      stage: document.getElementById('stage'),
+      rowsLeft: document.getElementById('rowsLeft'),
+      dropMeter: document.getElementById('dropMeter'),
+      nextColors: document.getElementById('nextColors'),
+      colorLegend: document.getElementById('colorLegend'),
+      btnStart: document.getElementById('btnStart'),
+      btnPause: document.getElementById('btnPause'),
+      btnReset: document.getElementById('btnReset'),
+      selDifficulty: document.getElementById('selDifficulty'),
+    };
+
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const dist = (x1, y1, x2, y2) => Math.hypot(x2 - x1, y2 - y1);
+
+    // 색상 팔레트
+    const PALETTE = [
+      '#59D4FF', // 스카이
+      '#FFC857', // 옐로
+      '#FF5F7A', // 핑크
+      '#73FFD5', // 민트
+      '#A98BFF', // 라일락
+      '#FF8C42', // 오렌지
+      '#3DE16F', // 그린
+      '#F9A8D4', // 로즈
+    ];
+
+    // 난이도 설정
+    const DIFFICULTY = {
+      easy:   { bubbleR: 18, rowsStart: 8, colors: 4, shotsPerDrop: 10, dropRows: 1, aimAssist: true },
+      normal: { bubbleR: 16, rowsStart: 9, colors: 5, shotsPerDrop: 8,  dropRows: 1, aimAssist: true },
+      hard:   { bubbleR: 15, rowsStart: 10, colors: 6, shotsPerDrop: 6, dropRows: 1, aimAssist: false },
+    };
+
+    // 게임 상태
+    const state = {
+      running: true,
+      score: 0,
+      stage: 1,
+      difficulty: 'normal',
+      bubbleR: 16,
+      grid: [],           // 2D array of cells {color, x, y, r, alive}
+      cols: 0,
+      rows: 0,
+      rowOffset: 0,       // 짝수/홀수 행 오프셋(헥사 패턴)
+      shooter: { x: canvas.width/2, y: canvas.height - 60, r: 16, color: '#59D4FF', bubble: null },
+      nextQueue: [],
+      shots: 0,
+      shotsPerDrop: 8,
+      dropRows: 1,
+      colorsActive: 5,
+      gameOver: false,
+      paused: false,
+    };
+
+    // 그리드 구성: 헥사 패턴(교차 오프셋)
+    function setupGrid() {
+      const r = state.bubbleR;
+      const gridWidth = canvas.width;
+      const spacingX = r * 2;
+      const spacingY = Math.sqrt(3) * r; // hex vertical spacing
+      const cols = Math.floor((gridWidth - r) / spacingX);
+      state.cols = cols;
+      state.rows = state.rowsStart || DIFFICULTY[state.difficulty].rowsStart;
+      state.rowOffset = r; // 홀수 행은 반칸 오프셋
+
+      state.grid = [];
+      const colors = PALETTE.slice(0, state.colorsActive);
+
+      for (let row = 0; row < state.rows; row++) {
+        const arr = [];
+        const isOdd = row % 2 === 1;
+        const offsetX = isOdd ? r : 0;
+        for (let col = 0; col < cols; col++) {
+          const x = r + col * spacingX + offsetX;
+          const y = r + row * spacingY + 20;
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          arr.push({ color, x, y, r, alive: true });
+        }
+        state.grid.push(arr);
+      }
+      updateRowsLeft();
+    }
+
+    function resetShooterBubble() {
+      state.shooter.r = state.bubbleR;
+      if (!state.nextQueue.length) refillNextQueue();
+      const color = state.nextQueue.shift();
+      state.shooter.bubble = createFlyingBubble(state.shooter.x, state.shooter.y, color);
+      updateNextUI();
+    }
+
+    function createFlyingBubble(x, y, color) {
+      return {
+        x, y, r: state.bubbleR,
+        color,
+        vx: 0, vy: 0,
+        speed: 700, // px/s
+        flying: false,
+        stick: false,
+      };
+    }
+
+    function refillNextQueue() {
+      const colors = PALETTE.slice(0, state.colorsActive);
+      const need = 5;
+      while (state.nextQueue.length < need) {
+        state.nextQueue.push(colors[Math.floor(Math.random() * colors.length)]);
+      }
+      updateNextUI();
+    }
+
+    function updateNextUI() {
+      ui.nextColors.innerHTML = '';
+      state.nextQueue.slice(0, 5).forEach(c => {
+        const el = document.createElement('div');
+        el.className = 'chip';
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        dot.style.background = c;
+        el.appendChild(dot);
+        const name = document.createElement('span');
+        name.textContent = c;
+        el.appendChild(name);
+        ui.nextColors.appendChild(el);
+      });
+
+      // 색상 범위
+      ui.colorLegend.innerHTML = '';
+      PALETTE.slice(0, state.colorsActive).forEach(c => {
+        const el = document.createElement('div');
+        el.className = 'chip';
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        dot.style.background = c;
+        el.appendChild(dot);
+        const name = document.createElement('span');
+        name.textContent = c;
+        el.appendChild(name);
+        ui.colorLegend.appendChild(el);
+      });
+    }
+
+    function updateRowsLeft() {
+      const aliveRows = state.grid.filter(row => row.some(c => c.alive)).length;
+      ui.rowsLeft.textContent = aliveRows;
+    }
+
+    function setDifficulty(level) {
+      const cfg = DIFFICULTY[level];
+      state.difficulty = level;
+      state.bubbleR = cfg.bubbleR;
+      state.shotsPerDrop = cfg.shotsPerDrop;
+      state.dropRows = cfg.dropRows;
+      state.colorsActive = cfg.colors;
+      state.rowsStart = cfg.rowsStart;
+    }
+
+    // --------- 입력 처리 ---------
+    let mouse = { x: canvas.width/2, y: canvas.height/2 };
+    canvas.addEventListener('mousemove', e => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+    });
+
+    canvas.addEventListener('click', e => {
+      if (state.paused || state.gameOver) return;
+      shoot();
+    });
+
+    // --------- 게임 루프 ---------
+    let last = performance.now();
+    function loop(ts) {
+      const dt = (ts - last) / 1000;
+      last = ts;
+
+      if (state.running && !state.paused && !state.gameOver) {
+        update(dt);
+      }
+      render();
+      requestAnimationFrame(loop);
+    }
+
+    // --------- 업데이트 ---------
+    function update(dt) {
+      aimShooter();
+
+      if (state.shooter.bubble && state.shooter.bubble.flying) {
+        moveBubble(state.shooter.bubble, dt);
+        if (checkCollisionOrAttach(state.shooter.bubble)) {
+          // 충돌 후 부착 및 제거 체크
+          const attachPos = snapToGrid(state.shooter.bubble.x, state.shooter.bubble.y, state.shooter.bubble.r);
+          attachBubble(attachPos.x, attachPos.y, state.shooter.bubble.color);
+          state.shooter.bubble = null;
+          resolveMatchesAndFalls();
+          state.shots++;
+          updateRowsLeft();
+          updateDropMeter();
+          if (state.shots >= state.shotsPerDrop) {
+            dropRows(state.dropRows);
+            state.shots = 0;
+            updateRowsLeft();
+            updateDropMeter();
+          }
+          if (checkWin()) {
+            nextStage();
+          }
+          if (checkGameOver()) {
+            gameOver();
+          }
+          // 다음 발사체 준비
+          resetShooterBubble();
+        }
+      }
+    }
+
+    function aimShooter() {
+      if (!state.shooter.bubble) return;
+      const dx = mouse.x - state.shooter.x;
+      const dy = mouse.y - state.shooter.y;
+      // 아래쪽을 겨냥하면 무시
+      if (dy > -20) return;
+      const angle = Math.atan2(dy, dx);
+      const speed = state.shooter.bubble.speed;
+      state.shooter.bubble.vx = Math.cos(angle) * speed;
+      state.shooter.bubble.vy = Math.sin(angle) * speed;
+
+      // 약간의 에임 보정 (난이도별)
+      if (DIFFICULTY[state.difficulty].aimAssist) {
+        const target = findClosestTargetAngle(angle, state.shooter.bubble.color);
+        if (target !== null) {
+          const tangle = lerp(angle, target, 0.15);
+          state.shooter.bubble.vx = Math.cos(tangle) * speed;
+          state.shooter.bubble.vy = Math.sin(tangle) * speed;
+        }
+      }
+    }
+
+    function findClosestTargetAngle(angle, color) {
+      // 간단한 보정: 같은 색 버블 중심 방향 중 가장 근접한 각도 선택
+      const candidates = [];
+      for (let r = 0; r < state.grid.length; r++) {
+        for (let c = 0; c < state.grid[r].length; c++) {
+          const cell = state.grid[r][c];
+          if (!cell.alive) continue;
+          if (cell.color !== color) continue;
+          const dx = cell.x - state.shooter.x;
+          const dy = cell.y - state.shooter.y;
+          if (dy > 0) continue; // 위쪽만
+          const a = Math.atan2(dy, dx);
+          const diff = Math.abs(normalizeAngle(a - angle));
+          candidates.push({ a, diff });
+        }
+      }
+      candidates.sort((p, q) => p.diff - q.diff);
+      return candidates.length ? candidates[0].a : null;
+    }
+    function normalizeAngle(a) {
+      while (a > Math.PI) a -= 2 * Math.PI;
+      while (a < -Math.PI) a += 2 * Math.PI;
+      return a;
+    }
+
+    function moveBubble(b, dt) {
+      b.x += b.vx * dt;
+      b.y += b.vy * dt;
+
+      // 벽 반사
+      const margin = b.r + 2;
+      if (b.x < margin) {
+        b.x = margin;
+        b.vx *= -1;
+      } else if (b.x > canvas.width - margin) {
+        b.x = canvas.width - margin;
+        b.vx *= -1;
+      }
+      // 천장 충돌 시 붙이기
+      if (b.y < b.r + 10) {
+        b.y = b.r + 10;
+        b.stick = true;
+      }
+    }
+
+    function shoot() {
+      const b = state.shooter.bubble;
+      if (!b || b.flying) return;
+      if (mouse.y > state.shooter.y - 20) return; // 아래로는 발사 금지
+      b.flying = true;
+    }
+
+    function checkCollisionOrAttach(b) {
+      // 천장에 도달했거나 근접 셀과 겹치면 true
+      if (b.stick) return true;
+      for (let r = 0; r < state.grid.length; r++) {
+        for (let c = 0; c < state.grid[r].length; c++) {
+          const cell = state.grid[r][c];
+          if (!cell.alive) continue;
+          const d = dist(b.x, b.y, cell.x, cell.y);
+          if (d <= b.r + cell.r - 0.5) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    function snapToGrid(x, y, r) {
+      // 가장 가까운 그리드 셀 좌표 탐색(헥사 행 오프셋 고려)
+      let best = null;
+      let bestD = Infinity;
+      for (let row = 0; row < state.grid.length; row++) {
+        const isOdd = row % 2 === 1;
+        for (let col = 0; col < state.grid[row].length; col++) {
+          const cell = state.grid[row][col];
+          if (!cell.alive) {
+            // 빈 자리만 후보로
+            const dx = cell.x - x;
+            const dy = cell.y - y;
+            const d = Math.hypot(dx, dy);
+            if (d < bestD) { bestD = d; best = { row, col, x: cell.x, y: cell.y }; }
+          }
+        }
+      }
+      // 빈 칸이 없다면 가장 가까운 살아있는 셀 주변에 끼워 넣어야 하지만
+      // 초기화 시 모든 셀이 alive이므로, 아래에서 새 셀을 삽입하는 방식을 사용
+      if (!best) {
+        // 새로운 행을 필요시 추가
+        extendGridIfNeeded();
+        return snapToGrid(x, y, r);
+      }
+      return best;
+    }
+
+    function attachBubble(x, y, color) {
+      // x,y에 해당하는 그리드 셀을 찾아 그 자리에 삽입 또는 교체
+      let target = null;
+      for (let r = 0; r < state.grid.length; r++) {
+        for (let c = 0; c < state.grid[r].length; c++) {
+          const cell = state.grid[r][c];
+          if (!cell.alive && Math.abs(cell.x - x) < 0.1 && Math.abs(cell.y - y) < 0.1) {
+            target = cell;
+            break;
+          }
+        }
+        if (target) break;
+      }
+
+      if (!target) {
+        // 해당 위치가 빈 셀이 아닐 경우 새 셀로 추가(유연 처리)
+        for (let r = 0; r < state.grid.length; r++) {
+          for (let c = 0; c < state.grid[r].length; c++) {
+            const cell = state.grid[r][c];
+            if (Math.abs(cell.x - x) < 0.1 && Math.abs(cell.y - y) < 0.1) {
+              target = cell;
+              break;
+            }
+          }
+          if (target) break;
+        }
+      }
+
+      if (target) {
+        target.color = color;
+        target.alive = true;
+      } else {
+        // 안전장치: 못 찾으면 가장 가까운 셀에 강제 배치
+        let best = null, bestD = Infinity;
+        for (let r = 0; r < state.grid.length; r++) {
+          for (let c = 0; c < state.grid[r].length; c++) {
+            const cell = state.grid[r][c];
+            const d = dist(cell.x, cell.y, x, y);
+            if (d < bestD) { bestD = d; best = cell; }
+          }
+        }
+        if (best) { best.color = color; best.alive = true; }
+      }
+      addScore(10);
+    }
+
+    function addScore(n) {
+      state.score += n;
+      ui.score.textContent = state.score;
+    }
+
+    function resolveMatchesAndFalls() {
+      // 1) 같은 색상 3개 이상 연결 탐색(BFS)
+      const toRemove = findMatchingClusters(3);
+      // 2) 제거
+      toRemove.forEach(cell => { cell.alive = false; });
+      if (toRemove.length) addScore(50 + toRemove.length * 10);
+
+      // 3) 천장 연결되지 않은 버블 제거
+      const floating = findFloatingBubbles();
+      floating.forEach(cell => { cell.alive = false; });
+      if (floating.length) addScore(30 + floating.length * 5);
+    }
+
+    function neighbors(row, col) {
+      // 헥사 그리드 근접 6방향
+      const dirsEven = [[-1,0],[-1,1],[0,-1],[0,1],[1,0],[1,1]];
+      const dirsOdd  = [[-1,-1],[-1,0],[0,-1],[0,1],[1,-1],[1,0]];
+      const dirs = (row % 2 === 0) ? dirsEven : dirsOdd;
+      const result = [];
+      for (const [dr, dc] of dirs) {
+        const r = row + dr, c = col + dc;
+        if (state.grid[r] && state.grid[r][c]) result.push([r, c]);
+      }
+      return result;
+    }
+
+    function findMatchingClusters(minCount = 3) {
+      const visited = new Set();
+      const matches = [];
+      for (let r = 0; r < state.grid.length; r++) {
+        for (let c = 0; c < state.grid[r].length; c++) {
+          const cell = state.grid[r][c];
+          const key = r + ':' + c;
+          if (!cell.alive || visited.has(key)) continue;
+          const cluster = [];
+          const color = cell.color;
+          const q = [[r, c]];
+          visited.add(key);
+          while (q.length) {
+            const [rr, cc] = q.shift();
+            const here = state.grid[rr][cc];
+            cluster.push(here);
+            for (const [nr, nc] of neighbors(rr, cc)) {
+              const nkey = nr + ':' + nc;
+              const ncell = state.grid[nr][nc];
+              if (!ncell.alive || ncell.color !== color || visited.has(nkey)) continue;
+              visited.add(nkey);
+              q.push([nr, nc]);
+            }
+          }
+          if (cluster.length >= minCount) {
+            matches.push(...cluster);
+          }
+        }
+      }
+      return matches;
+    }
+
+    function findFloatingBubbles() {
+      // 천장(첫 행)과 연결된 버블은 유지, 나머지는 제거 대상
+      const visited = new Set();
+      const queue = [];
+      // 첫 행의 살아있는 버블을 시드로
+      for (let c = 0; c < state.grid[0].length; c++) {
+        const cell = state.grid[0][c];
+        if (cell.alive) {
+          const key = '0:' + c;
+          visited.add(key);
+          queue.push([0, c]);
+        }
+      }
+
+      while (queue.length) {
+        const [r, c] = queue.shift();
+        for (const [nr, nc] of neighbors(r, c)) {
+          const nkey = nr + ':' + nc;
+          const ncell = state.grid[nr][nc];
+          if (ncell.alive && !visited.has(nkey)) {
+            visited.add(nkey);
+            queue.push([nr, nc]);
+          }
+        }
+      }
+
+      const floating = [];
+      for (let r = 0; r < state.grid.length; r++) {
+        for (let c = 0; c < state.grid[r].length; c++) {
+          const cell = state.grid[r][c];
+          const key = r + ':' + c;
+          if (cell.alive && !visited.has(key)) {
+            floating.push(cell);
+          }
+        }
+      }
+      return floating;
+    }
+
+    function dropRows(n = 1) {
+      const spacingY = Math.sqrt(3) * state.bubbleR;
+      for (let r = 0; r < state.grid.length; r++) {
+        for (let c = 0; c < state.grid[r].length; c++) {
+          state.grid[r][c].y += spacingY * n;
+        }
+      }
+    }
+
+    function extendGridIfNeeded() {
+      // 바닥 근처면 새 행을 위쪽에 추가
+      const r = state.bubbleR;
+      const spacingY = Math.sqrt(3) * r;
+      const topY = r + 20;
+      const cols = state.cols;
+      const colors = PALETTE.slice(0, state.colorsActive);
+      // 맨 위 행 추가
+      const newRow = [];
+      const isOdd = (state.grid.length % 2) === 1;
+      const offsetX = isOdd ? r : 0;
+      for (let col = 0; col < cols; col++) {
+        const x = r + col * (r * 2) + offsetX;
+        const y = topY;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        newRow.push({ color, x, y, r, alive: true });
+      }
+      // 기존 행들 아래로 이동
+      for (let rr = 0; rr < state.grid.length; rr++) {
+        for (let cc = 0; cc < state.grid[rr].length; cc++) {
+          state.grid[rr][cc].y += spacingY;
+        }
+      }
+      state.grid.unshift(newRow);
+    }
+
+    function updateDropMeter() {
+      const pct = clamp(state.shots / state.shotsPerDrop, 0, 1) * 100;
+      ui.dropMeter.style.width = pct + '%';
+    }
+
+    function checkWin() {
+      // 살아있는 버블이 없으면 클리어
+      for (let r = 0; r < state.grid.length; r++) {
+        for (let c = 0; c < state.grid[r].length; c++) {
+          if (state.grid[r][c].alive) return false;
+        }
+      }
+      return true;
+    }
+
+    function nextStage() {
+      state.stage++;
+      ui.stage.textContent = state.stage;
+      addScore(500);
+      // 난이도 유지, 행 수 약간 증가, 색상 수 범위 유지
+      state.rowsStart = clamp((state.rowsStart || DIFFICULTY[state.difficulty].rowsStart) + 1, 6, 14);
+      setupGrid();
+      resetShooterBubble();
+      state.shots = 0;
+      updateDropMeter();
+    }
+
+    function checkGameOver() {
+      // 바닥에 닿는 버블이 있으면 패배
+      const bottom = canvas.height - 80;
+      for (let r = 0; r < state.grid.length; r++) {
+        for (let c = 0; c < state.grid[r].length; c++) {
+          const cell = state.grid[r][c];
+          if (cell.alive && cell.y + cell.r >= bottom) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    function gameOver() {
+      state.gameOver = true;
+      state.paused = true;
+    }
+
+    // --------- 렌더링 ---------
+    function render() {
+      // 배경 클리어
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 상단 보더
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.beginPath();
+      ctx.moveTo(0, 12);
+      ctx.lineTo(canvas.width, 12);
+      ctx.stroke();
+      ctx.restore();
+
+      // 그리드 버블
+      for (let r = 0; r < state.grid.length; r++) {
+        for (let c = 0; c < state.grid[r].length; c++) {
+          const cell = state.grid[r][c];
+          if (!cell.alive) continue;
+          drawBubble(cell.x, cell.y, cell.r, cell.color);
+        }
+      }
+
+      // 슈터 베이스
+      drawShooterBase();
+
+      // 날아가는 버블
+      if (state.shooter.bubble) {
+        const b = state.shooter.bubble;
+        drawBubble(b.x, b.y, b.r, b.color);
+        // 조준선
+        drawAimLine(state.shooter.x, state.shooter.y, b.vx, b.vy);
+      }
+
+      // 게임오버/클리어 메시지
+      if (state.gameOver) {
+        drawOverlay('게임 오버', '새 게임으로 다시 시작하세요');
+      }
+    }
+
+    function drawBubble(x, y, r, color) {
+      // 외곽
+      ctx.save();
+      const grd = ctx.createRadialGradient(x - r*0.4, y - r*0.4, r*0.2, x, y, r);
+      grd.addColorStop(0, lighten(color, 0.35));
+      grd.addColorStop(0.5, color);
+      grd.addColorStop(1, darken(color, 0.3));
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI*2);
+      ctx.fill();
+
+      // 하이라이트
+      ctx.globalAlpha = 0.25;
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(x - r*0.35, y - r*0.35, r*0.4, 0, Math.PI*2);
+      ctx.fill();
+
+      // 테두리
+      ctx.globalAlpha = 0.8;
+      ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawShooterBase() {
+      const { x, y } = state.shooter;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.fillStyle = 'rgba(255,255,255,0.06)';
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = 2;
+      // 바닥 원판
+      ctx.beginPath();
+      ctx.arc(0, 0, 28, 0, Math.PI*2);
+      ctx.fill();
+      ctx.stroke();
+      // 삼각형 포신
+      ctx.beginPath();
+      ctx.moveTo(-8, -5);
+      ctx.lineTo(8, -5);
+      ctx.lineTo(0, -26);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawAimLine(x, y, vx, vy) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.setLineDash([6, 8]);
+      ctx.lineWidth = 2;
+      const scale = 0.12;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + vx * scale, y + vy * scale);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+    }
+
+    function drawOverlay(title, subtitle) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.font = 'bold 36px system-ui';
+      ctx.fillText(title, canvas.width/2, canvas.height/2 - 14);
+      ctx.font = '16px system-ui';
+      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      ctx.fillText(subtitle, canvas.width/2, canvas.height/2 + 20);
+      ctx.restore();
+    }
+
+    // 색상 보조 함수
+    function hexToRgb(hex) {
+      const m = hex.replace('#','');
+      const bigint = parseInt(m, 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return { r, g, b };
+    }
+    function rgbToHex(r, g, b) {
+      const h = (v) => v.toString(16).padStart(2, '0');
+      return '#' + h(r) + h(g) + h(b);
+    }
+    function lighten(hex, amt) {
+      const { r, g, b } = hexToRgb(hex);
+      const lr = clamp(Math.round(lerp(r, 255, amt)), 0, 255);
+      const lg = clamp(Math.round(lerp(g, 255, amt)), 0, 255);
+      const lb = clamp(Math.round(lerp(b, 255, amt)), 0, 255);
+      return rgbToHex(lr, lg, lb);
+    }
+    function darken(hex, amt) {
+      const { r, g, b } = hexToRgb(hex);
+      const lr = clamp(Math.round(lerp(r, 0, amt)), 0, 255);
+      const lg = clamp(Math.round(lerp(g, 0, amt)), 0, 255);
+      const lb = clamp(Math.round(lerp(b, 0, amt)), 0, 255);
+      return rgbToHex(lr, lg, lb);
+    }
+
+    // --------- UI 이벤트 ---------
+    ui.btnStart.addEventListener('click', () => {
+      startGame(true);
+    });
+    ui.btnPause.addEventListener('click', () => {
+      state.paused = !state.paused;
+      ui.btnPause.textContent = state.paused ? '재개' : '일시정지';
+    });
+    ui.btnReset.addEventListener('click', () => {
+      startGame(false);
+    });
+    ui.selDifficulty.addEventListener('change', (e) => {
+      setDifficulty(e.target.value);
+      startGame(false);
+    });
+
+    function startGame(newStage) {
+      state.gameOver = false;
+      state.paused = false;
+      state.running = true;
+      if (newStage) {
+        state.stage = 1;
+        ui.stage.textContent = state.stage;
+        state.score = 0;
+        ui.score.textContent = state.score;
+      }
+      setDifficulty(state.difficulty);
+      setupGrid();
+      state.nextQueue = [];
+      refillNextQueue();
+      resetShooterBubble();
+      state.shots = 0;
+      updateDropMeter();
+    }
+
+    // 초기 시작
+    setDifficulty(ui.selDifficulty.value);
+    startGame(true);
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
