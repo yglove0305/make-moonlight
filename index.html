@@ -6,13 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <meta name="description" content="달빛도구는 일상에서 자주 쓰이는 간단한 기능들을 모아둔 작은 툴 모음입니다. 누구나 쉽게 사용할 수 있도록 디자인된 경량 웹앱입니다." />
+  <meta name="description" content="달빛도구는 일상에서 자주 쓰이는 간단한 기능들을 모아둔 작은 툴 모음입니다. 누구나 쉽게 사용할 수 있도록 디자인된 경[...]" />
   <meta name="keywords" content="달빛도구, 툴 모음, 캘린더, 메트로놈, 메신저, 저장공간, 유틸리티" />
   <meta name="author" content="달빛도구 팀" />
 
-  <!-- Open Graph (SNS 공유용) -->
+  <!-- Open Graph -->
   <meta property="og:title" content="🌙 달빛도구" />
-  <meta property="og:description" content="버전 v.1.4-security" />
+  <meta property="og:description" content="버전 v.2.1" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://make-moonlight.vercel.app/" />
   <meta property="og:image" content="/img/Copilot_20250927_135650.png" />
@@ -20,61 +20,58 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="🌙 달빛도구" />
-  <meta name="twitter:description" content="버전 v.1.4-security" />
+  <meta name="twitter:description" content="버전 v.2.1" />
   <meta name="twitter:image" content="/img/Copilot_20250927_135650.png" />
 
-  <!-- 웹앱 관련 -->
+  <!-- web app -->
   <meta name="theme-color" content="#0d1b2a" />
   <meta name="application-name" content="달빛도구" />
   <meta name="apple-mobile-web-app-title" content="달빛도구" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="icon" href="/img/Copilot_20250927_135650.png" type="image/png" />
-
+ <!--title -->
   <title>달빛도구</title>
 
-  <!-- 웹폰트 (Noto Sans KR) -->
+  <!--(Noto Sans KR) -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet" />
 
-  <!-- Inline CSS: 기존 data/index.css 내용을 합쳐 넣었습니다 -->
+  <!-- css-->
   <style>
-    /*
-      달빛도구 - 통합 스타일
-      - 반응형 그리드
-      - 카드 스타일
-      - 테마(다크/라이트)
-      - 스타필드(배경)
-      - 접근성(포커스, 고대비)
-    */
+    
 
     :root{
-      --bg: #f6f8fa;
+      --bg: linear-gradient(180deg,#f7fbff 0%, #f0f7ff 100%);
       --surface: #ffffff;
-      --muted: #6b7280;
-      --text: #081827;
-      --primary: #37a6ff;
-      --accent: #7c4dff;
-      --card-radius: 12px;
-      --glass: rgba(255,255,255,0.6);
-      --shadow: 0 6px 18px rgba(15,23,42,0.08);
-      --max-width: 1200px;
+      --muted: #586069;
+      --text: #0b1720;
+      --primary: #2aa0d8; 
+      --accent: #7c4dff; 
+      --card-radius: 14px;
+      --glass: rgba(255,255,255,0.7);
+      --shadow-1: 0 6px 18px rgba(10,20,30,0.06);
+      --shadow-2: 0 12px 30px rgba(2,6,23,0.08);
+      --max-width: 1180px;
+      --focus-ring: 4px;
+      --muted-bg: rgba(11,23,32,0.04);
     }
 
-    /* 다크 테마 변수 */
     :root.dark{
       --bg: linear-gradient(180deg,#06121a 0%, #071724 60%);
-      --surface: rgba(10,18,28,0.6);
+      --surface: rgba(8,16,24,0.6);
       --muted: #9aa6b2;
       --text: #e6eef6;
       --primary: #4fd1c5;
       --accent: #9b8cff;
       --glass: rgba(255,255,255,0.03);
-      --shadow: 0 10px 30px rgba(2,6,23,0.6);
+      --shadow-1: 0 8px 22px rgba(0,0,0,0.55);
+      --shadow-2: 0 14px 40px rgba(0,0,0,0.6);
+      --muted-bg: rgba(255,255,255,0.02);
     }
 
-    /* 기본 리셋 */
-    *{box-sizing: border-box}
-    html,body{height:100%}
+  
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
     body{
       margin:0;
       font-family: "Noto Sans KR", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
@@ -82,20 +79,24 @@
       color: var(--text);
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
-      line-height:1.45;
+      line-height:1.5;
       min-height:100vh;
       display:flex;
       flex-direction:column;
       align-items:stretch;
+      transition: background 280ms ease, color 280ms ease;
     }
 
-    /* starfield 배경 컨테이너 */
+   
     .starfield{
       position:fixed;
       inset:0;
       pointer-events:none;
       z-index:0;
       overflow:hidden;
+      filter: blur(6px) saturate(1.05);
+      opacity:0.65;
+      transition: opacity 320ms ease;
     }
 
     .star{
@@ -103,91 +104,101 @@
       width:2px;
       height:2px;
       border-radius:50%;
-      background: white;
+      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.65));
       opacity:0.9;
       transform: translateZ(0);
       will-change: transform, opacity;
-      box-shadow: 0 0 6px white;
+      box-shadow: 0 0 6px rgba(255,255,255,0.12);
     }
 
-    /* 흐릿한 글라스 레이어 (컨텐츠를 띄우는 효과) */
-    header, main, footer{
+    
+    header, main, footer {
       position:relative;
       z-index:10;
+      width:100%;
+      max-width: var(--max-width);
+      margin-left:auto;
+      margin-right:auto;
+      padding-left:20px;
+      padding-right:20px;
     }
 
     header{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      width:100%;
-      max-width: var(--max-width);
       margin:28px auto 18px;
-      padding:12px 20px;
+      padding:12px 0;
       gap:18px;
     }
 
     .brand{
       display:flex;
-      gap:12px;
+      gap:14px;
       align-items:center;
     }
 
     .logo{
       font-size:28px;
       line-height:1;
-      padding:10px;
-      border-radius:10px;
-      background: linear-gradient(180deg,#fff 0%, #eef6ff 100%);
-      box-shadow: var(--shadow);
+      padding:12px;
+      border-radius:12px;
+      background: linear-gradient(180deg,#ffffff 0%, #eef6ff 100%);
+      box-shadow: var(--shadow-1);
       display:flex;
       align-items:center;
       justify-content:center;
-      width:56px;
-      height:56px;
+      width:64px;
+      height:64px;
+      transition: transform 220ms ease, box-shadow 220ms ease;
     }
+
+    .logo:focus { outline: none; transform: translateY(-2px); }
 
     header h1{
       margin:0;
-      font-size:1.1rem;
+      font-size:1.15rem;
       letter-spacing:-0.3px;
+      font-weight:800;
     }
 
-    header .brand p, header .brand div > .muted{ color:var(--muted) }
+    header .brand p, header .brand div > .muted{ color:var(--muted); margin-top:6px; font-size:0.95rem; max-width:680px; }
 
-    .controls{ display:flex; gap:8px; align-items:center; margin-left:auto; }
+    .controls{ display:flex; gap:10px; align-items:center; margin-left:auto; }
 
+    /* Theme toggle improved */
     .theme-toggle{
-      background:transparent;
-      border:1px solid rgba(255,255,255,0.06);
-      color:var(--text);
+      background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.45));
+      border-radius:12px;
       padding:8px 12px;
-      border-radius:10px;
-      cursor:pointer;
-      font-size:0.95rem;
+      color:var(--text);
+      border:1px solid rgba(11,23,32,0.06);
       display:inline-flex;
+      gap:10px;
       align-items:center;
-      gap:8px;
-      transition: all 180ms ease;
-      background: var(--glass);
-      backdrop-filter: blur(6px) saturate(1.1);
-      box-shadow: var(--shadow);
+      cursor:pointer;
+      font-weight:700;
+      font-size:0.95rem;
+      box-shadow: var(--shadow-1);
+      transition: transform 180ms ease, box-shadow 200ms ease, background 200ms ease;
+    }
+
+    :root.dark .theme-toggle{
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border:1px solid rgba(255,255,255,0.04);
     }
 
     .theme-toggle[aria-pressed="true"]{
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      transform: translateY(-2px) scale(1.01);
+      box-shadow: var(--shadow-2);
     }
 
+    
     main{
-      width:100%;
-      max-width: var(--max-width);
-      margin:0 auto;
-      padding: 12px 20px 60px;
-      flex:1 0 auto;
+      margin-bottom: 48px;
+      padding-top: 4px;
     }
 
-    /* 그리드 레이아웃 */
     .grid{
       display:grid;
       grid-template-columns: repeat(3, minmax(0,1fr));
@@ -203,88 +214,130 @@
       header{ padding:12px; margin:18px 12px }
     }
 
+   
     .card{
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.5));
       border-radius: var(--card-radius);
-      padding:14px;
+      padding:16px;
       display:flex;
       flex-direction:column;
       gap:12px;
-      min-height:120px;
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(255,255,255,0.03);
-      transition: transform 200ms cubic-bezier(.2,.9,.3,1), box-shadow 220ms;
+      min-height:130px;
+      box-shadow: var(--shadow-1);
+      border: 1px solid var(--muted-bg);
+      transition: transform 200ms cubic-bezier(.2,.9,.3,1), box-shadow 220ms, background 220ms;
       isolation:isolate;
+      backdrop-filter: blur(6px);
+      position:relative;
+      overflow:hidden;
+    }
+
+    :root.dark .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .card::after{
+      /* subtle shine */
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent 30%);
+      mix-blend-mode: overlay;
     }
 
     .card:focus-within, .card:hover{
       transform: translateY(-6px);
+      box-shadow: var(--shadow-2);
     }
 
     .meta{
       display:flex;
-      gap:12px;
+      gap:14px;
       align-items:center;
     }
 
     .meta .icon{
       font-size:1.9rem;
-      width:56px;
-      height:56px;
+      width:64px;
+      height:64px;
       display:flex;
       align-items:center;
       justify-content:center;
-      border-radius:10px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      border-radius:12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
       color:var(--primary);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+      flex-shrink:0;
     }
 
-    .meta h3{ margin:0; font-size:1rem }
-    .meta p{ margin:4px 0 0; color:var(--muted); font-size:0.92rem }
+    .meta h3{
+      margin:0;
+      font-size:1.03rem;
+      font-weight:800;
+      letter-spacing:-0.2px;
+    }
+    .meta p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:0.95rem;
+      max-width:36ch;
+    }
 
     .actions{
       display:flex;
-      gap:8px;
+      gap:10px;
       margin-top:auto;
+      align-items:center;
     }
 
     a.btn-soft, a.btn-cta{
       text-decoration:none;
-      padding:8px 12px;
-      border-radius:10px;
+      padding:9px 14px;
+      border-radius:12px;
       display:inline-flex;
-      gap:8px;
+      gap:10px;
       align-items:center;
-      font-weight:600;
+      font-weight:800;
       font-size:0.95rem;
       cursor:pointer;
       border: none;
+      transition: transform 150ms ease, box-shadow 160ms ease, opacity 160ms;
+      min-height:40px;
     }
 
     a.btn-soft{
       color:var(--text);
-      background: rgba(255,255,255,0.03);
-      border:1px solid rgba(255,255,255,0.03);
+      background: transparent;
+      border:1px solid var(--muted-bg);
+      box-shadow: none;
     }
+
+    a.btn-soft:hover{ transform: translateY(-3px); background: rgba(0,0,0,0.02) }
+    :root.dark a.btn-soft:hover{ background: rgba(255,255,255,0.02) }
 
     a.btn-cta{
       color:white;
       background: linear-gradient(90deg,var(--primary),var(--accent));
-      box-shadow: 0 6px 20px rgba(124,77,255,0.18);
+      box-shadow: 0 8px 26px rgba(124,77,255,0.12);
     }
+
+    a.btn-cta:active{ transform: translateY(0) scale(0.997) }
+    a.btn-cta:focus{ box-shadow: 0 12px 30px rgba(0,0,0,0.12), 0 0 0 var(--focus-ring) rgba(79,130,255,0.08) }
 
     footer{
       width:100%;
-      max-width: var(--max-width);
       margin:30px auto;
-      padding:12px 20px;
+      padding:18px 20px;
       display:flex;
-      gap:10px;
-      justify-content:flex-start;
+      gap:12px;
+      justify-content:center;
       align-items:center;
       color:var(--muted);
       font-size:0.95rem;
+      border-top: 1px solid var(--muted-bg);
+      background: transparent;
     }
 
     .intro{
@@ -295,38 +348,50 @@
     }
 
     .lead{
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border-radius: 10px;
-      padding:14px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.5));
+      border-radius: 12px;
+      padding:16px;
       color:var(--text);
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow-1);
+      border: 1px solid var(--muted-bg);
+    }
+
+    :root.dark .lead{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
     }
 
     .badge{
       display:inline-block;
       background: linear-gradient(90deg,#ffd86b,#ff8a8a);
       color:#081827;
-      padding:6px 10px;
+      padding:6px 12px;
       border-radius:999px;
-      font-weight:700;
+      font-weight:900;
+      font-size:0.95rem;
+      box-shadow: 0 6px 18px rgba(124,77,255,0.08);
     }
 
-    /* 포커스 스타일 (접근성) */
+    
     :focus{
-      outline: 3px solid rgba(59,130,246,0.28);
-      outline-offset:3px;
+      outline: none;
+      box-shadow: 0 0 0 var(--focus-ring) rgba(59,130,246,0.12);
+      border-radius:8px;
     }
 
-    /* Reduced motion: 사용자 선호도 존중 */
+    /* Reduced motion */
     @media (prefers-reduced-motion: reduce){
       .star, .card, .theme-toggle{ transition:none !important; animation:none !important }
+      .theme-toggle, .card:hover{ transform:none !important }
     }
 
-    /* 작은 화면에서 카드 내부 요소 간격 보정 */
+    
     @media (max-width:440px){
-      .meta .icon{ width:48px; height:48px; font-size:1.6rem }
-      .meta h3{ font-size:0.98rem }
+      .meta .icon{ width:52px; height:52px; font-size:1.5rem }
+      .meta h3{ font-size:1rem }
     }
+
+    /* small text */
+    .muted-small{ color:var(--muted); font-size:0.9rem; }
   </style>
 </head>
 <body>
@@ -334,10 +399,10 @@
 
   <header role="banner">
     <div class="brand" aria-hidden="false">
-      <div class="logo" aria-hidden="true">🌙</div>
+      <div class="logo" aria-hidden="true" tabindex="0">🌙</div>
       <div style="text-align:left">
         <h1>달빛도구(게임)</h1>
-        <div style="font-size:0.9rem; color:var(--muted); margin-top:6px; max-width:660px">
+        <div style="font-size:0.95rem; color:var(--muted); margin-top:6px; max-width:660px">
           작은 도구들이 모여 당신의 하루를 더 편리하고 아름답게 만들어줍니다.
         </div>
       </div>
@@ -352,7 +417,7 @@
 
   <main role="main">
     <section class="grid" aria-label="도구 카드 목록">
-      <!-- 카드 1: 캘린더 -->
+      
       <article class="card" role="article" aria-labelledby="card-calendar">
         <div class="meta">
           <div class="icon" aria-hidden="true">📅</div>
@@ -367,7 +432,7 @@
         </div>
       </article>
 
-      <!-- 카드 2: 메트로놈 -->
+      
       <article class="card" role="article" aria-labelledby="card-metronome">
         <div class="meta">
           <div class="icon" aria-hidden="true">⏱</div>
@@ -382,7 +447,7 @@
         </div>
       </article>
 
-      <!-- 카드 3: 샘플 -->
+    
       <article class="card" role="article" aria-labelledby="card-sample">
         <div class="meta">
           <div class="icon" aria-hidden="true">🧩</div>
@@ -397,7 +462,7 @@
         </div>
       </article>
 
-      <!-- 카드 4: 로컬메신저 -->
+     
       <article class="card" role="article" aria-labelledby="card-messenger">
         <div class="meta">
           <div class="icon" aria-hidden="true">💬</div>
@@ -412,7 +477,7 @@
         </div>
       </article>
 
-      <!-- 카드 5: 저장공간 마스터 -->
+     
       <article class="card" role="article" aria-labelledby="card-storage">
         <div class="meta">
           <div class="icon" aria-hidden="true">🗄</div>
@@ -427,7 +492,7 @@
         </div>
       </article>
 
-      <!-- 카드 6: 스타 1 게임 팁 -->
+    
       <article class="card" role="article" aria-labelledby="card-starcraft">
         <div class="meta">
           <div class="icon" aria-hidden="true">🎮</div>
@@ -567,7 +632,9 @@
           <a class="btn-cta" href="data/설문.html" rel="noopener">참여</a>
         </div>
       </article>
-     <article class="card" role="article" aria-labelledby="card-farm">
+
+     
+      <article class="card" role="article" aria-labelledby="card-farm">
         <div class="meta">
           <div class="icon" aria-hidden="true">🌾</div>
           <div>
@@ -580,6 +647,7 @@
           <a class="btn-cta" href="data/버블.html" rel="noopener">플레이</a>
         </div>
       </article>
+
    <article class="card" role="article" aria-labelledby="card-farm">
         <div class="meta">
           <div class="icon" aria-hidden="true">⚡</div>
@@ -607,20 +675,21 @@
         </div>
       </article>
 
+
       
     </section>
 
     <section class="intro" aria-labelledby="intro-title">
       <div class="lead" id="intro-title">
-        <strong class="badge">✨ 새 버전 v.2.0-Bug fix</strong>
+        <strong class="badge">✨ 새 버전 v.2.1</strong>
         <p style="margin-top:10px">
-      게임을 추가 하였습니다. 그리고 버그를 수정하였습니다.
+      디자인 업데이트와 보안 자바스크립트 업데이트를 했습니다.
         </p>
       </div>
       <div class="lead" aria-hidden="false">
-        <strong class="badge">공지사항</strong>
+        <strong class="badge">알림🔔</strong>
         <p style="margin-top:10px">
-          페이지 맨 아래 하단에 오류 도움 문서를 추가하였습니다. 오류가 있을경우 문서를 읽어주십시오.
+          이제부터 게임 추가 는 업데이트에 포함을 안하도록 하겠습니다.
         </p>
       </div>
     </section>
@@ -632,18 +701,18 @@
     <a href="https://help-moonlight.pages.dev/help/help=html5-error342@123" rel="noopener" style="color:var(--muted); text-decoration:none">오류 도움 문서</a>
   </footer>
 
-  <!-- Inline JavaScript: 기존 data/index.js 내용을 합쳐 넣었습니다 -->
+  <!-- Inline JavaScript -->
   <script>
-  console.log('%c달빛도구 v.1.9', 'font-size: 40px; font-weight: bold; color: #4B0082;');
+  console.log('%c달빛도구 v.2.1', 'font-size: 40px; font-weight: bold; color: #4B0082;');
 console.log('콘솔 사용시 발생하는 피해는 책임지지 않습니다.');
     (function () {
       "use strict";
 
-      // --- 유틸리티 ---
+    
       const $ = selector => document.querySelector(selector);
       const $$ = selector => Array.from(document.querySelectorAll(selector));
 
-      // --- 스타필드 생성 ---
+      
       function createStarfield(container, options = {}) {
         const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         const count = prefersReduced ? (options.countReduced || 60) : (options.count || 160);
@@ -687,7 +756,7 @@ console.log('콘솔 사용시 발생하는 피해는 책임지지 않습니다.'
         }
       }
 
-      // --- 테마 관리 ---
+   
       const THEME_KEY = "moonlight:theme";
       const root = document.documentElement;
       const themeToggle = $("#themeToggle");
@@ -712,30 +781,25 @@ console.log('콘솔 사용시 발생하는 피해는 책임지지 않습니다.'
       }
 
       function initTheme() {
-        // 1) 저장된 설정
+     
         const saved = localStorage.getItem(THEME_KEY);
         if (saved) {
           applyTheme(saved);
           return;
         }
-        // 2) 시스템 기본값
+     
         const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
         applyTheme(prefersDark ? "dark" : "light");
       }
 
-      // --- 앵커 클릭 아웃바운드 경고 (선택사항 안전조치) ---
+      
       function enhanceLinks() {
-        // 기본적으로 rel="noopener"는 이미 사용되어 있음. 여기서는 타깃이 없는 링크는 새 탭으로 열지 않음.
-        // 필요하면 추가적으로 추적 파라미터 제거 등 로직을 넣을 수 있음.
         const anchors = $$("a[href]");
         anchors.forEach(a => {
           try {
-            // 안전한 외부 링크 처리 (같은 호스트는 변경하지 않음)
             const href = a.getAttribute("href");
             if (!href) return;
-            // 상대 경로는 그대로
             if (href.startsWith("http://") || href.startsWith("https://")) {
-              // 외부 도메인인 경우 새 탭으로 연다
               const url = new URL(href, location.href);
               if (url.hostname !== location.hostname) {
                 a.setAttribute("target", "_blank");
@@ -748,13 +812,11 @@ console.log('콘솔 사용시 발생하는 피해는 책임지지 않습니다.'
         });
       }
 
-      // --- 초기화 ---
+      
       function init() {
         const starfield = document.querySelector(".starfield");
         if (starfield) {
-          // Create with slight delay to avoid layout thrash on load
           createStarfield(starfield, { count: 220, countReduced: 60 });
-          // Recreate on resize with debounce
           let t;
           window.addEventListener("resize", () => {
             clearTimeout(t);
@@ -764,7 +826,6 @@ console.log('콘솔 사용시 발생하는 피해는 책임지지 않습니다.'
 
         initTheme();
 
-        // 테마 토글 버튼
         if (themeToggle) {
           themeToggle.addEventListener("click", toggleTheme);
           themeToggle.addEventListener("keydown", (ev) => {
@@ -775,9 +836,8 @@ console.log('콘솔 사용시 발생하는 피해는 책임지지 않습니다.'
           });
         }
 
-        // 단축키: T 로 테마 토글
+       
         window.addEventListener("keydown", (ev) => {
-          // 입력 폼에 포커스가 있으면 단축키 무시
           const active = document.activeElement;
           if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA" || active.isContentEditable)) {
             return;
@@ -788,26 +848,22 @@ console.log('콘솔 사용시 발생하는 피해는 책임지지 않습니다.'
         });
 
         enhanceLinks();
-
-        // 향후 확장: 각 카드에 간단한 프리뷰나 통계 툴팁 추가 가능
       }
 
-      // DOMContentLoaded 보장
       if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", init);
       } else {
         init();
       }
 
-      // 안전장치: 예외 처리 전역 로깅 (콘솔 전용)
       window.addEventListener("error", (ev) => {
-        // 개발 중에만 자세히 표시
         if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
           console.error("Unhandled error:", ev.error || ev.message, ev);
         }
       });
 
     })();
+    // This JavaScript code is not completely safe and you should definitely not rely on it.
   </script>
 </body>
 </html>
