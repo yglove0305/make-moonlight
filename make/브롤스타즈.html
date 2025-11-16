@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <title>모바일 캔버스 아레나 게임</title>
+  <style>
+    /* 기본 레이아웃: 모바일 전체 화면 캔버스 */
+    html, body {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+      background: #0e0f12; /* 어두운 배경 */
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      touch-action: none; /* 터치 스크롤 방지: 캔버스에서 제스처를 직접 처리 */
+      -webkit-text-size-adjust: 100%;
+    }
+
+    #game-container {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    canvas#game {
+      position: absolute;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(180deg, #1a1c22 0%, #111316 100%);
+      /* 픽셀을 선명하게 보이도록 */
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      touch-action: none;
+    }
+
+    /* UI 오버레이 */
+    #ui {
+      position: fixed;
+      inset: 0;
+      pointer-events: none; /* UI 컨테이너 자체는 이벤트 막고, 내부 컨트롤만 받게 할 것 */
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .top-bar {
+      pointer-events: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: env(safe-area-inset-top, 10px) 12px 8px 12px;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+      font-weight: 700;
+    }
+
+    .badge {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 14px;
+      backdrop-filter: blur(6px);
+    }
+
+    .center-banner {
+      pointer-events: none;
+      align-self: center;
+      margin-top: 4px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #fff;
+      border-radius: 12px;
+      padding: 6px 10px;
+      font-size: 12px;
+      backdrop-filter: blur(3px);
+    }
+
+    .bottom-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 0 12px env(safe-area-inset-bottom, 12px);
+      margin-bottom: 6px;
+      pointer-events: none;
+    }
+
+    /* 가상 조이스틱 */
+    .joystick {
+      pointer-events: auto;
+      position: relative;
+      width: min(42vw, 240px);
+      height: min(42vw, 240px);
+      max-width: 240px;
+      max-height: 240px;
+      min-width: 160px;
+      min-height: 160px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.015) 100%);
+      border: 1px dashed rgba(255,255,255,0.18);
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.30), 0 6px 18px rgba(0,0,0,0.35);
+      transform: translateZ(0);
+      touch-action: none;
+      user-select: none;
+    }
+
+    .stick {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 42%;
+      height: 42%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 25%, #5de0e6 0%, #4cb7f2 60%, #3887ff 100%);
+      border: 2px solid rgba(255,255,255,0.45);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.35), inset 0 0 16px rgba(255,255,255,0.25);
+    }
+
+    /* 공격 버튼 */
+    .button {
+      pointer-events: auto;
+      position: relative;
+      width: min(24vw, 140px);
+      height: min(24vw, 140px);
+      min-width: 96px;
+      min-height: 96px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #f5b85b 0%, #fb7f4f 60%, #f04e3a 100%);
+      border: 2px solid rgba(255,255,255,0.55);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.35), inset 0 0 16px rgba(255,255,255,0.25);
+      user-select: none;
+      touch-action: none;
+    }
+
+    .button-label {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.45);
+      font-size: clamp(12px, 3.4vw, 18px);
+      pointer-events: none;
+    }
+
+    .button-small {
+      width: min(18vw, 100px);
+      height: min(18vw, 100px);
+      min-width: 72px;
+      min-height: 72px;
+      background: radial-gradient(circle at 30% 30%, #b36df5 0%, #864df2 60%, #5c35e0 100%);
+    }
+
+    .button-ult {
+      background: radial-gradient(circle at 30% 30%, #ffd86b 0%, #ffba3b 50%, #ff8b00 100%);
+      border: 2px solid rgba(255,255,255,0.65);
+    }
+
+    /* FPS/디버그 */
+    #debug {
+      position: fixed;
+      left: 8px;
+      bottom: 8px;
+      color: rgba(255,255,255,0.85);
+      font-size: 12px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+      pointer-events: none;
+    }
+
+    /* 모달/메뉴 */
+    #menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .menu-panel {
+      width: min(92vw, 520px);
+      max-width: 520px;
+      background: linear-gradient(180deg, #1e2026 0%, #15171b 100%);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 16px;
+      box-shadow: 0 14px 34px rgba(0,0,0,0.45);
+      color: #fff;
+      padding: 16px;
+    }
+
+    .menu-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    .menu-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .menu-item {
+      flex: 1 1 120px;
+      min-width: 120px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .menu-item h4 {
+      margin: 0 0 6px 0;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .menu-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .menu-btn {
+      appearance: none;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      background: #2b87ff;
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.35);
+    }
+
+    .menu-btn.secondary {
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+
+    /* 방지: 텍스트 선택 */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <canvas id="game"></canvas>
+  </div>
+
+  <!-- UI 오버레이 -->
+  <div id="ui">
+    <div class="top-bar">
+      <div class="badge" id="score-badge">점수: 0</div>
+      <div class="badge" id="time-badge">00:00</div>
+    </div>
+    <div class="center-banner" id="center-banner">모바일 아레나 | 적 처치로 점수 획득</div>
+
+    <div class="bottom-bar">
+      <!-- 좌측 이동 조이스틱 -->
+      <div class="joystick" id="move-joystick">
+        <div class="stick" id="move-stick"></div>
+      </div>
+
+      <!-- 우측 공격/궁극기 버튼 영역 -->
+      <div style="display:flex; gap: 12px; align-items: flex-end; pointer-events: none;">
+        <div class="joystick" id="aim-joystick" style="pointer-events:auto;">
+          <div class="stick" id="aim-stick" style="background: radial-gradient(circle at 30% 25%, #f06db2 0%, #f24d7f 60%, #ff3887 100%);"></div>
+        </div>
+        <div style="display:flex; flex-direction: column; gap: 10px; pointer-events: auto;">
+          <div class="button" id="attack-btn">
+            <div class="button-label">ATTACK</div>
+          </div>
+          <div class="button button-small button-ult" id="ult-btn">
+            <div class="button-label">ULT</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 디버그 정보 -->
+  <div id="debug"></div>
+
+  <!-- 메뉴 오버레이 -->
+  <div id="menu-overlay" role="dialog" aria-modal="true">
+    <div class="menu-panel">
+      <div class="menu-title">설정 및 게임 모드</div>
+      <div class="menu-row">
+        <div class="menu-item">
+          <h4>그래픽</h4>
+          <label>
+            <input type="checkbox" id="toggleShadows" checked />
+            그림자 활성화
+          </label><br />
+          <label>
+            <input type="checkbox" id="toggleParticles" checked />
+            파티클 효과
+          </label><br />
+          <label>
+            품질:
+            <select id="qualitySelect">
+              <option value="low">낮음</option>
+              <option value="medium" selected>중간</option>
+              <option value="high">높음</option>
+            </select>
+          </label>
+        </div>
+        <div class="menu-item">
+          <h4>오디오</h4>
+          <label>마스터 볼륨:
+            <input type="range" id="volumeMaster" min="0" max="1" step="0.01" value="0.5" />
+          </label><br />
+          <label>효과음 볼륨:
+            <input type="range" id="volumeSFX" min="0" max="1" step="0.01" value="0.7" />
+          </label>
+        </div>
+        <div class="menu-item">
+          <h4>게임 모드</h4>
+          <label>
+            <input type="radio" name="mode" value="solo" checked /> 솔로
+          </label><br />
+          <label>
+            <input type="radio" name="mode" value="timed" /> 타임 어택
+          </label><br />
+          <label>
+            <input type="radio" name="mode" value="endless" /> 엔드리스
+          </label>
+        </div>
+        <div class="menu-item">
+          <h4>조작</h4>
+          <label>
+            자동 사격:
+            <select id="autoShoot">
+              <option value="off">꺼짐</option>
+              <option value="on" selected>켜짐</option>
+            </select>
+          </label><br />
+          <label>
+            조이스틱 데드존:
+            <input type="range" id="deadzoneRange" min="0" max="0.6" step="0.02" value="0.18" />
+          </label>
+        </div>
+      </div>
+      <div class="menu-actions">
+        <button class="menu-btn secondary" id="resumeBtn">뒤로</button>
+        <button class="menu-btn" id="startBtn">게임 시작</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================================
+    // 모바일 캔버스 아레나 게임 (단일 파일 데모)
+    // - 전체 화면 캔버스
+    // - 이동/조준 조이스틱
+    // - 기본 총알/적 AI/충돌/파티클/오디오(가상) 시스템
+    // - 메뉴 & 설정
+    // ============================================================
+
+    // 유틸리티 ---------------------------------------------------
+    const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const rand = (min, max) => Math.random() * (max - min) + min;
+    const randInt = (min, max) => Math.floor(rand(min, max + 1));
+    const dist = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by);
+    const angleBetween = (ax, ay, bx, by) => Math.atan2(by - ay, bx - ax);
+    const now = () => performance.now();
+
+    // 전역 상태 ---------------------------------------------------
+    const state = {
+      running: false,
+      width: 0,
+      height: 0,
+      dpr: Math.max(1, Math.min(3, window.devicePixelRatio || 1)),
+      lastTime: now(),
+      dt: 0,
+      accumulator: 0,
+      fixedStep: 1000 / 60,
+      camera: { x: 0, y: 0, shake: 0, shakeT: 0 },
+      player: null,
+      bullets: [],
+      enemies: [],
+      particles: [],
+      pickups: [],
+      score: 0,
+      elapsedMs: 0,
+      inputs: {
+        move: { x: 0, y: 0, active: false, rawX: 0, rawY: 0 },
+        aim: { x: 0, y: 0, active: false, rawX: 0, rawY: 0 },
+        attack: false,
+        ult: false,
+      },
+      config: {
+        useShadows: true,
+        useParticles: true,
+        quality: 'medium',
+        autoShoot: true,
+        deadzone: 0.18,
+        audio: {
+          master: 0.5,
+          sfx: 0.7,
+        }
+      },
+      mode: 'solo',
+      ui: {
+        scoreBadge: document.getElementById('score-badge'),
+        timeBadge: document.getElementById('time-badge'),
+        centerBanner: document.getElementById('center-banner'),
+        debug: document.getElementById('debug')
+      }
+    };
+
+    // 캔버스 초기화 ----------------------------------------------
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
+
+    function resize() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      state.width = Math.floor(w);
+      state.height = Math.floor(h);
+
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
+      canvas.width = Math.floor(w * state.dpr);
+      canvas.height = Math.floor(h * state.dpr);
+      ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+    }
+    window.addEventListener('resize', resize, { passive: true });
+    resize();
+
+    // 카메라 ------------------------------------------------------
+    function applyCamera() {
+      const shake = state.camera.shakeT > 0 ? (Math.sin(state.camera.shakeT * 40) * state.camera.shake) : 0;
+      ctx.save();
+      ctx.translate(Math.floor(-state.camera.x + shake), Math.floor(-state.camera.y + shake));
+    }
+    function restoreCamera() {
+      ctx.restore();
+    }
+
+    // 클래스: 엔티티 ---------------------------------------------
+    class Entity {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.vx = 0;
+        this.vy = 0;
+        this.radius = 16;
+        this.hp = 100;
+        this.maxHp = 100;
+        this.color = '#58d0ff';
+        this.shadow = true;
+        this.id = Math.random().toString(36).slice(2);
+        this.alive = true;
+      }
+      update(dt) {
+        this.x += this.vx * dt;
+        this.y += this.vy * dt;
+      }
+      draw(ctx) {
+        if (!this.alive) return;
+        // 그림자
+        if (state.config.useShadows && this.shadow) {
+          ctx.fillStyle = 'rgba(0,0,0,0.35)';
+          ctx.beginPath();
+          ctx.ellipse(this.x, this.y + this.radius * 0.6, this.radius * 0.9, this.radius * 0.45, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // 본체
+        const grad = ctx.createRadialGradient(this.x - this.radius * 0.3, this.y - this.radius * 0.3, this.radius * 0.2, this.x, this.y, this.radius);
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.2, this.color);
+        grad.addColorStop(1, '#1b3a58');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // HP 바
+        const barW = this.radius * 1.6;
+        const barH = 6;
+        ctx.fillStyle = 'rgba(0,0,0,0.6)';
+        ctx.fillRect(this.x - barW / 2, this.y - this.radius - 12, barW, barH);
+        ctx.fillStyle = '#35e073';
+        const rate = clamp(this.hp / this.maxHp, 0, 1);
+        ctx.fillRect(this.x - barW / 2, this.y - this.radius - 12, barW * rate, barH);
+      }
+      damage(dmg) {
+        this.hp -= dmg;
+        if (this.hp <= 0) {
+          this.alive = false;
+          spawnExplosion(this.x, this.y, this.radius, '#58d0ff');
+        } else {
+          spawnHitSpark(this.x, this.y);
+        }
+      }
+    }
+
+    class Player extends Entity {
+      constructor(x, y) {
+        super(x, y);
+        this.color = '#5de0e6';
+        this.radius = 18;
+        this.speed = 0.22; // px/ms
+        this.fireRate = 180; // ms
+        this.lastShot = 0;
+        this.ultReady = 0; // 0~1
+        this.ultActive = false;
+        this.ultCooldown = 8000; // ms
+        this.lastUlt = -10000;
+      }
+      update(dt) {
+        // 이동
+        const moveLen = Math.hypot(state.inputs.move.x, state.inputs.move.y);
+        let mx = 0, my = 0;
+        if (moveLen > state.config.deadzone) {
+          const n = (moveLen - state.config.deadzone) / (1 - state.config.deadzone);
+          mx = (state.inputs.move.x / moveLen) * n;
+          my = (state.inputs.move.y / moveLen) * n;
+        }
+        this.vx = mx * this.speed * (state.config.quality === 'high' ? 1.0 : 0.9);
+        this.vy = my * this.speed * (state.config.quality === 'high' ? 1.0 : 0.9);
+        super.update(dt);
+
+        // 월드 경계
+        const mapW = world.width, mapH = world.height;
+        this.x = clamp(this.x, 0 + this.radius, mapW - this.radius);
+        this.y = clamp(this.y, 0 + this.radius, mapH - this.radius);
+
+        // 카메라 타겟
+        const targetCamX = this.x - state.width / 2;
+        const targetCamY = this.y - state.height / 2;
+        state.camera.x = lerp(state.camera.x, targetCamX, 0.14);
+        state.camera.y = lerp(state.camera.y, targetCamY, 0.14);
+
+        // 사격
+        const t = now();
+        const aimLen = Math.hypot(state.inputs.aim.x, state.inputs.aim.y);
+        const canShoot = t - this.lastShot > this.fireRate;
+        if ((state.inputs.attack || (state.config.autoShoot && aimLen > 0.4)) && canShoot) {
+          const angle = Math.atan2(state.inputs.aim.y, state.inputs.aim.x);
+          const spread = this.ultActive ? 0.08 : 0.02;
+          shootBullet(this.x, this.y, angle + rand(-spread, spread), this.ultActive ? 0.56 : 0.42, this.ultActive ? 18 : 10, '#fbd36d');
+          this.lastShot = t;
+          state.camera.shake = this.ultActive ? 2.6 : 1.6;
+          state.camera.shakeT = 0.18;
+        }
+
+        // 궁극기
+        if (state.inputs.ult && t - this.lastUlt > this.ultCooldown) {
+          this.ultActive = true;
+          this.lastUlt = t;
+          spawnExplosion(this.x, this.y, 36, '#ffd86b');
+          setTimeout(() => {
+            this.ultActive = false;
+          }, 2000);
+        }
+
+        // 궁극기 게이지: 적 처치/시간으로 서서히
+        this.ultReady = clamp((t - this.lastUlt) / this.ultCooldown, 0, 1);
+      }
+      draw(ctx) {
+        super.draw(ctx);
+        // 플레이어 방향 표시 (조준 방향)
+        const aimAng = Math.atan2(state.inputs.aim.y, state.inputs.aim.x);
+        if (!Number.isNaN(aimAng)) {
+          const len = this.radius + 14;
+          ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(this.x, this.y);
+          ctx.lineTo(this.x + Math.cos(aimAng) * len, this.y + Math.sin(aimAng) * len);
+          ctx.stroke();
+        }
+        // 궁극기 게이지 링
+        const r = this.radius + 8;
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = 'rgba(255,216,107,0.8)';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * this.ultReady);
+        ctx.stroke();
+      }
+    }
+
+    class Enemy extends Entity {
+      constructor(x, y) {
+        super(x, y);
+        this.color = '#ff7088';
+        this.radius = 16;
+        this.speed = rand(0.10, 0.16);
+        this.fireRate = randInt(600, 1200);
+        this.lastShot = 0;
+        this.shadow = true;
+      }
+      update(dt) {
+        // 플레이어를 향해 추적
+        const a = angleBetween(this.x, this.y, state.player.x, state.player.y);
+        const distTo = dist(this.x, this.y, state.player.x, state.player.y);
+        const approach = distTo > 120 ? 1 : -0.5;
+        this.vx = Math.cos(a) * this.speed * approach;
+        this.vy = Math.sin(a) * this.speed * approach;
+        super.update(dt);
+
+        // 사격 AI
+        const t = now();
+        if (t - this.lastShot > this.fireRate && distTo < 480) {
+          shootBullet(this.x, this.y, a + rand(-0.04, 0.04), 0.36, 9, '#ff7088', true);
+          this.lastShot = t;
+        }
+      }
+      draw(ctx) {
+        super.draw(ctx);
+        // 상징 아이콘
+        ctx.fillStyle = 'rgba(0,0,0,0.6)';
+        ctx.beginPath();
+        ctx.arc(this.x - 4, this.y - 3, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(this.x + 4, this.y - 3, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // 월드 --------------------------------------------------------
+    const world = {
+      width: 2200,
+      height: 1600,
+      tiles: [],
+      grid: 80,
+      init() {
+        // 간단한 타일 패턴
+        const cols = Math.ceil(this.width / this.grid);
+        const rows = Math.ceil(this.height / this.grid);
+        this.tiles = [];
+        for (let y = 0; y < rows; y++) {
+          const row = [];
+          for (let x = 0; x < cols; x++) {
+            const noise = Math.sin(x * 0.6) * Math.cos(y * 0.7);
+            row.push({
+              colorA: `hsl(${200 + noise * 20}, 25%, ${20 + (x + y) % 2 * 4}%)`,
+              colorB: `hsl(${210 + noise * 18}, 18%, ${12 + (x + y) % 2 * 4}%)`
+            });
+          }
+          this.tiles.push(row);
+        }
+      },
+      draw(ctx) {
+        const grid = this.grid;
+        const cols = this.tiles[0]?.length || 0;
+        const rows = this.tiles.length;
+        // 카메라에 보이는 영역만
+        const startCol = clamp(Math.floor(state.camera.x / grid), 0, cols);
+        const startRow = clamp(Math.floor(state.camera.y / grid), 0, rows);
+        const endCol = clamp(Math.ceil((state.camera.x + state.width) / grid) + 1, 0, cols);
+        const endRow = clamp(Math.ceil((state.camera.y + state.height) / grid) + 1, 0, rows);
+
+        for (let r = startRow; r < endRow; r++) {
+          for (let c = startCol; c < endCol; c++) {
+            const tile = this.tiles[r][c];
+            const x = c * grid;
+            const y = r * grid;
+            ctx.fillStyle = tile.colorB;
+            ctx.fillRect(x, y, grid, grid);
+            ctx.fillStyle = tile.colorA;
+            ctx.fillRect(x + 2, y + 2, grid - 4, grid - 4);
+          }
+        }
+
+        // 경계 장식
+        ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+        ctx.lineWidth = 8;
+        ctx.strokeRect(0, 0, this.width, this.height);
+      }
+    };
+    world.init();
+
+    // 총알 --------------------------------------------------------
+    class Bullet {
+      constructor(x, y, angle, speed, dmg, color, fromEnemy = false) {
+        this.x = x;
+        this.y = y;
+        this.vx = Math.cos(angle) * speed;
+        this.vy = Math.sin(angle) * speed;
+        this.radius = 6;
+        this.life = 1400; // ms
+        this.spawnTime = now();
+        this.color = color;
+        this.fromEnemy = fromEnemy;
+      }
+      update(dt) {
+        this.x += this.vx * dt;
+        this.y += this.vy * dt;
+      }
+      draw(ctx) {
+        const g = ctx.createRadialGradient(this.x - 3, this.y - 3, 2, this.x, this.y, this.radius);
+        g.addColorStop(0, '#fff');
+        g.addColorStop(1, this.color);
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 트레일
+        if (state.config.useParticles) {
+          spawnTrail(this.x, this.y, this.color);
+        }
+      }
+      isAlive() {
+        return now() - this.spawnTime < this.life &&
+          this.x > -20 && this.y > -20 &&
+          this.x < world.width + 20 && this.y < world.height + 20;
+      }
+    }
+
+    function shootBullet(x, y, angle, speed, dmg, color, fromEnemy = false) {
+      const b = new Bullet(x, y, angle, speed, dmg, color, fromEnemy);
+      state.bullets.push(b);
+      // 사운드(간단한 시뮬레이션: 실제 오디오 구현은 생략)
+      // playSfx('shoot', state.config.audio.sfx * state.config.audio.master);
+    }
+
+    // 파티클 ------------------------------------------------------
+    function spawnTrail(x, y, color) {
+      state.particles.push({
+        x, y,
+        life: rand(60, 120),
+        radius: rand(2, 4),
+        color,
+        alpha: 0.7
+      });
+    }
+
+    function spawnHitSpark(x, y) {
+      for (let i = 0; i < 8; i++) {
+        state.particles.push({
+          x, y,
+          life: rand(160, 280),
+          radius: rand(1, 3),
+          color: '#fff',
+          alpha: 0.9,
+          vx: rand(-0.2, 0.2),
+          vy: rand(-0.2, 0.2)
+        });
+      }
+    }
+
+    function spawnExplosion(x, y, r, color) {
+      for (let i = 0; i < 36; i++) {
+        const ang = rand(0, Math.PI * 2);
+        const spd = rand(0.08, 0.42);
+        state.particles.push({
+          x, y,
+          life: rand(300, 900),
+          radius: rand(2, 6),
+          color,
+          alpha: 1,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd
+        });
+      }
+      state.camera.shake = 4.0;
+      state.camera.shakeT = 0.28;
+    }
+
+    function updateParticles(dt) {
+      for (let i = state.particles.length - 1; i >= 0; i--) {
+        const p = state.particles[i];
+        p.life -= dt * 1000 / 60;
+        if (p.vx || p.vy) {
+          p.x += (p.vx || 0) * dt;
+          p.y += (p.vy || 0) * dt;
+        }
+        p.alpha = clamp(p.life / 900, 0, 1);
+        if (p.life <= 0) state.particles.splice(i, 1);
+      }
+    }
+
+    function drawParticles(ctx) {
+      for (const p of state.particles) {
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    // 픽업/힐 -----------------------------------------------------
+    function spawnPickup(x, y, kind = 'heal') {
+      state.pickups.push({
+        x, y,
+        radius: 12,
+        kind,
+        pulse: 0
+      });
+    }
+
+    function drawPickups(ctx) {
+      for (const p of state.pickups) {
+        p.pulse += 0.06;
+        const rad = 12 + Math.sin(p.pulse) * 1.5;
+        const grad = ctx.createRadialGradient(p.x - 3, p.y - 3, 2, p.x, p.y, rad);
+        grad.addColorStop(0, '#fff');
+        grad.addColorStop(1, p.kind === 'heal' ? '#35e073' : '#ffd86b');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, rad, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function checkPickupCollisions() {
+      for (let i = state.pickups.length - 1; i >= 0; i--) {
+        const p = state.pickups[i];
+        if (dist(p.x, p.y, state.player.x, state.player.y) < (p.radius + state.player.radius)) {
+          if (p.kind === 'heal') {
+            state.player.hp = clamp(state.player.hp + 25, 0, state.player.maxHp);
+          } else {
+            // ult charge
+            state.player.lastUlt -= 2500; // 게이지 크게 증가
+          }
+          spawnExplosion(p.x, p.y, 18, p.kind === 'heal' ? '#35e073' : '#ffd86b');
+          state.pickups.splice(i, 1);
+        }
+      }
+    }
+
+    // 충돌 --------------------------------------------------------
+    function handleCollisions() {
+      // 총알 vs 적/플레이어
+      for (let i = state.bullets.length - 1; i >= 0; i--) {
+        const b = state.bullets[i];
+        // 플레이어가 쏜 총알: 적 체크
+        if (!b.fromEnemy) {
+          for (let j = state.enemies.length - 1; j >= 0; j--) {
+            const e = state.enemies[j];
+            if (!e.alive) continue;
+            if (dist(b.x, b.y, e.x, e.y) < (b.radius + e.radius)) {
+              e.damage(12);
+              state.bullets.splice(i, 1);
+              if (!e.alive) {
+                state.score += 10;
+                if (Math.random() < 0.2) spawnPickup(e.x, e.y, Math.random() < 0.6 ? 'heal' : 'ult');
+              }
+              break;
+            }
+          }
+        } else {
+          // 적 총알: 플레이어 체크
+          if (dist(b.x, b.y, state.player.x, state.player.y) < (b.radius + state.player.radius)) {
+            state.player.damage(10);
+            state.bullets.splice(i, 1);
+            if (!state.player.alive) {
+              gameOver();
+              return;
+            }
+          }
+        }
+      }
+
+      // 적 vs 플레이어(접촉 데미지)
+      for (const e of state.enemies) {
+        if (!e.alive) continue;
+        if (dist(e.x, e.y, state.player.x, state.player.y) < (e.radius + state.player.radius - 4)) {
+          state.player.damage(0.35);
+          if (!state.player.alive) {
+            gameOver();
+            return;
+          }
+        }
+      }
+    }
+
+    // 적 스폰 -----------------------------------------------------
+    const spawner = {
+      nextSpawn: 0,
+      baseInterval: 1600,
+      update() {
+        const t = now();
+        const difficultyFactor = 1 + state.elapsedMs / 60000;
+        const interval = this.baseInterval / difficultyFactor;
+        if (t > this.nextSpawn) {
+          this.nextSpawn = t + interval;
+          const edge = randInt(0, 3);
+          let x = 0, y = 0;
+          switch (edge) {
+            case 0: x = rand(0, world.width); y = 10; break;
+            case 1: x = rand(0, world.width); y = world.height - 10; break;
+            case 2: x = 10; y = rand(0, world.height); break;
+            case 3: x = world.width - 10; y = rand(0, world.height); break;
+          }
+          state.enemies.push(new Enemy(x, y));
+        }
+      }
+    };
+
+    // 게임 루프 ---------------------------------------------------
+    function update(dtMs) {
+      const dt = dtMs; // ms 기준
+      state.elapsedMs += dtMs;
+
+      // 타이머 UI
+      const sec = Math.floor(state.elapsedMs / 1000);
+      const mm = String(Math.floor(sec / 60)).padStart(2, '0');
+      const ss = String(sec % 60).padStart(2, '0');
+      state.ui.timeBadge.textContent = `${mm}:${ss}`;
+
+      // 입력 처리된 이동/조준 기반 업데이트
+      state.player.update(dtMs);
+
+      // 총알 업데이트 및 제거
+      for (let i = state.bullets.length - 1; i >= 0; i--) {
+        const b = state.bullets[i];
+        b.update(dtMs);
+        if (!b.isAlive()) state.bullets.splice(i, 1);
+      }
+
+      // 적 업데이트
+      for (const e of state.enemies) e.update(dtMs);
+
+      // 충돌 처리
+      handleCollisions();
+
+      // 스폰
+      spawner.update();
+
+      // 파티클
+      updateParticles(dtMs);
+
+      // 픽업 충돌
+      checkPickupCollisions();
+
+      // 카메라 쉐이크 시간 감소
+      state.camera.shakeT = Math.max(0, state.camera.shakeT - dtMs / 1000);
+    }
+
+    function render() {
+      // 전체 클리어
+      ctx.fillStyle = '#0e0f12';
+      ctx.fillRect(0, 0, state.width, state.height);
+
+      // 월드
+      applyCamera();
+      world.draw(ctx);
+
+      // 픽업
+      drawPickups(ctx);
+
+      // 적
+      for (const e of state.enemies) e.draw(ctx);
+
+      // 총알
+      for (const b of state.bullets) b.draw(ctx);
+
+      // 파티클
+      drawParticles(ctx);
+
+      // 플레이어
+      state.player.draw(ctx);
+
+      restoreCamera();
+
+      // 점수 UI
+      state.ui.scoreBadge.textContent = `점수: ${state.score}`;
+
+      // 디버그
+      state.ui.debug.textContent =
+        `FPS: ${fps.current.toFixed(0)} | 적: ${state.enemies.length} | 총알: ${state.bullets.length} | 파티클: ${state.particles.length}`;
+    }
+
+    function loop(ts) {
+      const current = ts || now();
+      const dt = current - state.lastTime;
+      state.lastTime = current;
+
+      // FPS 계산
+      fps.update(dt);
+
+      // 고정 스텝
+      state.accumulator += dt;
+      while (state.accumulator >= state.fixedStep) {
+        update(state.fixedStep);
+        state.accumulator -= state.fixedStep;
+      }
+
+      render();
+
+      if (state.running) requestAnimationFrame(loop);
+    }
+
+    const fps = {
+      samples: [],
+      current: 60,
+      update(dt) {
+        const f = 1000 / dt;
+        this.samples.push(f);
+        if (this.samples.length > 20) this.samples.shift();
+        this.current = this.samples.reduce((a, b) => a + b, 0) / this.samples.length;
+      }
+    };
+
+    // 게임 시작/리셋 ----------------------------------------------
+    function startGame() {
+      state.running = true;
+      state.score = 0;
+      state.elapsedMs = 0;
+      state.bullets.length = 0;
+      state.enemies.length = 0;
+      state.particles.length = 0;
+      state.pickups.length = 0;
+      state.camera.x = world.width / 2 - state.width / 2;
+      state.camera.y = world.height / 2 - state.height / 2;
+      state.player = new Player(world.width / 2, world.height / 2);
+      spawnPickup(state.player.x + 60, state.player.y, 'heal');
+      spawnPickup(state.player.x - 60, state.player.y, 'ult');
+      state.ui.centerBanner.textContent = '전투 시작!';
+      requestAnimationFrame(loop);
+    }
+
+    function gameOver() {
+      state.running = false;
+      state.ui.centerBanner.textContent = `게임 종료 | 점수: ${state.score}`;
+      showMenu();
+    }
+
+    // 입력: 조이스틱 ----------------------------------------------
+    function attachJoystick(joystickEl, stickEl, target) {
+      const rect = () => joystickEl.getBoundingClientRect();
+      let activeId = null;
+
+      function setStick(dx, dy) {
+        const r = rect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
+        const max = r.width / 2 - stickEl.offsetWidth / 2;
+        const len = Math.hypot(dx, dy);
+        const cl = Math.min(len, max);
+        const nx = dx / (len || 1);
+        const ny = dy / (len || 1);
+        stickEl.style.transform = `translate(${nx * cl - 50}%, ${ny * cl - 50}%)`;
+        target.rawX = nx * (len / max);
+        target.rawY = ny * (len / max);
+        target.x = clamp(target.rawX, -1, 1);
+        target.y = clamp(target.rawY, -1, 1);
+      }
+
+      function resetStick() {
+        stickEl.style.transform = 'translate(-50%, -50%)';
+        target.x = 0; target.y = 0;
+        target.rawX = 0; target.rawY = 0;
+        target.active = false;
+      }
+
+      function onDown(e) {
+        const t = e.changedTouches ? e.changedTouches[0] : e;
+        const r = rect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
+        const dx = t.clientX - cx;
+        const dy = t.clientY - cy;
+        activeId = t.identifier ?? 'mouse';
+        target.active = true;
+        setStick(dx, dy);
+      }
+      function onMove(e) {
+        const tList = e.changedTouches ? Array.from(e.changedTouches) : [e];
+        for (const t of tList) {
+          if ((t.identifier ?? 'mouse') === activeId) {
+            const r = rect();
+            const cx = r.left + r.width / 2;
+            const cy = r.top + r.height / 2;
+            const dx = t.clientX - cx;
+            const dy = t.clientY - cy;
+            setStick(dx, dy);
+          }
+        }
+      }
+      function onUp(e) {
+        const tList = e.changedTouches ? Array.from(e.changedTouches) : [e];
+        for (const t of tList) {
+          if ((t.identifier ?? 'mouse') === activeId) {
+            activeId = null;
+            resetStick();
+          }
+        }
+      }
+
+      joystickEl.addEventListener('touchstart', onDown, { passive: true });
+      joystickEl.addEventListener('touchmove', onMove, { passive: true });
+      joystickEl.addEventListener('touchend', onUp, { passive: true });
+      joystickEl.addEventListener('touchcancel', onUp, { passive: true });
+
+      joystickEl.addEventListener('mousedown', onDown);
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onUp);
+    }
+
+    // 버튼 입력 ---------------------------------------------------
+    const attackBtn = document.getElementById('attack-btn');
+    const ultBtn = document.getElementById('ult-btn');
+
+    function attachButtonHold(btn, onChange) {
+      let active = false;
+      function set(val) {
+        if (active === val) return;
+        active = val;
+        onChange(active);
+        btn.style.transform = val ? 'scale(0.96)' : 'scale(1)';
+        btn.style.filter = val ? 'brightness(1.08)' : 'none';
+      }
+      btn.addEventListener('touchstart', () => set(true), { passive: true });
+      btn.addEventListener('touchend', () => set(false), { passive: true });
+      btn.addEventListener('touchcancel', () => set(false), { passive: true });
+      btn.addEventListener('mousedown', () => set(true));
+      btn.addEventListener('mouseup', () => set(false));
+      btn.addEventListener('mouseleave', () => set(false));
+    }
+
+    attachButtonHold(attackBtn, v => state.inputs.attack = v);
+    attachButtonHold(ultBtn, v => state.inputs.ult = v);
+
+    // 조이스틱 연결 ----------------------------------------------
+    const moveJoy = document.getElementById('move-joystick');
+    const moveStick = document.getElementById('move-stick');
+    const aimJoy = document.getElementById('aim-joystick');
+    const aimStick = document.getElementById('aim-stick');
+
+    attachJoystick(moveJoy, moveStick, state.inputs.move);
+    attachJoystick(aimJoy, aimStick, state.inputs.aim);
+
+    // 메뉴/설정 ---------------------------------------------------
+    const menu = document.getElementById('menu-overlay');
+    const resumeBtn = document.getElementById('resumeBtn');
+    const startBtn = document.getElementById('startBtn');
+    const toggleShadows = document.getElementById('toggleShadows');
+    const toggleParticles = document.getElementById('toggleParticles');
+    const qualitySelect = document.getElementById('qualitySelect');
+    const volumeMaster = document.getElementById('volumeMaster');
+    const volumeSFX = document.getElementById('volumeSFX');
+    const modeRadios = Array.from(document.querySelectorAll('input[name="mode"]'));
+    const autoShoot = document.getElementById('autoShoot');
+    const deadzoneRange = document.getElementById('deadzoneRange');
+
+    function showMenu() {
+      menu.style.display = 'flex';
+    }
+    function hideMenu() {
+      menu.style.display = 'none';
+    }
+    resumeBtn.addEventListener('click', () => {
+      hideMenu();
+      if (!state.running && state.player?.alive) {
+        state.running = true;
+        state.lastTime = now();
+        requestAnimationFrame(loop);
+      }
+    });
+
+    startBtn.addEventListener('click', () => {
+      hideMenu();
+      startGame();
+    });
+
+    toggleShadows.addEventListener('change', () => {
+      state.config.useShadows = toggleShadows.checked;
+    });
+    toggleParticles.addEventListener('change', () => {
+      state.config.useParticles = toggleParticles.checked;
+    });
+    qualitySelect.addEventListener('change', () => {
+      state.config.quality = qualitySelect.value;
+    });
+    volumeMaster.addEventListener('input', () => {
+      state.config.audio.master = parseFloat(volumeMaster.value);
+    });
+    volumeSFX.addEventListener('input', () => {
+      state.config.audio.sfx = parseFloat(volumeSFX.value);
+    });
+    modeRadios.forEach(r => r.addEventListener('change', () => {
+      if (r.checked) state.mode = r.value;
+    }));
+    autoShoot.addEventListener('change', () => {
+      state.config.autoShoot = autoShoot.value === 'on';
+    });
+    deadzoneRange.addEventListener('input', () => {
+      state.config.deadzone = parseFloat(deadzoneRange.value);
+    });
+
+    // 일시정지: 두 손가락 탭 또는 키보드 ESC
+    let twoTapTime = 0;
+    window.addEventListener('touchstart', (e) => {
+      if (e.touches.length >= 2) {
+        const t = now();
+        if (t - twoTapTime < 500) {
+          // 빠른 두 손가락 탭 -> 토글
+          if (menu.style.display === 'none') showMenu(); else hideMenu();
+        }
+        twoTapTime = t;
+      }
+    }, { passive: true });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (menu.style.display === 'none') showMenu(); else hideMenu();
+      }
+    });
+
+    // 초기 진입: 메뉴 표시
+    showMenu();
+
+    // 페이지 가시성 변경 시 일시정지
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        state.running = false;
+      } else if (menu.style.display === 'none' && state.player?.alive) {
+        state.running = true;
+        state.lastTime = now();
+        requestAnimationFrame(loop);
+      }
+    });
+
+    // 안전한 언마운트 처리
+    window.addEventListener('beforeunload', () => {
+      state.running = false;
+    });
+  </script>
+</body>
+</html>
