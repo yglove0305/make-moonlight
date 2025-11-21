@@ -934,15 +934,15 @@
 
     <section class="intro" aria-labelledby="intro-title" style="margin-top:26px;">
       <div class="lead" id="intro-title">
-        <strong class="badge" style="background: linear-gradient(90deg,#ffd86b,#ff8a8a); color:#081827;">✨ 새 버전 v.2.2</strong>
+        <strong class="badge" style="background: linear-gradient(90deg,#ffd86b,#ff8a8a); color:#081827;">✨ 새 버전 v.2.3</strong>
         <p style="margin-top:10px; color:var(--muted);">
-          디자인을 완전히 밤하늘 테마로 교체했습니다. 자바스크립트는 보안과 접근성을 고려해 업데이트되었습니다.
+          속도 를 빠르게 개선하였습니다.
         </p>
       </div>
       <div class="lead" aria-hidden="false" style="margin-top:10px;">
         <strong class="badge" style="background: linear-gradient(90deg,#7c4dff,#66e0ff); color:#04102b;">알림🔔</strong>
         <p style="margin-top:10px; color:var(--muted);">
-          앞으로 게임 추가는 릴리스에서 개별적으로 제외하거나 별도 섹션으로 관리됩니다.
+          렉이 걸릴수 있습니다.
         </p>
       </div>
     </section>
@@ -957,8 +957,76 @@
 
   <!-- JavaScript: 스타 필드 생성 + 달 페이즈 제어 + 테마 토글 + 링크 보완 -->
   <script>
-  // 버전 로그
-  console.log('%c달빛도구 v.2.1 — 달빛 테마 적용', 'font-size: 22px; font-weight: bold; color: #9bb0ff;');
+
+// 최적화된 starfield 생성 코드
+
+(function () {
+  "use strict";
+
+  // DOM 캐싱
+  const starBack = document.getElementById('star-back');
+  const starMid = document.getElementById('star-mid');
+  const starFront = document.getElementById('star-front');
+  const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // 빠른 렌더링을 위한 DocumentFragment 사용
+  function populateLayerOptimized(container, count, sizeRange, twinkleChance) {
+    if (!container) return;
+    // 미리 비우고
+    while (container.firstChild) container.removeChild(container.firstChild);
+
+    // DocumentFragment로 직접 추가
+    const frag = document.createDocumentFragment();
+
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('span');
+      el.className = 'star';
+      const size = sizeRange[0] + Math.random() * (sizeRange[1] - sizeRange[0]);
+      el.style.width = size + 'px';
+      el.style.height = size + 'px';
+      el.style.left = (Math.random() * 100) + '%';
+      el.style.top = (Math.random() * 100) + '%';
+      el.style.opacity = (0.25 + Math.random() * 0.6).toFixed(2);
+      if (!prefersReduced && Math.random() < twinkleChance) {
+        el.classList.add('twinkle');
+        el.style.animationDelay = (Math.random() * 4) + 's';
+        el.style.animationDuration = (3 + Math.random() * 3) + 's';
+      }
+      frag.appendChild(el);
+    }
+    // 한번에 DOM에 추가
+    container.appendChild(frag);
+  }
+
+  // 스타 개수를 무작정 늘리지 않고, 반응형으로 조절
+  function getStarCounts() {
+    const w = window.innerWidth, h = window.innerHeight;
+    // 화면 크기에 따라 별 개수 자동 조절 (너무 많으면 렉)
+    if (w * h < 400_000) return [22, 32, 20]; // 모바일
+    if (w * h < 1_000_000) return [32, 40, 30]; // 태블릿
+    return [40, 50, 40]; // 데스크탑
+  }
+
+  function renderAllStars() {
+    const [back, mid, front] = getStarCounts();
+    // 최대 200개 이내로 유지
+    populateLayerOptimized(starBack, back, [1, 2], 0);         // 뒷별 twinkle OFF
+    populateLayerOptimized(starMid, mid, [1, 2.2], 0.1);       // 중간 별
+    populateLayerOptimized(starFront, front, [1.6, 3], 0.25);  // 앞별
+  }
+
+  // 최초 생성
+  renderAllStars();
+
+  // 리사이즈마다 (성능 과다낭비 막기: 200ms debounce)
+  let resizeTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(renderAllStars, 200);
+  });
+})();
+// 버전 로그
+  console.log('%c달빛도구 v.2.3', 'font-size: 22px; font-weight: bold; color: #9bb0ff;');
   console.log('콘솔 사용시 발생하는 피해는 책임지지 않습니다.');
 
   (function () {
