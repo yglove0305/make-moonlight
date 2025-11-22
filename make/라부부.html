@@ -2,940 +2,1173 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>라부부 뽑기 — 모바일/PC 전체화면 맞춤 + 스크롤 잠금</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>라부부 뽑기 시뮬레이터</title>
   <style>
-    /* ========== 기본 테마 변수 ========== */
+    /* =========================
+       라부부 뽑기 시뮬레이터 스타일
+       ========================= */
     :root{
-      --vh: 1vh; /* JS로 실제 viewport 높이에 맞게 갱신됨 */
-      --bg:#0f1220;
-      --panel:#171a2d;
-      --accent:#7aa2ff;
-      --accent2:#ff77e1;
-      --text:#eaf0ff;
-      --muted:#9aa8c7;
-      --success:#59f2a1;
-      --warn:#ffd36a;
-      --danger:#ff6b6b;
-      --legendary:#ffae00;
-      --rainbow:linear-gradient(90deg,#ff4d4d,#ffa64d,#fffb4d,#70ff4d,#4dbeff,#9a4dff,#ff4df0);
-      --glass: rgba(255,255,255,0.06);
-      --glass-border: rgba(255,255,255,0.12);
+      --bg: #0b0f1a;
+      --panel: #131a2a;
+      --panel-2: #0e1422;
+      --text: #e8ecf3;
+      --muted: #9aa8c7;
+      --accent: #5cc8ff;
+      --accent-2: #89f0c5;
+      --border: #223052;
+
+      /* Rarity Colors */
+      --common: #b7c3d7;     /* 일반 */
+      --rare: #4fa3ff;       /* 레어 */
+      --rainbow: #ff8af5;    /* 레인보우 */
+      --legendary: #ffb84a;  /* 전설 */
+      --mythic: #d44aff;     /* 신화 */
+      --hero: #6ef5a4;       /* 영웅 */
+      --secret: #ff5566;     /* 시크릿 */
+
+      /* Glow Shadows (soft) */
+      --glow-common: 0 0 12px rgba(183,195,215,0.35);
+      --glow-rare: 0 0 14px rgba(79,163,255,0.45);
+      --glow-rainbow: 0 0 16px rgba(255,138,245,0.45);
+      --glow-legendary: 0 0 18px rgba(255,184,74,0.5);
+      --glow-mythic: 0 0 18px rgba(212,74,255,0.5);
+      --glow-hero: 0 0 16px rgba(110,245,164,0.5);
+      --glow-secret: 0 0 22px rgba(255,85,102,0.65);
+
+      --ok: #89f0c5;
+      --warn: #ffd27a;
+      --error: #ff6b6b;
     }
 
-    * { box-sizing:border-box; }
-    html, body {
+    *{ box-sizing: border-box; }
+    html, body{
       margin:0; padding:0;
-      height:100%;
-      background:
-        radial-gradient(1000px 600px at 80% 20%, #131735 0%, #0b0d1b 40%, #070814 100%),
-        var(--bg);
-      color:var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR",
-                   Apple SD Gothic Neo, "Malgun Gothic", sans-serif;
-      /* 화면 스크롤 잠금 */
-      overflow:hidden;
-      overscroll-behavior: none;
-      touch-action: manipulation;
-      -webkit-text-size-adjust: 100%;
+      background: radial-gradient(1200px 700px at 70% -20%, #17233d 0%, var(--bg) 55%, #080c15 100%);
+      color: var(--text);
+      font-family: "Pretendard", system-ui, -apple-system, Segoe UI, Roboto, Noto Sans KR, Helvetica, Arial, sans-serif;
+      min-height: 100%;
     }
 
-    /* ========== 전체 앱: 정확히 한 화면에 맞춤 ========== */
-    .viewport {
-      position:fixed; /* 브라우저 UI 변화에도 흔들리지 않게 고정 */
-      top:0; left:0; right:0; bottom:0;
-      width:100vw;
-      height: calc(var(--vh) * 100); /* 모바일에서 안전하게 정확히 화면 채우기 */
+    a{ color: var(--accent); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    .wrap{
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    header{
+      display:flex;
+      align-items: center;
+      justify-content: space-between;
+      gap:16px;
+      margin-bottom: 22px;
+    }
+
+    .title{
       display:flex;
       align-items:center;
-      justify-content:center;
+      gap:14px;
     }
-
-    .app {
-      width:100%;
-      max-width:1200px;
-      height:100%;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:flex-start;
-      gap:12px;
-      padding:16px;
+    .logo{
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #4fa3ff, #ff8af5 55%, #ffd27a 100%);
+      box-shadow: 0 6px 20px rgba(79,163,255,0.25), 0 0 40px rgba(255,138,245,0.25);
     }
-
-    header {
-      width:100%;
-      text-align:center;
-      padding:4px 12px 8px;
-    }
-    header h1 {
+    h1{
+      font-size: 24px;
       margin:0;
-      font-size:1.85rem;
-      letter-spacing:0.5px;
-      background: linear-gradient(90deg, #b3c7ff, #ffd6f6);
-      -webkit-background-clip:text;
-      background-clip:text;
-      color:transparent;
-      text-shadow: 0 0 20px rgba(255,255,255,0.07);
-      line-height:1.2;
+      letter-spacing:0.2px;
     }
-    header p {
-      margin:6px 0 0;
-      color:var(--muted);
-      font-size:0.95rem;
+    .subtitle{
+      color: var(--muted);
+      font-size: 14px;
     }
 
-    /* ========== 메인 패널: 한 화면 내에서만 레이아웃 구성 ========== */
-    .panel {
-      width:100%;
-      flex:1 1 auto; /* 헤더 제외 나머지 높이 채움 */
-      display:grid;
-      grid-template-columns: minmax(300px, 460px) 1fr;
-      grid-auto-rows: 1fr;
-      gap:12px;
-      background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-      border:1px solid rgba(255,255,255,0.08);
-      border-radius:14px;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 18px 42px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
-      padding:12px;
-      min-height: 0; /* 내부 스크롤 방지 레이아웃용 */
+    .panel{
+      background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
     }
 
-    .left, .right {
-      min-width:0; min-height:0; /* 자식 내부 컨텐츠가 패널을 넘어서지 않도록 */
-      display:flex;
-      flex-direction:column;
-      gap:10px;
+    .grid{
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 16px;
     }
-
-    /* ========== 얼굴 이미지 컨테이너: 정사각, 화면에 맞춤 ========== */
-    .image-wrap {
-      position:relative;
-      width:100%;
-      aspect-ratio: 1 / 1; /* 정사각 유지 */
-      max-width:460px;
-      border-radius:16px;
-      overflow:hidden;
-      background:
-        radial-gradient(120px 140px at 20% 30%, rgba(122,162,255,0.15), transparent 70%),
-        var(--panel);
-      border:1px solid rgba(122,162,255,0.25);
-      box-shadow: inset 0 0 22px rgba(122,162,255,0.15), 0 15px 45px rgba(0,0,0,0.4);
-      align-self:center; /* 좌측 칼럼 가운데 정렬 */
-    }
-
-    .face-img {
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      object-fit: contain; /* 잘리지 않고 화면에 맞춤 */
-      object-position: center;
-      transition: transform 0.25s ease, filter 0.25s ease;
-      user-select:none;
-      -webkit-user-drag: none;
-      pointer-events:auto; /* 이미지 클릭으로 뽑기 시작 */
-    }
-
-    .fx-canvas {
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      pointer-events:none;
-    }
-
-    .button-row {
-      display:flex;
-      gap:10px;
-      width:100%;
-      justify-content:center;
-      flex-wrap:wrap;
-    }
-
-    /* ========== 버튼들 ========== */
-    .btn {
-      position:relative;
-      appearance:none;
-      border:none;
-      outline:none;
-      cursor:pointer;
-      padding:12px 18px;
-      border-radius:12px;
-      font-weight:700;
-      color:#0b0d1b;
-      background:linear-gradient(180deg, #87a8ff, #6787ff);
-      box-shadow: 0 10px 24px rgba(122,162,255,0.35), inset 0 1px 0 rgba(255,255,255,0.35);
-      transition:transform 0.12s ease, box-shadow 0.2s ease, filter 0.2s ease;
-      touch-action: manipulation;
-    }
-    .btn:hover { transform: translateY(-2px); filter:brightness(1.06); }
-    .btn:active { transform: translateY(0); box-shadow: 0 6px 16px rgba(122,162,255,0.3); }
-
-    .btn-secondary {
-      background:linear-gradient(180deg, #ffd36a, #ffb03a);
-      box-shadow: 0 10px 24px rgba(255,179,58,0.3), inset 0 1px 0 rgba(255,255,255,0.35);
-    }
-
-    .btn-ghost {
-      color:var(--text);
-      background:transparent;
-      border:1px solid rgba(255,255,255,0.18);
-      box-shadow:none;
-    }
-
-    /* ========== 카드/정보 영역: 높이 제약 ========== */
-    .card {
-      background: rgba(255,255,255,0.03);
-      border:1px solid rgba(255,255,255,0.08);
-      border-radius:12px;
-      padding:10px;
-      min-height:0; /* 내부 스크롤 방지 레이아웃용 */
-    }
-
-    .card h3 {
-      margin:0 0 6px;
-      font-size:1.02rem;
-      color:#dbe6ff;
-    }
-    .card p {
-      margin:0;
-      color:var(--muted);
-      font-size:0.93rem;
-    }
-
-    .stats {
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-      min-height:0;
-    }
-
-    /* ========== 확률 리스트 ========== */
-    .rarity-list {
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      margin-top:6px;
-      max-height:140px;
-      overflow:auto; /* 페이지가 스크롤되지 않도록 내부만 스크롤 허용 */
-      padding-right:4px;
-    }
-    .rarity-list::-webkit-scrollbar { width:8px; }
-    .rarity-list::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.15);
-      border-radius:999px;
-    }
-
-    .rarity-item {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:10px;
-      border-radius:10px;
-      background: rgba(255,255,255,0.04);
-      border:1px solid rgba(255,255,255,0.08);
-    }
-    .rarity-item .label {
-      display:flex;
-      align-items:center;
-      gap:8px;
-      font-weight:700;
-    }
-    .dot {
-      width:10px; height:10px; border-radius:50%;
-      box-shadow:0 0 14px rgba(255,255,255,0.35);
-      flex:0 0 auto;
-    }
-    .c-common { background:#cfd7f6; }
-    .c-rare   { background:#87a8ff; }
-    .c-rainbow{ background: linear-gradient(90deg,#ff4d4d,#ffa64d,#fffb4d,#70ff4d,#4dbeff,#9a4dff,#ff4df0); }
-    .c-legend { background:#ffae00; }
-    .c-myth   { background:#58d7ff; }
-    .c-hero   { background:#59f2a1; }
-    .c-secret { background:#f23fb5; }
-
-    .legend {
-      display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; font-size:0.88rem; color:var(--muted);
-    }
-
-    /* ========== 결과 카드 ========== */
-    .result {
-      margin-top:4px;
-      background: rgba(255,255,255,0.03);
-      border:1px solid rgba(255,255,255,0.08);
-      border-radius:12px;
-      padding:10px;
-    }
-    .result-main {
-      display:flex; align-items:center; gap:12px;
-    }
-    .result-title {
-      font-size:1.18rem; font-weight:800; letter-spacing:0.2px;
-    }
-    .result-sub {
-      color:var(--muted); font-size:0.93rem;
-    }
-    .badge {
-      padding:6px 10px;
-      border-radius:999px;
-      font-weight:800;
-      color:#0b0d1b;
-      background:#cfe0ff;
-      border:1px solid rgba(255,255,255,0.65);
-      white-space:nowrap;
-    }
-    .badge.rainbow {
-      background-image: var(--rainbow);
-      color:#101010;
-      text-shadow: 0 1px 0 rgba(255,255,255,0.45);
-      border:1px solid rgba(255,255,255,0.65);
-    }
-    .badge.legendary { background: linear-gradient(180deg, #ffd36a, #ffae00); }
-    .badge.myth { background: linear-gradient(180deg, #a5f5ff, #58d7ff); }
-    .badge.hero { background: linear-gradient(180deg, #caffc7, #59f2a1); }
-    .badge.secret { background: linear-gradient(180deg, #ff77e1, #f23fb5); color:#1b0b15; }
-
-    /* ========== 기록 리스트: 내부만 스크롤 허용 ========== */
-    .history {
-      margin-top:6px;
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:6px;
-      max-height:160px;
-      overflow:auto; /* 페이지는 스크롤 X, 기록만 스크롤 O */
-      padding-right:4px;
-    }
-    .history::-webkit-scrollbar { width:8px; }
-    .history::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.15);
-      border-radius:999px;
-    }
-    .history-item {
-      display:flex; align-items:center; justify-content:space-between;
-      gap:10px; padding:8px 10px; border-radius:10px;
-      background: rgba(255,255,255,0.03);
-      border:1px solid rgba(255,255,255,0.08);
-      font-size:0.93rem;
-    }
-    .history-item .time {
-      color:var(--muted);
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* ========== 운세 게이지 ========== */
-    .meter-wrap { margin-top:6px; display:grid; gap:6px; }
-    .meter {
-      --v: 0%;
-      position:relative;
-      height:10px;
-      border-radius:999px;
-      background: rgba(255,255,255,0.08);
-      overflow:hidden;
-      border:1px solid rgba(255,255,255,0.12);
-    }
-    .meter::after {
-      content:"";
-      position:absolute; top:0; left:0; height:100%;
-      width:var(--v);
-      background:linear-gradient(90deg, #87a8ff, #ff77e1);
-      box-shadow: 0 0 18px rgba(255,255,255,0.25);
-    }
-    .footer-note {
-      text-align:center; color:var(--muted); font-size:0.88rem; margin-top:4px;
-    }
-
-    /* ========== 오버레이/컨페티 ========== */
-    .overlay {
-      position:fixed; inset:0; pointer-events:none;
-    }
-    .confetti {
-      position:absolute;
-      width:8px; height:14px;
-      opacity:0;
-      transform: translate3d(0,-40px,0) rotate(0deg);
-      border-radius:2px;
-    }
-
-    /* ========== 반짝이 텍스트 ========== */
-    .spark {
-      background: linear-gradient(90deg, #fff, #ffd36a, #ff77e1, #87a8ff, #fff);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color:transparent;
-      animation: shine 5s linear infinite;
-    }
-    @keyframes shine {
-      0% { filter: drop-shadow(0 0 0 rgba(255,255,255,0.0)); }
-      50% { filter: drop-shadow(0 0 12px rgba(255,255,255,0.15)); }
-      100%{ filter: drop-shadow(0 0 0 rgba(255,255,255,0.0)); }
-    }
-
-    /* ========== 로딩 스피너 ========== */
-    .spinner {
-      width: 24px; height: 24px;
-      border-radius:50%;
-      border: 3px solid rgba(255,255,255,0.18);
-      border-top-color: #87a8ff;
-      animation: spin 0.9s linear infinite;
-      flex:0 0 auto;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* ========== 얼굴 등장/펄스 ========== */
-    .face-pop {
-      animation: facePop 650ms ease;
-    }
-    @keyframes facePop {
-      0% { transform: scale(0.92); filter:brightness(0.9); }
-      60%{ transform: scale(1.03); filter:brightness(1.08); }
-      100%{ transform: scale(1.0); filter:brightness(1.0); }
-    }
-    .pulse {
-      animation: pulse 1.6s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%,100% { transform: scale(1); filter: brightness(1); }
-      50%     { transform: scale(1.06); filter: brightness(1.08); }
-    }
-
-    .hidden { display:none !important; }
-
-    /* ========== 모바일 최적화 ========== */
-    @media (max-width: 920px){
-      .panel {
+    @media (max-width: 960px){
+      .grid{
         grid-template-columns: 1fr;
       }
-      header h1 { font-size:1.6rem; }
-      header p { font-size:0.9rem; }
-      .rarity-list { max-height:120px; }
-      .history { max-height:160px; }
-      .image-wrap { max-width: 100%; }
-    }
-    @media (max-width: 560px){
-      .app { padding:12px; gap:10px; }
-      .panel { padding:10px; gap:10px; }
-      .button-row { gap:8px; }
-      .btn { padding:10px 14px; font-size:0.95rem; }
-      .result-title { font-size:1.1rem; }
-      .result-sub { font-size:0.9rem; }
     }
 
-    /* iOS 브라우저 바로 인한 100vh 버그 보정: 안전 영역 */
-    @supports (padding: max(0px)) {
-      .viewport {
-        padding-bottom: env(safe-area-inset-bottom);
-        padding-top: env(safe-area-inset-top);
-        padding-left: env(safe-area-inset-left);
-        padding-right: env(safe-area-inset-right);
+    .controls{
+      display:flex; flex-wrap:wrap; gap:10px;
+      margin-top: 8px;
+    }
+
+    button{
+      background: linear-gradient(180deg, #1b2440 0%, #141c34 100%);
+      border: 1px solid #314066;
+      color: var(--text);
+      padding: 12px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
+      font-weight: 600;
+    }
+    button:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(20, 32, 65, .35);
+    }
+    button:active{
+      transform: translateY(0);
+    }
+    .btn-primary{
+      background: linear-gradient(180deg, #2a3965 0%, #233056 100%);
+      border-color: #3c5082;
+    }
+    .btn-danger{
+      background: linear-gradient(180deg, #3a2230 0%, #2a1826 100%);
+      border-color: #6b3554;
+    }
+    .btn-success{
+      background: linear-gradient(180deg, #214336 0%, #183328 100%);
+      border-color: #2e6a52;
+    }
+    .btn-ghost{
+      background: transparent;
+      border: 1px dashed #3a4b72;
+    }
+
+    .bar{
+      height: 8px;
+      border-radius: 999px;
+      background: #10192f;
+      border: 1px solid #273a66;
+      overflow: hidden;
+    }
+    .bar > span{
+      display:block;
+      height: 100%;
+      background: linear-gradient(90deg, #4fa3ff, #89f0c5 60%, #ffd27a 100%);
+      width: 0%;
+      transition: width .4s ease;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .stat{
+      background: #0f1628;
+      border: 1px solid #202d50;
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .stat .label{
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .stat .value{
+      font-size: 16px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .flex{
+      display:flex;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .notice{
+      font-size: 13px;
+      color: var(--muted);
+      margin-top:6px;
+    }
+
+    /* Rarity badges */
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      background: #0e1527;
+    }
+    .badge .dot{
+      width:8px; height:8px; border-radius:999px;
+    }
+    .badge.common{ color: var(--common); border-color: rgba(183,195,215,0.35); box-shadow: var(--glow-common); }
+    .badge.common .dot{ background: var(--common); }
+
+    .badge.rare{ color: var(--rare); border-color: rgba(79,163,255,0.4); box-shadow: var(--glow-rare); }
+    .badge.rare .dot{ background: var(--rare); }
+
+    .badge.rainbow{ color: var(--rainbow); border-color: rgba(255,138,245,0.4); box-shadow: var(--glow-rainbow); }
+    .badge.rainbow .dot{ background: var(--rainbow); }
+
+    .badge.legendary{ color: var(--legendary); border-color: rgba(255,184,74,0.45); box-shadow: var(--glow-legendary); }
+    .badge.legendary .dot{ background: var(--legendary); }
+
+    .badge.mythic{ color: var(--mythic); border-color: rgba(212,74,255,0.45); box-shadow: var(--glow-mythic); }
+    .badge.mythic .dot{ background: var(--mythic); }
+
+    .badge.hero{ color: var(--hero); border-color: rgba(110,245,164,0.45); box-shadow: var(--glow-hero); }
+    .badge.hero .dot{ background: var(--hero); }
+
+    .badge.secret{ color: var(--secret); border-color: rgba(255,85,102,0.55); box-shadow: var(--glow-secret); }
+    .badge.secret .dot{ background: var(--secret); }
+
+    /* Result cards */
+    .results{
+      display:grid;
+      grid-template-columns: repeat(5,1fr);
+      gap: 12px;
+    }
+    @media (max-width: 1200px){
+      .results{
+        grid-template-columns: repeat(4,1fr);
       }
+    }
+    @media (max-width: 900px){
+      .results{
+        grid-template-columns: repeat(3,1fr);
+      }
+    }
+    @media (max-width: 660px){
+      .results{
+        grid-template-columns: repeat(2,1fr);
+      }
+    }
+
+    .card{
+      position: relative;
+      overflow: hidden;
+      background: #0f1729;
+      border: 1px solid #213056;
+      border-radius: 16px;
+      min-height: 120px;
+      padding: 12px;
+      transition: transform .16s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .card:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(16, 24, 50, .45);
+      border-color: #3a4b7a;
+    }
+    .card .title{
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .card .rarity{
+      position:absolute;
+      right: 10px; top: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      opacity: .85;
+    }
+    .card .footer{
+      position: absolute;
+      left: 0; bottom: 0; width: 100%;
+      padding: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      background: linear-gradient(to top, rgba(12,18,32,0.8), rgba(12,18,32,0.0));
+    }
+    .card .shine{
+      position:absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity:.0;
+      background: radial-gradient(600px 220px at 20% 0%, rgba(255,255,255,0.06) 0%, transparent 45%),
+                  radial-gradient(800px 300px at 120% 120%, rgba(255,255,255,0.08) 0%, transparent 55%);
+      transition: opacity .25s ease;
+    }
+    .card:hover .shine{ opacity:.25; }
+
+    /* Rarity outlines for cards */
+    .card.common{ box-shadow: var(--glow-common); }
+    .card.rare{ box-shadow: var(--glow-rare); }
+    .card.rainbow{ box-shadow: var(--glow-rainbow); }
+    .card.legendary{ box-shadow: var(--glow-legendary); }
+    .card.mythic{ box-shadow: var(--glow-mythic); }
+    .card.hero{ box-shadow: var(--glow-hero); }
+    .card.secret{ box-shadow: var(--glow-secret); }
+
+    /* Roll animation overlay */
+    .overlay{
+      position: fixed; inset:0;
+      display:none; align-items:center; justify-content:center;
+      background: radial-gradient(1400px 800px at 50% 50%, rgba(25,35,60,0.95) 0%, rgba(9,12,18,0.96) 80%);
+      z-index: 999;
+    }
+    .overlay.active{ display:flex; }
+
+    .summon{
+      width: min(680px, 92vw);
+      background: linear-gradient(180deg, #131a2a 0%, #0e1422 100%);
+      border: 1px solid #263557;
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+      text-align: center;
+    }
+    .summon h2{
+      margin: 0 0 10px;
+      font-size: 20px;
+    }
+    .summon .stage{
+      height: 240px;
+      border-radius: 16px;
+      border: 1px dashed #2a3a65;
+      display:flex; align-items:center; justify-content:center;
+      background:
+        radial-gradient(700px 300px at 20% 10%, rgba(255,255,255,0.06) 0%, transparent 55%),
+        linear-gradient(180deg, #0f1628, #0b1020);
+      overflow:hidden;
+      position:relative;
+    }
+
+    /* Particle stars */
+    .star{
+      position:absolute; width:2px; height:2px; border-radius:999px;
+      background: #b7c3d7; opacity:.9; filter: blur(0.4px);
+      animation: drift 6s linear infinite;
+    }
+    @keyframes drift{
+      0%{ transform: translateY(0) translateX(0); opacity: 0.2; }
+      50%{ opacity:0.9; }
+      100%{ transform: translateY(-180px) translateX(60px); opacity: 0.15; }
+    }
+
+    .orb{
+      width: 120px; height: 120px;
+      border-radius: 999px;
+      background: radial-gradient(60px 60px at 40% 35%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.06) 18%, transparent 50%),
+                  radial-gradient(80px 80px at 60% 65%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.08) 18%, transparent 62%),
+                  conic-gradient(from 0deg, #4fa3ff, #ff8af5, #ffd27a, #6ef5a4, #d44aff, #ff5566, #4fa3ff);
+      box-shadow: 0 0 30px rgba(255,255,255,0.08), 0 0 90px rgba(79,163,255,0.25);
+      animation: pulse 1.4s ease-in-out infinite;
+      filter: saturate(1.2) contrast(1.2);
+    }
+    @keyframes pulse{
+      0%{ transform: scale(0.96); }
+      50%{ transform: scale(1.04); }
+      100%{ transform: scale(0.96); }
+    }
+
+    .footer-actions{
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      margin-top: 12px;
+    }
+
+    /* Probability table and legends */
+    .legend{
+      display:grid; grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+    @media (max-width: 960px){
+      .legend{ grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .legend-item{
+      display:flex; align-items:center; gap:8px;
+      background:#0f1628; border:1px solid #203055; border-radius:12px;
+      padding:10px;
+    }
+    .legend-item .rarity-name{ font-weight:700; }
+    .legend-item .prob{ color: var(--muted); font-size: 12px; margin-left:auto; }
+
+    .prob-bar{
+      height: 6px; border-radius: 999px; background: #0c1424; border: 1px solid #233457;
+      margin-top: 6px; overflow:hidden;
+    }
+    .prob-bar > span{ display:block; height: 100%; background: linear-gradient(90deg, #4fa3ff, #ff8af5, #ffd27a); }
+
+    /* History and stats */
+    .history{
+      max-height: 360px; overflow:auto;
+      background:#0f1628; border:1px solid #223257; border-radius:12px;
+      padding:10px;
+    }
+    .history-item{
+      display:flex; align-items:center; gap:10px;
+      padding:8px 10px; border-bottom:1px dashed #233457;
+      font-size: 13px;
+    }
+    .history-item:last-child{ border-bottom: none; }
+    .history-item .tag{
+      min-width: 84px;
+      padding: 6px 10px; border-radius: 999px;
+      font-weight: 800; text-align:center;
+      border: 1px solid transparent; background:#0b1020;
+    }
+    .history-item .name{ font-weight:700; }
+    .history-item .time{ margin-left:auto; color: var(--muted); font-size: 12px; }
+
+    .tag.common{ color: var(--common); border-color: rgba(183,195,215,0.4); }
+    .tag.rare{ color: var(--rare); border-color: rgba(79,163,255,0.45); }
+    .tag.rainbow{ color: var(--rainbow); border-color: rgba(255,138,245,0.45); }
+    .tag.legendary{ color: var(--legendary); border-color: rgba(255,184,74,0.5); }
+    .tag.mythic{ color: var(--mythic); border-color: rgba(212,74,255,0.5); }
+    .tag.hero{ color: var(--hero); border-color: rgba(110,245,164,0.5); }
+    .tag.secret{ color: var(--secret); border-color: rgba(255,85,102,0.6); }
+
+    .pill{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:6px 10px; border-radius:999px;
+      background:#0f1628; border:1px solid #233457; color: var(--muted);
+      font-size:12px; font-weight:700;
+    }
+
+    .footer-note{
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 12px;
+    }
+
+    /* Big highlight awards */
+    .highlight{
+      position:relative;
+      background: linear-gradient(180deg, #0f1729 0%, #0b1220 100%);
+      border: 1px solid #25345f;
+      border-radius: 16px;
+      padding: 14px;
+      margin-top: 12px;
+    }
+    .highlight .row{
+      display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    }
+    .highlight .label{ color: var(--muted); font-size: 12px; }
+    .highlight .value{ font-size: 14px; font-weight: 800; }
+
+    /* Footer status */
+    .status{
+      display:flex; gap:8px; flex-wrap:wrap; margin-top: 10px;
+    }
+
+    .switch{
+      display:inline-flex; align-items:center; gap:10px;
+      background:#0f1628; border:1px solid #233457; color: var(--text);
+      padding: 8px 12px; border-radius: 12px;
+    }
+    .switch input{ accent-color: #4fa3ff; }
+
+    .sep{ height:1px; background:#223257; margin:8px 0; }
+
+    /* Footer gradient line */
+    .footer-gradient{
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #4fa3ff, #ff8af5, #ffd27a, transparent);
+      opacity: 0.35;
+      margin: 16px 0 0;
+    }
+
+    /* Tooltip (basic) */
+    .tip{
+      position:relative;
+    }
+    .tip:hover .tip-box{
+      opacity:1; transform: translateY(-2px);
+      pointer-events:auto;
+    }
+    .tip-box{
+      position:absolute;
+      left:0; bottom: calc(100% + 8px);
+      background:#0b1220; border:1px solid #223257; color: var(--text);
+      padding:10px; border-radius:10px; max-width: 280px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+      opacity:0; transform: translateY(6px);
+      transition: .2s ease;
+      pointer-events:none;
+      font-size: 12px;
+    }
+
+    /* Footer copyright */
+    footer{
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 12px;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px;
     }
   </style>
 </head>
 <body>
-  <div class="viewport" id="viewport">
-    <div class="app" id="app">
-      <header>
-        <h1><span class="spark">라부부 뽑기</span> — 모바일/PC 한 화면에 딱 맞춰서, 누르면 뽑기 시작</h1>
-        <p>얼굴은 지정된 이미지를 화면에 맞게 보여주고, 페이지는 스크롤되지 않아요. 희귀할수록 확률은 더 낮습니다.</p>
-      </header>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>라부부 뽑기 시뮬레이터</h1>
+          <div class="subtitle">일반 → 레어 → 레인보우 → 전설 → 신화 → 영웅 → 시크릿 (좋을수록 낮은 확률)</div>
+        </div>
+      </div>
+      <div class="pill">
+        <strong>모드:</strong>
+        <span id="modeLabel">일반</span>
+      </div>
+    </header>
 
-      <div class="panel">
-        <!-- 왼쪽: 이미지 + 버튼 -->
-        <div class="left">
-          <div class="image-wrap" id="imageWrap">
-            <img
-              id="faceImg"
-              class="face-img"
-              alt="라부부 닮은 얼굴 이미지"
-              src="https://contents.sixshop.com/thumbnails/uploadedFiles/264542/product/image_1751000284997_1000.jpg"
-            />
-            <canvas id="fxCanvas" class="fx-canvas"></canvas>
+    <div class="grid">
+      <!-- LEFT: Main Summon Area -->
+      <section class="panel">
+        <h3 style="margin:0 0 6px;">뽑기</h3>
+        <div class="controls">
+          <button class="btn-primary" id="btnRoll1">단일 뽑기</button>
+          <button class="btn-primary" id="btnRoll10">10회 연속</button>
+          <button class="btn-success" id="btnAuto">자동 50회</button>
+          <button class="btn-ghost" id="btnReset">기록 초기화</button>
+          <button class="btn-danger tip" id="btnHardReset">전체 초기화</button>
+          <div class="tip-box">전체 초기화는 기록, 통계, 보정치(피티)를 모두 0으로 되돌립니다.</div>
+        </div>
+
+        <div class="status">
+          <div class="pill"><strong>총 뽑기:</strong> <span id="totalRolls">0</span></div>
+          <div class="pill"><strong>피티 보정:</strong> <span id="pityLabel">0%</span></div>
+          <div class="pill"><strong>비용 추정:</strong> <span id="costLabel">0 코인</span></div>
+          <div class="pill"><strong>마지막 결과:</strong> <span id="lastResult">-</span></div>
+        </div>
+
+        <div class="bar" style="margin:10px 0;">
+          <span id="progress"></span>
+        </div>
+
+        <div class="legend">
+          <div class="legend-item">
+            <span class="badge common"><span class="dot"></span>일반</span>
+            <span class="prob" id="prob-common">60.00%</span>
           </div>
-
-          <div class="button-row">
-            <button id="drawBtn" class="btn btn-secondary" title="한 번 뽑기">뽑기 시작하기</button>
-            <button id="autoBtn" class="btn btn-ghost" title="자동으로 여러 번 뽑기">자동 뽑기</button>
-            <button id="resetBtn" class="btn" title="기록과 보너스를 초기화">초기화</button>
+          <div class="legend-item">
+            <span class="badge rare"><span class="dot"></span>레어</span>
+            <span class="prob" id="prob-rare">20.00%</span>
+          </div>
+          <div class="legend-item">
+            <span class="badge rainbow"><span class="dot"></span>레인보우</span>
+            <span class="prob" id="prob-rainbow">10.00%</span>
+          </div>
+          <div class="legend-item">
+            <span class="badge legendary"><span class="dot"></span>전설</span>
+            <span class="prob" id="prob-legendary">5.00%</span>
+          </div>
+          <div class="legend-item">
+            <span class="badge mythic"><span class="dot"></span>신화</span>
+            <span class="prob" id="prob-mythic">3.00%</span>
+          </div>
+          <div class="legend-item">
+            <span class="badge hero"><span class="dot"></span>영웅</span>
+            <span class="prob" id="prob-hero">1.50%</span>
+          </div>
+          <div class="legend-item">
+            <span class="badge secret"><span class="dot"></span>시크릿</span>
+            <span class="prob" id="prob-secret">0.50%</span>
           </div>
         </div>
 
-        <!-- 오른쪽: 정보/결과/기록 (높이 안 넘치도록 내부만 스크롤) -->
-        <div class="right">
-          <div class="stats">
-            <div class="card">
-              <h3>확률 정보</h3>
-              <p>희귀도가 높을수록 확률이 낮게 설정되어 있습니다.</p>
-              <div class="rarity-list" id="rarityList">
-                <!-- 동적으로 채움 -->
-              </div>
-              <div class="legend">
-                <span>※ 실제 확률에 따라 결과가 달라집니다.</span>
-                <span>※ 시크릿이 가장 낮은 확률입니다.</span>
-              </div>
-            </div>
+        <div class="notice">피티: 시크릿을 오래 못 먹을수록 소폭 확률이 누적 증가합니다. 레인보우 이상에서 약한 연출, 시크릿은 강한 연출.</div>
 
-            <div class="card">
-              <h3>진행 상태</h3>
-              <div class="meter-wrap">
-                <div><strong>총 시도:</strong> <span id="totalTries">0</span></div>
-                <div class="meter" id="luckMeter" style="--v:0%;"></div>
-                <div class="footer-note">최근 20회 결과로 운세 게이지가 변합니다.</div>
-              </div>
-            </div>
-          </div>
+        <div class="sep"></div>
 
-          <div class="card result" id="resultCard">
-            <div class="result-main">
-              <div class="spinner hidden" id="spinner"></div>
-              <div style="min-width:0;">
-                <div class="result-title" id="resultTitle">아직 뽑기 전이에요</div>
-                <div class="result-sub" id="resultSub">이미지나 버튼을 눌러 시작하세요.</div>
-              </div>
-              <span class="badge pulse" id="resultBadge">READY</span>
-            </div>
-          </div>
+        <div class="results" id="results">
+          <!-- Cards will be rendered here -->
+        </div>
 
-          <div class="card" style="min-height:0; display:flex; flex-direction:column;">
-            <h3>뽑기 기록</h3>
-            <div class="history" id="historyList">
-              <!-- 항목 추가 -->
-            </div>
+        <!-- Highlights -->
+        <div class="highlight">
+          <div class="row">
+            <span class="label">최고 획득:</span>
+            <span class="value" id="bestObtained">-</span>
+            <span class="label">최근 10회 내 고급:</span>
+            <span class="value" id="recentHigh">0개</span>
           </div>
+          <div class="row" style="margin-top:8px;">
+            <span class="pill"><strong>시크릿 연속 미획득:</strong> <span id="secretDry">0</span></span>
+            <span class="pill"><strong>레전드+ 누적:</strong> <span id="legendPlusCount">0</span></span>
+            <span class="pill"><strong>중복 방지 모드:</strong> <span id="dupeMode">OFF</span></span>
+          </div>
+        </div>
+
+        <div class="footer-gradient"></div>
+      </section>
+
+      <!-- RIGHT: History & Options -->
+      <aside class="panel">
+        <h3 style="margin:0 0 6px;">기록</h3>
+        <div class="history" id="history">
+          <!-- History items here -->
+        </div>
+
+        <div class="sep"></div>
+
+        <h3 style="margin:0 0 6px;">옵션</h3>
+
+        <div class="switch">
+          <label><input type="checkbox" id="toggleDupe"/> 중복 방지(가능 시 동일 아이템 회피)</label>
+        </div>
+
+        <div class="switch">
+          <label><input type="checkbox" id="toggleFast"/> 빠른 연출(애니메이션 최소화)</label>
+        </div>
+
+        <div class="switch">
+          <label><input type="checkbox" id="toggleSound"/> 효과 사운드(간단한 비프)</label>
+        </div>
+
+        <div class="switch">
+          <label><input type="checkbox" id="toggleRainbowBless"/> 레인보우 축복(레인보우 확률 +10% 상대 가중)</label>
+        </div>
+
+        <div class="sep"></div>
+
+        <h3 style="margin:0 0 6px;">확률 바</h3>
+        <div class="prob-bar"><span id="probBarInner" style="width: 0%;"></span></div>
+        <div class="footer-note">피티 또는 옵션에 따른 즉시 반영 확률 변화(시크릿 상한 존재).</div>
+
+        <div class="sep"></div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="label">일반</div>
+            <div class="value" id="stat-common">0</div>
+          </div>
+          <div class="stat">
+            <div class="label">레어</div>
+            <div class="value" id="stat-rare">0</div>
+          </div>
+          <div class="stat">
+            <div class="label">레인보우</div>
+            <div class="value" id="stat-rainbow">0</div>
+          </div>
+          <div class="stat">
+            <div class="label">전설</div>
+            <div class="value" id="stat-legendary">0</div>
+          </div>
+          <div class="stat">
+            <div class="label">신화</div>
+            <div class="value" id="stat-mythic">0</div>
+          </div>
+          <div class="stat">
+            <div class="label">영웅</div>
+            <div class="value" id="stat-hero">0</div>
+          </div>
+          <div class="stat">
+            <div class="label">시크릿</div>
+            <div class="value" id="stat-secret">0</div>
+          </div>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="notice">확률(기본): 일반 60%, 레어 20%, 레인보우 10%, 전설 5%, 신화 3%, 영웅 1.5%, 시크릿 0.5%. 옵션/피티에 따라 미세 조정.</div>
+      </aside>
+    </div>
+
+    <!-- Overlay Summon Animation -->
+    <div class="overlay" id="overlay">
+      <div class="summon">
+        <h2 id="summonTitle">소환 중...</h2>
+        <div class="stage" id="stage">
+          <!-- Stars -->
+          <div class="star" style="left: 12%; bottom: 6%; animation-delay: .1s;"></div>
+          <div class="star" style="left: 24%; bottom: 10%; animation-delay: .7s;"></div>
+          <div class="star" style="left: 62%; bottom: 18%; animation-delay: .4s;"></div>
+          <div class="star" style="left: 72%; bottom: 14%; animation-delay: 1.2s;"></div>
+          <div class="star" style="left: 44%; bottom: 8%; animation-delay: .9s;"></div>
+
+          <div class="orb" id="orb"></div>
+        </div>
+        <div class="footer-actions">
+          <button id="btnSkip" class="btn-ghost">건너뛰기</button>
+          <button id="btnClose" class="btn-primary">닫기</button>
         </div>
       </div>
     </div>
+
+    <footer>
+      <div>라부부 뽑기만 포함된 데모. 확률은 예시이며 게임 내 값과 다를 수 있습니다.</div>
+      <div class="pill"><strong>버전:</strong> 1.0.0</div>
+    </footer>
   </div>
 
-  <!-- 애니메이션 오버레이 -->
-  <div class="overlay" id="overlay"></div>
-
   <script>
-    // =========================
-    // 화면 스크롤 잠금/100vh 보정
-    // =========================
-    function setViewportHeightVar(){
-      const vh = window.innerHeight * 0.01; // 실제 보이는 영역 기준
-      document.documentElement.style.setProperty('--vh', vh + 'px');
-    }
-    setViewportHeightVar();
-    window.addEventListener('resize', setViewportHeightVar);
-    window.addEventListener('orientationchange', ()=>{
-      // 회전 시 약간 딜레이 후 재계산 (모바일 브라우저 바 애니메이션 대비)
-      setTimeout(setViewportHeightVar, 200);
-    });
+    /* =========================
+       라부부 뽑기 시뮬레이터 JS
+       ========================= */
 
-    // 문서 전체 스크롤 막기 보호 (모바일 스와이프)
-    document.addEventListener('touchmove', function(e){
-      // 내부 스크롤 허용 영역(기록/확률 리스트) 외에는 기본 스크롤 방지
-      const scrollable = e.target.closest('.history, .rarity-list');
-      if(!scrollable){
-        e.preventDefault();
-      }
-    }, { passive: false });
-
-    // =========================
-    // 설정: 희귀도 및 확률
-    // =========================
-    const RARITIES = [
-      // name, prob (%), badgeClass, theme
-      { name: "일반",     prob: 60.0, badgeClass:"",         theme:"normal"  },
-      { name: "레어",     prob: 20.0, badgeClass:"",         theme:"normal"  },
-      { name: "레인보우", prob: 10.0, badgeClass:"rainbow",  theme:"rainbow" },
-      { name: "전설",     prob: 5.0,  badgeClass:"legendary",theme:"legend"  },
-      { name: "신화",     prob: 3.0,  badgeClass:"myth",     theme:"myth"    },
-      { name: "영웅",     prob: 1.5,  badgeClass:"hero",     theme:"hero"    },
-      { name: "시크릿",   prob: 0.5,  badgeClass:"secret",   theme:"secret"  },
-    ];
-    const TOTAL_PROB = RARITIES.reduce((a,b)=>a+b.prob,0);
-
-    // =========================
-    // DOM 참조
-    // =========================
-    const faceImg     = document.getElementById("faceImg");
-    const fxCanvas    = document.getElementById("fxCanvas");
-    const fxCtx       = fxCanvas.getContext("2d");
-    const imageWrap   = document.getElementById("imageWrap");
-    const drawBtn     = document.getElementById("drawBtn");
-    const autoBtn     = document.getElementById("autoBtn");
-    const resetBtn    = document.getElementById("resetBtn");
-    const rarityList  = document.getElementById("rarityList");
-    const resultTitle = document.getElementById("resultTitle");
-    const resultSub   = document.getElementById("resultSub");
-    const resultBadge = document.getElementById("resultBadge");
-    const spinner     = document.getElementById("spinner");
-    const overlay     = document.getElementById("overlay");
-    const historyList = document.getElementById("historyList");
-    const totalTriesEl= document.getElementById("totalTries");
-
-    // 운세 게이지
-    const luckMeter   = document.getElementById("luckMeter");
-
-    // =========================
-    // 유틸
-    // =========================
-    function nowTime(){
-      const d = new Date();
-      const hh = String(d.getHours()).padStart(2,"0");
-      const mm = String(d.getMinutes()).padStart(2,"0");
-      const ss = String(d.getSeconds()).padStart(2,"0");
-      return `${hh}:${mm}:${ss}`;
-    }
-    function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
-
-    // 확률 기반 추첨
-    function drawRarity(){
-      const r = Math.random() * TOTAL_PROB;
-      let acc = 0;
-      for(const item of RARITIES){
-        acc += item.prob;
-        if(r <= acc) return item;
-      }
-      return RARITIES[RARITIES.length-1];
-    }
-
-    // =========================
-    // 확률 목록 UI 그리기
-    // =========================
-    function renderRarityList(){
-      rarityList.innerHTML = "";
-      RARITIES.forEach(r=>{
-        const div = document.createElement("div");
-        div.className = "rarity-item";
-
-        const label = document.createElement("div");
-        label.className = "label";
-        const dot = document.createElement("span");
-        dot.className = "dot " + (
-          r.name==="일반" ? "c-common" :
-          r.name==="레어" ? "c-rare" :
-          r.name==="레인보우" ? "c-rainbow" :
-          r.name==="전설" ? "c-legend" :
-          r.name==="신화" ? "c-myth" :
-          r.name==="영웅" ? "c-hero" : "c-secret"
-        );
-        const name = document.createElement("span");
-        name.textContent = r.name;
-
-        label.appendChild(dot);
-        label.appendChild(name);
-
-        const prob = document.createElement("div");
-        prob.className = "prob";
-        prob.textContent = r.prob.toFixed(2) + " %";
-
-        div.appendChild(label);
-        div.appendChild(prob);
-        rarityList.appendChild(div);
-      });
-    }
-
-    // =========================
-    // 뽑기 결과 표현
-    // =========================
-    const history = [];
-    const recentWeights = { // 운세 게이지 가중치
-      "일반": 1,
-      "레어": 2,
-      "레인보우": 4,
-      "전설": 6,
-      "신화": 8,
-      "영웅": 10,
-      "시크릿": 12
+    // 기본 확률 (좋을수록 낮게)
+    const BASE_PROBS = {
+      common: 0.60,    // 일반
+      rare: 0.20,      // 레어
+      rainbow: 0.10,   // 레인보우
+      legendary: 0.05, // 전설
+      mythic: 0.03,    // 신화
+      hero: 0.015,     // 영웅
+      secret: 0.005    // 시크릿
     };
 
-    function setResult(item){
-      resultTitle.textContent = `${item.name} 당첨!`;
-      const desc = {
-        "일반": "언젠가 커다란 행운을 위해 워밍업 중이에요.",
-        "레어": "평균보다 살짝 좋은 하루. 작은 기쁨이 있어요.",
-        "레인보우": "다채로운 순간! 색감처럼 기분이 물들어요.",
-        "전설": "당신만의 이야기에 한 페이지가 더해졌어요.",
-        "신화": "신화 속에서 잠깐 나를 불러낸 듯한 반짝임.",
-        "영웅": "도전의 시간이었고, 당신은 해냈어요.",
-        "시크릿": "속삭이는 비밀. 드문 기회가 손에 들어왔어요."
-      }[item.name] || "행운은 뜻밖에 옵니다.";
+    // 시크릿 피티 설정
+    const PITY = {
+      enabled: true,
+      stepEvery: 30,     // 시크릿 미획득 30회마다
+      add: 0.0015,       // +0.15% 포인트 증가
+      cap: 0.02          // 최대 2.0% 포인트 (기본 0.5% + 2.0% = 2.5% 상한)
+    };
 
-      resultSub.textContent = desc;
+    // 비용 추정 (임의 값)
+    const COST = {
+      single: 100,      // 코인
+      ten: 950          // 10회 할인
+    };
 
-      // 배지 색
-      resultBadge.textContent = item.name.toUpperCase();
-      resultBadge.className = "badge " + (item.badgeClass || "");
-    }
+    // 아이템 풀 (레어도별)
+    const POOL = {
+      common: [
+        "라부부-기본 스티커 A", "라부부-기본 스티커 B", "라부부-기본 스티커 C",
+        "라부부-미소 뱃지", "라부부-깜찍 포즈", "라부부-초코 간식",
+        "라부부-하트 풍선", "라부부-점프 모션", "라부부-응원 플래그"
+      ],
+      rare: [
+        "라부부-반짝 스티커", "라부부-네온 하트", "라부부-별무늬 배경",
+        "라부부-쿨포즈 A", "라부부-쿨포즈 B", "라부부-미니 배지 세트"
+      ],
+      rainbow: [
+        "라부부-레인보우 테마", "라부부-7색 별 장식", "라부부-무지개 광채",
+        "라부부-컬러 스텝", "라부부-스펙트럼 포즈"
+      ],
+      legendary: [
+        "라부부-전설의 빛", "라부부-황금 프레임", "라부부-루미에르 스킨",
+        "라부부-크레스트 엠블럼"
+      ],
+      mythic: [
+        "라부부-신화의 숨결", "라부부-천상 아우라", "라부부-엘리시온 장식"
+      ],
+      hero: [
+        "라부부-영웅의 맹세", "라부부-수호자의 인장"
+      ],
+      secret: [
+        "라부부-시크릿 오브 라부부", "라부부-그랜드 아르카나"
+      ]
+    };
 
-    function addHistory(item){
-      history.unshift({ item, time: nowTime() });
-      if(history.length > 200) history.pop();
+    // 상태
+    const state = {
+      totalRolls: 0,
+      stats: {
+        common: 0, rare: 0, rainbow: 0, legendary: 0, mythic: 0, hero: 0, secret: 0
+      },
+      history: [],
+      results: [],
+      secretDry: 0,       // 시크릿 미획득 누적
+      pityAdded: 0,       // 현재 피티로 증가된 시크릿 추가 확률 포인트
+      bestObtained: null, // 최고 레어도 문자열
+      legendPlusCount: 0, // 전설 이상 누적
+      options: {
+        dupeAvoid: false,
+        fastMode: false,
+        sound: false,
+        rainbowBless: false
+      },
+      owned: new Set()
+    };
 
-      const el = document.createElement("div");
-      el.className = "history-item";
-      const left = document.createElement("div");
-      left.style.display = "flex";
-      left.style.alignItems = "center";
-      left.style.gap = "8px";
+    // 레어도 등급 순서 및 가중치 표시용
+    const RARITY_ORDER = ["common","rare","rainbow","legendary","mythic","hero","secret"];
+    const RARITY_LABEL = {
+      common: "일반", rare: "레어", rainbow: "레인보우", legendary: "전설",
+      mythic: "신화", hero: "영웅", secret: "시크릿"
+    };
 
-      const dot = document.createElement("span");
-      dot.className = "dot " + (
-        item.name==="일반" ? "c-common" :
-        item.name==="레어" ? "c-rare" :
-        item.name==="레인보우" ? "c-rainbow" :
-        item.name==="전설" ? "c-legend" :
-        item.name==="신화" ? "c-myth" :
-        item.name==="영웅" ? "c-hero" : "c-secret"
-      );
-      const label = document.createElement("div");
-      label.textContent = item.name;
+    // DOM
+    const $ = (sel) => document.querySelector(sel);
+    const resultsEl = $("#results");
+    const historyEl = $("#history");
+    const overlayEl = $("#overlay");
+    const stageEl = $("#stage");
+    const orbEl = $("#orb");
 
-      left.appendChild(dot);
-      left.appendChild(label);
+    // 버튼
+    $("#btnRoll1").addEventListener("click", () => handleRoll(1));
+    $("#btnRoll10").addEventListener("click", () => handleRoll(10));
+    $("#btnAuto").addEventListener("click", () => handleRoll(50, { skipAnim: true }));
+    $("#btnReset").addEventListener("click", () => resetRecord(false));
+    $("#btnHardReset").addEventListener("click", () => resetRecord(true));
+    $("#btnSkip").addEventListener("click", () => closeOverlay(true));
+    $("#btnClose").addEventListener("click", () => closeOverlay());
 
-      const time = document.createElement("div");
-      time.className = "time";
-      time.textContent = nowTime();
-
-      el.appendChild(left);
-      el.appendChild(time);
-
-      historyList.prepend(el);
-    }
-
-    function updateCounters(){
-      totalTriesEl.textContent = history.length.toString();
-
-      const recent = history.slice(0,20);
-      const score = recent.reduce((sum,h)=> sum + (recentWeights[h.item.name]||0), 0);
-      const maxScore = 20 * recentWeights["시크릿"];
-      const pct = recent.length ? Math.round((score / maxScore) * 100) : 0;
-      luckMeter.style.setProperty("--v", pct + "%");
-    }
-
-    // =========================
-    // 애니메이션/효과
-    // =========================
-    let isDrawing = false;
-    let autoTimer = null;
-
-    function playDrawAnimation(){
-      spinner.classList.remove("hidden");
-      resultBadge.classList.add("pulse");
-      imageWrap.classList.add("face-pop");
-
-      // 이미지 살짝 줌
-      faceImg.style.transform = "scale(1.03)";
-      faceImg.style.filter = "brightness(1.05)";
-    }
-    function endDrawAnimation(){
-      spinner.classList.add("hidden");
-      resultBadge.classList.remove("pulse");
-      imageWrap.classList.remove("face-pop");
-
-      faceImg.style.transform = "scale(1)";
-      faceImg.style.filter = "brightness(1)";
-    }
-
-    function shootConfetti(theme="normal"){
-      const colors = theme==="legend" ? ["#ffd36a","#ffae00","#fff2b0","#ffcc66"] :
-                      theme==="myth"   ? ["#a5f5ff","#58d7ff","#cfffff","#87e7ff"] :
-                      theme==="hero"   ? ["#caffc7","#59f2a1","#a7ffc0","#78f7b5"] :
-                      theme==="secret" ? ["#ff77e1","#f23fb5","#ffc2f0","#ff9be6"] :
-                      theme==="rainbow"? ["#ff4d4d","#ffa64d","#fffb4d","#70ff4d","#4dbeff","#9a4dff","#ff4df0"] :
-                                         ["#cfd7f6","#87a8ff","#cfe0ff","#9bb9ff"];
-      const n = 65 + Math.floor(Math.random()*55);
-      for(let i=0;i<n;i++){
-        const c = document.createElement("div");
-        c.className = "confetti";
-        c.style.left = Math.random()*100 + "%";
-        c.style.top = "-20px";
-        c.style.background = colors[Math.floor(Math.random()*colors.length)];
-        c.style.opacity = 0.95;
-        const rot = Math.random()*360;
-        const tx = (Math.random()*2-1) * 60;
-        const duration = 1200 + Math.random()*1400;
-        overlay.appendChild(c);
-
-        const start = performance.now();
-        function step(t){
-          const dt = t - start;
-          const p = Math.min(dt/duration,1);
-          const y = p * (window.innerHeight + 60);
-          const x = Math.sin(p*Math.PI*2) * (theme==="rainbow" ? 18 : 12) + tx;
-          c.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rot + p*720}deg)`;
-          c.style.opacity = 1 - p*0.25;
-          if(p<1) requestAnimationFrame(step);
-          else overlay.removeChild(c);
-        }
-        requestAnimationFrame(step);
-      }
-    }
-
-    function playToneFor(item){
-      // 간단한 WebAudio 톤 (희귀도에 따라 음 높이/길이 변화)
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      const ctxA = new AudioCtx();
-      const osc = ctxA.createOscillator();
-      const gain = ctxA.createGain();
-      osc.type = "triangle";
-      const base = {
-        "일반": 300,
-        "레어": 360,
-        "레인보우": 420,
-        "전설": 520,
-        "신화": 600,
-        "영웅": 680,
-        "시크릿": 760
-      }[item.name] || 400;
-      osc.frequency.value = base;
-      osc.connect(gain);
-      gain.connect(ctxA.destination);
-      gain.gain.value = 0.02;
-      osc.start();
-
-      const target = base + 80;
-      osc.frequency.exponentialRampToValueAtTime(target, ctxA.currentTime + 0.22);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctxA.currentTime + 0.28);
-
-      setTimeout(()=> { osc.stop(); ctxA.close(); }, 340);
-    }
-
-    // 이미지 위 빛 반사 효과 (캔버스)
-    function drawFXFlash(){
-      const rect = fxCanvas.getBoundingClientRect();
-      const ratio = window.devicePixelRatio || 1;
-      fxCanvas.width = Math.floor(rect.width * ratio);
-      fxCanvas.height = Math.floor(rect.height * ratio);
-      const w = fxCanvas.width, h = fxCanvas.height;
-
-      fxCtx.clearRect(0,0,w,h);
-
-      // 애니메이션 스윕
-      let start = performance.now();
-      function sweep(t){
-        const dt = t - start;
-        const p = Math.min(dt/800, 1);
-        const x = p * w;
-        fxCtx.clearRect(0,0,w,h);
-
-        const g2 = fxCtx.createLinearGradient(x-200, 0, x+200, 0);
-        g2.addColorStop(0, "rgba(255,255,255,0.0)");
-        g2.addColorStop(0.45, "rgba(255,255,255,0.12)");
-        g2.addColorStop(0.5, "rgba(255,255,255,0.28)");
-        g2.addColorStop(0.55, "rgba(255,255,255,0.12)");
-        g2.addColorStop(1, "rgba(255,255,255,0.0)");
-        fxCtx.globalCompositeOperation = "lighter";
-        fxCtx.fillStyle = g2;
-        fxCtx.fillRect(0, 0, w, h);
-
-        if(p<1) requestAnimationFrame(sweep);
-        else fxCtx.clearRect(0,0,w,h);
-      }
-      requestAnimationFrame(sweep);
-    }
-
-    // =========================
-    // 버튼/인터랙션
-    // =========================
-    function doDraw(){
-      if(isDrawing) return;
-      isDrawing = true;
-      playDrawAnimation();
-      drawFXFlash();
-      resultTitle.textContent = "뽑는 중...";
-      resultSub.textContent = "행운의 실타래를 감는 중입니다.";
-
-      setTimeout(()=>{
-        const item = drawRarity();
-        setResult(item);
-        addHistory(item);
-        updateCounters();
-        endDrawAnimation();
-
-        shootConfetti(item.theme);
-        playToneFor(item);
-
-        isDrawing = false;
-      }, 900 + Math.random()*300);
-    }
-
-    function startAuto(){
-      if(autoTimer){ stopAuto(); return; }
-      autoBtn.textContent = "자동 중지";
-      autoTimer = setInterval(()=> doDraw(), 1150);
-    }
-    function stopAuto(){
-      autoBtn.textContent = "자동 뽑기";
-      clearInterval(autoTimer);
-      autoTimer = null;
-    }
-
-    function resetAll(){
-      history.length = 0;
-      historyList.innerHTML = "";
-      totalTriesEl.textContent = "0";
-      luckMeter.style.setProperty("--v", "0%");
-      resultTitle.textContent = "아직 뽑기 전이에요";
-      resultSub.textContent = "이미지나 버튼을 눌러 시작하세요.";
-      resultBadge.textContent = "READY";
-      resultBadge.className = "badge";
-      faceImg.style.transform = "scale(1)";
-      faceImg.style.filter = "brightness(1)";
-      fxCtx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
-    }
-
-    drawBtn.addEventListener("click", doDraw);
-    autoBtn.addEventListener("click", ()=> autoTimer ? stopAuto() : startAuto());
-    resetBtn.addEventListener("click", resetAll);
-    faceImg.addEventListener("click", doDraw);
-
-    // 키보드: Enter로 뽑기
-    document.addEventListener("keydown",(e)=>{
-      if(e.key==="Enter") doDraw();
+    // 옵션
+    $("#toggleDupe").addEventListener("change", (e) => {
+      state.options.dupeAvoid = e.target.checked;
+      $("#dupeMode").textContent = state.options.dupeAvoid ? "ON" : "OFF";
+    });
+    $("#toggleFast").addEventListener("change", (e) => {
+      state.options.fastMode = e.target.checked;
+    });
+    $("#toggleSound").addEventListener("change", (e) => {
+      state.options.sound = e.target.checked;
+    });
+    $("#toggleRainbowBless").addEventListener("change", (e) => {
+      state.options.rainbowBless = e.target.checked;
+      renderDynamicProbs();
     });
 
-    // =========================
-    // 반응형: 캔버스/이미지 리사이즈 처리
-    // =========================
-    function resizeFXCanvas(){
-      const rect = fxCanvas.getBoundingClientRect();
-      const ratio = window.devicePixelRatio || 1;
-      const w = Math.floor(rect.width * ratio);
-      const h = Math.floor(rect.height * ratio);
-      if(fxCanvas.width !== w || fxCanvas.height !== h){
-        fxCanvas.width = w;
-        fxCanvas.height = h;
+    // 헬퍼: 사운드 (간단한 WebAudio 비프)
+    function beep(freq = 480, time = 0.08, vol = 0.06){
+      if(!state.options.sound) return;
+      try{
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = "sine";
+        o.frequency.value = freq;
+        o.connect(g);
+        g.connect(ctx.destination);
+        g.gain.setValueAtTime(vol, ctx.currentTime);
+        o.start();
+        setTimeout(() => { o.stop(); ctx.close(); }, time * 1000);
+      }catch(e){ /* ignore */ }
+    }
+
+    // 확률 계산 (피티 및 옵션 반영)
+    function getEffectiveProbs(){
+      let p = { ...BASE_PROBS };
+
+      // 레인보우 축복: 레인보우만 10% 상대 증가(나머지에서 비례 감소)
+      if(state.options.rainbowBless){
+        const add = p.rainbow * 0.10;
+        p.rainbow += add;
+        // 상대 감소: 상위(legend+) 보호, 하위(일반~레어)에서 주로 감소
+        const reducPool = ["common","rare"];
+        let reducTotal = add;
+        for(const r of reducPool){
+          const reduc = Math.min(p[r] * 0.03, reducTotal); // 항목당 최대 3%만 빼기
+          p[r] -= reduc;
+          reducTotal -= reduc;
+        }
+        // 남은 감소가 있으면 레전드에 아주 소량 반영
+        if(reducTotal > 0){
+          const reduc = Math.min(reducTotal, p.legendary * 0.02);
+          p.legendary -= reduc;
+          reducTotal -= reduc;
+        }
+      }
+
+      // 피티: 시크릿 추가 확률 가산 (상한 존재)
+      const pityAdd = Math.min(state.pityAdded, PITY.cap);
+      p.secret = Math.min(BASE_PROBS.secret + pityAdd, BASE_PROBS.secret + PITY.cap);
+
+      // 정규화(합계가 1이 되도록 비중 조정) — 시크릿 고정 유지하고 나머지 스케일
+      const sumExceptSecret = p.common + p.rare + p.rainbow + p.legendary + p.mythic + p.hero;
+      const targetExceptSecret = 1 - p.secret;
+      const scale = targetExceptSecret / sumExceptSecret;
+
+      p.common *= scale;
+      p.rare *= scale;
+      p.rainbow *= scale;
+      p.legendary *= scale;
+      p.mythic *= scale;
+      p.hero *= scale;
+
+      return p;
+    }
+
+    function probToPercent(p){
+      return (p * 100).toFixed(2) + "%";
+    }
+
+    function renderDynamicProbs(){
+      const p = getEffectiveProbs();
+      $("#prob-common").textContent = probToPercent(p.common);
+      $("#prob-rare").textContent = probToPercent(p.rare);
+      $("#prob-rainbow").textContent = probToPercent(p.rainbow);
+      $("#prob-legendary").textContent = probToPercent(p.legendary);
+      $("#prob-mythic").textContent = probToPercent(p.mythic);
+      $("#prob-hero").textContent = probToPercent(p.hero);
+      $("#prob-secret").textContent = probToPercent(p.secret);
+      const barValue = Math.min(100, (p.secret - BASE_PROBS.secret) / PITY.cap * 100);
+      $("#probBarInner").style.width = barValue.toFixed(1) + "%";
+      $("#pityLabel").textContent = (state.pityAdded * 100).toFixed(2) + "%";
+    }
+
+    // 레어도별 아이템 이름 랜덤
+    function pickItemByRarity(rarity){
+      const pool = POOL[rarity];
+      if(!pool || pool.length === 0) return `${RARITY_LABEL[rarity]} 아이템`;
+      // 중복 방지 모드: 보유하지 않은 항목 우선
+      if(state.options.dupeAvoid){
+        const notOwned = pool.filter(name => !state.owned.has(name));
+        if(notOwned.length > 0){
+          return notOwned[Math.floor(Math.random() * notOwned.length)];
+        }
+      }
+      // 일반 랜덤
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    // 레어도 추첨
+    function rollRarity(){
+      const p = getEffectiveProbs();
+      const r = Math.random();
+      let acc = 0;
+
+      for(const key of RARITY_ORDER){
+        acc += p[key];
+        if(r <= acc) return key;
+      }
+      return "common";
+    }
+
+    // 결과 카드를 그리기
+    function renderCard({name, rarity}){
+      const card = document.createElement("div");
+      card.className = `card ${rarity}`;
+      const label = RARITY_LABEL[rarity];
+      card.innerHTML = `
+        <div class="shine"></div>
+        <div class="title">${name}</div>
+        <div class="rarity">${label}</div>
+        <div class="footer">${new Date().toLocaleString()}</div>
+      `;
+      resultsEl.prepend(card);
+      // 결과 목록 유지(최대 40개)
+      while(resultsEl.children.length > 40){
+        resultsEl.removeChild(resultsEl.lastChild);
       }
     }
-    function ensureImageFits(){
-      resizeFXCanvas();
-    }
-    window.addEventListener("resize", ensureImageFits);
 
-    // 이미지 로드 완료 후 초기화
-    function onImageLoaded(){
-      ensureImageFits();
-      imageWrap.classList.add("face-pop");
-      setTimeout(()=> imageWrap.classList.remove("face-pop"), 750);
-    }
-    if(faceImg.complete){
-      onImageLoaded();
-    } else {
-      faceImg.addEventListener("load", onImageLoaded);
-      faceImg.addEventListener("error", ()=>{
-        resultTitle.textContent = "이미지 로드 실패";
-        resultSub.textContent = "네트워크 상태를 확인하거나 새로고침 해주세요.";
-      });
+    // 기록 추가
+    function addHistory({name, rarity}){
+      const item = document.createElement("div");
+      item.className = "history-item";
+      item.innerHTML = `
+        <span class="tag ${rarity}">${RARITY_LABEL[rarity]}</span>
+        <span class="name">${name}</span>
+        <span class="time">${new Date().toLocaleTimeString()}</span>
+      `;
+      historyEl.prepend(item);
+      while(historyEl.children.length > 200){
+        historyEl.removeChild(historyEl.lastChild);
+      }
     }
 
-    // =========================
+    // 스탯 업데이트
+    function updateStats(rarity){
+      state.stats[rarity] += 1;
+      $("#stat-common").textContent = state.stats.common;
+      $("#stat-rare").textContent = state.stats.rare;
+      $("#stat-rainbow").textContent = state.stats.rainbow;
+      $("#stat-legendary").textContent = state.stats.legendary;
+      $("#stat-mythic").textContent = state.stats.mythic;
+      $("#stat-hero").textContent = state.stats.hero;
+      $("#stat-secret").textContent = state.stats.secret;
+
+      if(["legendary","mythic","hero","secret"].includes(rarity)){
+        state.legendPlusCount += 1;
+        $("#legendPlusCount").textContent = state.legendPlusCount;
+      }
+    }
+
+    // 최고 레어도 반영
+    function updateBest(rarity){
+      const orderIndex = (r) => RARITY_ORDER.indexOf(r);
+      if(!state.bestObtained){
+        state.bestObtained = rarity;
+      } else {
+        if(orderIndex(rarity) > orderIndex(state.bestObtained)){
+          state.bestObtained = rarity;
+        }
+      }
+      $("#bestObtained").textContent = state.bestObtained ? RARITY_LABEL[state.bestObtained] : "-";
+    }
+
+    // 최근 10회 고급(레인보우 이상) 카운트
+    function updateRecentHigh(){
+      const lastTen = state.history.slice(0,10);
+      const count = lastTen.filter(h => ["rainbow","legendary","mythic","hero","secret"].includes(h.rarity)).length;
+      $("#recentHigh").textContent = count + "개";
+    }
+
+    // 피티 로직
+    function updatePity(rarity){
+      if(rarity === "secret"){
+        state.secretDry = 0;
+        state.pityAdded = 0; // 초기화
+      } else {
+        state.secretDry += 1;
+        if(PITY.enabled && state.secretDry % PITY.stepEvery === 0){
+          state.pityAdded = Math.min(state.pityAdded + PITY.add, PITY.cap);
+        }
+      }
+      $("#secretDry").textContent = state.secretDry;
+      renderDynamicProbs();
+    }
+
+    // 진행 바
+    function setProgress(percent){
+      $("#progress").style.width = Math.max(0, Math.min(100, percent)) + "%";
+    }
+
+    // 오버레이 열기/닫기
+    function openOverlay(rarityHint = null){
+      overlayEl.classList.add("active");
+      $("#summonTitle").textContent = "소환 중...";
+      stageEl.style.borderColor = "#2a3a65";
+      orbEl.style.animationDuration = "1.4s";
+
+      // 레어도 힌트에 따라 연출 조금 변경
+      if(rarityHint){
+        switch(rarityHint){
+          case "rainbow":
+            stageEl.style.borderColor = "#a155f5";
+            orbEl.style.animationDuration = "1.1s";
+            break;
+          case "legendary":
+          case "mythic":
+          case "hero":
+            stageEl.style.borderColor = "#ffb84a";
+            orbEl.style.animationDuration = "0.95s";
+            break;
+          case "secret":
+            stageEl.style.borderColor = "#ff5566";
+            orbEl.style.animationDuration = "0.85s";
+            break;
+          default:
+            stageEl.style.borderColor = "#2a3a65";
+            orbEl.style.animationDuration = "1.4s";
+        }
+      }
+    }
+    function closeOverlay(skipText = false){
+      if(skipText){
+        $("#summonTitle").textContent = "연출 건너뜀";
+      }
+      overlayEl.classList.remove("active");
+    }
+
+    // 롤 처리
+    async function handleRoll(count = 1, { skipAnim = false } = {}){
+      const effectiveCount = Math.max(1, Math.floor(count));
+      const cost = effectiveCount === 10 ? COST.ten : COST.single * effectiveCount;
+      state.totalRolls += effectiveCount;
+      $("#totalRolls").textContent = state.totalRolls;
+      $("#costLabel").textContent = (parseInt($("#costLabel").textContent) + cost) + " 코인";
+      setProgress(0);
+
+      const fast = state.options.fastMode || skipAnim;
+      // 복수 뽑기에서 최고 레어도 힌트 계산
+      let hint = null;
+
+      // 준비: 선택된 결과 저장 후 한 번에 렌더
+      const batch = [];
+
+      for(let i=0;i<effectiveCount;i++){
+        const rarity = rollRarity();
+        const name = pickItemByRarity(rarity);
+
+        // 소유 추가(중복 방지 체크 시)
+        state.owned.add(name);
+
+        // 상태 업데이트
+        updateStats(rarity);
+        updateBest(rarity);
+        updatePity(rarity);
+        state.history.unshift({ name, rarity, time: Date.now() });
+        updateRecentHigh();
+
+        batch.push({ name, rarity });
+
+        // 힌트 갱신(최고 레어도 우선)
+        const idx = RARITY_ORDER.indexOf(rarity);
+        if(!hint || idx > RARITY_ORDER.indexOf(hint)){
+          hint = rarity;
+        }
+
+        // 마지막 결과 업데이트
+        $("#lastResult").textContent = `${RARITY_LABEL[rarity]} - ${name}`;
+
+        // 진행 바
+        setProgress(((i+1) / effectiveCount) * 100);
+      }
+
+      // 연출: 단일은 연출, 복수는 힌트만
+      if(!fast){
+        openOverlay(hint);
+        beep(520, 0.12, 0.08);
+        await sleep(effectiveCount === 1 ? 800 : 600);
+      }
+
+      // 렌더링
+      for(const it of batch){
+        renderCard(it);
+        addHistory(it);
+      }
+
+      // 종료
+      if(!fast){
+        await sleep(300);
+        closeOverlay();
+      }
+    }
+
+    function sleep(ms){ return new Promise(res => setTimeout(res, ms)); }
+
+    // 기록 초기화
+    function resetRecord(hard = false){
+      resultsEl.innerHTML = "";
+      historyEl.innerHTML = "";
+      state.history = [];
+      state.results = [];
+      if(hard){
+        state.totalRolls = 0;
+        state.stats = { common: 0, rare: 0, rainbow: 0, legendary: 0, mythic: 0, hero: 0, secret: 0 };
+        $("#stat-common").textContent = 0;
+        $("#stat-rare").textContent = 0;
+        $("#stat-rainbow").textContent = 0;
+        $("#stat-legendary").textContent = 0;
+        $("#stat-mythic").textContent = 0;
+        $("#stat-hero").textContent = 0;
+        $("#stat-secret").textContent = 0;
+        state.secretDry = 0;
+        state.pityAdded = 0;
+        state.bestObtained = null;
+        state.legendPlusCount = 0;
+        state.options.dupeAvoid = false;
+        state.options.fastMode = false;
+        state.options.sound = false;
+        state.options.rainbowBless = false;
+        $("#totalRolls").textContent = 0;
+        $("#pityLabel").textContent = "0%";
+        $("#costLabel").textContent = "0 코인";
+        $("#bestObtained").textContent = "-";
+        $("#recentHigh").textContent = "0개";
+        $("#secretDry").textContent = 0;
+        $("#legendPlusCount").textContent = 0;
+        $("#dupeMode").textContent = "OFF";
+        $("#toggleDupe").checked = false;
+        $("#toggleFast").checked = false;
+        $("#toggleSound").checked = false;
+        $("#toggleRainbowBless").checked = false;
+      }
+      renderDynamicProbs();
+      setProgress(0);
+      $("#lastResult").textContent = "-";
+    }
+
     // 초기 렌더
-    // =========================
-    renderRarityList();
-    ensureImageFits();
-    resultBadge.classList.add("pulse");
+    renderDynamicProbs();
   </script>
 </body>
 </html>
