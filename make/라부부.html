@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>라부부 뽑기 — 모바일/PC 전체화면 맞춤 + 스크롤 잠금</title>
+  <style>
+    /* ========== 기본 테마 변수 ========== */
+    :root{
+      --vh: 1vh; /* JS로 실제 viewport 높이에 맞게 갱신됨 */
+      --bg:#0f1220;
+      --panel:#171a2d;
+      --accent:#7aa2ff;
+      --accent2:#ff77e1;
+      --text:#eaf0ff;
+      --muted:#9aa8c7;
+      --success:#59f2a1;
+      --warn:#ffd36a;
+      --danger:#ff6b6b;
+      --legendary:#ffae00;
+      --rainbow:linear-gradient(90deg,#ff4d4d,#ffa64d,#fffb4d,#70ff4d,#4dbeff,#9a4dff,#ff4df0);
+      --glass: rgba(255,255,255,0.06);
+      --glass-border: rgba(255,255,255,0.12);
+    }
+
+    * { box-sizing:border-box; }
+    html, body {
+      margin:0; padding:0;
+      height:100%;
+      background:
+        radial-gradient(1000px 600px at 80% 20%, #131735 0%, #0b0d1b 40%, #070814 100%),
+        var(--bg);
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR",
+                   Apple SD Gothic Neo, "Malgun Gothic", sans-serif;
+      /* 화면 스크롤 잠금 */
+      overflow:hidden;
+      overscroll-behavior: none;
+      touch-action: manipulation;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    /* ========== 전체 앱: 정확히 한 화면에 맞춤 ========== */
+    .viewport {
+      position:fixed; /* 브라우저 UI 변화에도 흔들리지 않게 고정 */
+      top:0; left:0; right:0; bottom:0;
+      width:100vw;
+      height: calc(var(--vh) * 100); /* 모바일에서 안전하게 정확히 화면 채우기 */
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .app {
+      width:100%;
+      max-width:1200px;
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      gap:12px;
+      padding:16px;
+    }
+
+    header {
+      width:100%;
+      text-align:center;
+      padding:4px 12px 8px;
+    }
+    header h1 {
+      margin:0;
+      font-size:1.85rem;
+      letter-spacing:0.5px;
+      background: linear-gradient(90deg, #b3c7ff, #ffd6f6);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+      text-shadow: 0 0 20px rgba(255,255,255,0.07);
+      line-height:1.2;
+    }
+    header p {
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:0.95rem;
+    }
+
+    /* ========== 메인 패널: 한 화면 내에서만 레이아웃 구성 ========== */
+    .panel {
+      width:100%;
+      flex:1 1 auto; /* 헤더 제외 나머지 높이 채움 */
+      display:grid;
+      grid-template-columns: minmax(300px, 460px) 1fr;
+      grid-auto-rows: 1fr;
+      gap:12px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:14px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 18px 42px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+      padding:12px;
+      min-height: 0; /* 내부 스크롤 방지 레이아웃용 */
+    }
+
+    .left, .right {
+      min-width:0; min-height:0; /* 자식 내부 컨텐츠가 패널을 넘어서지 않도록 */
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    /* ========== 얼굴 이미지 컨테이너: 정사각, 화면에 맞춤 ========== */
+    .image-wrap {
+      position:relative;
+      width:100%;
+      aspect-ratio: 1 / 1; /* 정사각 유지 */
+      max-width:460px;
+      border-radius:16px;
+      overflow:hidden;
+      background:
+        radial-gradient(120px 140px at 20% 30%, rgba(122,162,255,0.15), transparent 70%),
+        var(--panel);
+      border:1px solid rgba(122,162,255,0.25);
+      box-shadow: inset 0 0 22px rgba(122,162,255,0.15), 0 15px 45px rgba(0,0,0,0.4);
+      align-self:center; /* 좌측 칼럼 가운데 정렬 */
+    }
+
+    .face-img {
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit: contain; /* 잘리지 않고 화면에 맞춤 */
+      object-position: center;
+      transition: transform 0.25s ease, filter 0.25s ease;
+      user-select:none;
+      -webkit-user-drag: none;
+      pointer-events:auto; /* 이미지 클릭으로 뽑기 시작 */
+    }
+
+    .fx-canvas {
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      pointer-events:none;
+    }
+
+    .button-row {
+      display:flex;
+      gap:10px;
+      width:100%;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+
+    /* ========== 버튼들 ========== */
+    .btn {
+      position:relative;
+      appearance:none;
+      border:none;
+      outline:none;
+      cursor:pointer;
+      padding:12px 18px;
+      border-radius:12px;
+      font-weight:700;
+      color:#0b0d1b;
+      background:linear-gradient(180deg, #87a8ff, #6787ff);
+      box-shadow: 0 10px 24px rgba(122,162,255,0.35), inset 0 1px 0 rgba(255,255,255,0.35);
+      transition:transform 0.12s ease, box-shadow 0.2s ease, filter 0.2s ease;
+      touch-action: manipulation;
+    }
+    .btn:hover { transform: translateY(-2px); filter:brightness(1.06); }
+    .btn:active { transform: translateY(0); box-shadow: 0 6px 16px rgba(122,162,255,0.3); }
+
+    .btn-secondary {
+      background:linear-gradient(180deg, #ffd36a, #ffb03a);
+      box-shadow: 0 10px 24px rgba(255,179,58,0.3), inset 0 1px 0 rgba(255,255,255,0.35);
+    }
+
+    .btn-ghost {
+      color:var(--text);
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.18);
+      box-shadow:none;
+    }
+
+    /* ========== 카드/정보 영역: 높이 제약 ========== */
+    .card {
+      background: rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px;
+      padding:10px;
+      min-height:0; /* 내부 스크롤 방지 레이아웃용 */
+    }
+
+    .card h3 {
+      margin:0 0 6px;
+      font-size:1.02rem;
+      color:#dbe6ff;
+    }
+    .card p {
+      margin:0;
+      color:var(--muted);
+      font-size:0.93rem;
+    }
+
+    .stats {
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      min-height:0;
+    }
+
+    /* ========== 확률 리스트 ========== */
+    .rarity-list {
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      margin-top:6px;
+      max-height:140px;
+      overflow:auto; /* 페이지가 스크롤되지 않도록 내부만 스크롤 허용 */
+      padding-right:4px;
+    }
+    .rarity-list::-webkit-scrollbar { width:8px; }
+    .rarity-list::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius:999px;
+    }
+
+    .rarity-item {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px;
+      border-radius:10px;
+      background: rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.08);
+    }
+    .rarity-item .label {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-weight:700;
+    }
+    .dot {
+      width:10px; height:10px; border-radius:50%;
+      box-shadow:0 0 14px rgba(255,255,255,0.35);
+      flex:0 0 auto;
+    }
+    .c-common { background:#cfd7f6; }
+    .c-rare   { background:#87a8ff; }
+    .c-rainbow{ background: linear-gradient(90deg,#ff4d4d,#ffa64d,#fffb4d,#70ff4d,#4dbeff,#9a4dff,#ff4df0); }
+    .c-legend { background:#ffae00; }
+    .c-myth   { background:#58d7ff; }
+    .c-hero   { background:#59f2a1; }
+    .c-secret { background:#f23fb5; }
+
+    .legend {
+      display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; font-size:0.88rem; color:var(--muted);
+    }
+
+    /* ========== 결과 카드 ========== */
+    .result {
+      margin-top:4px;
+      background: rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px;
+      padding:10px;
+    }
+    .result-main {
+      display:flex; align-items:center; gap:12px;
+    }
+    .result-title {
+      font-size:1.18rem; font-weight:800; letter-spacing:0.2px;
+    }
+    .result-sub {
+      color:var(--muted); font-size:0.93rem;
+    }
+    .badge {
+      padding:6px 10px;
+      border-radius:999px;
+      font-weight:800;
+      color:#0b0d1b;
+      background:#cfe0ff;
+      border:1px solid rgba(255,255,255,0.65);
+      white-space:nowrap;
+    }
+    .badge.rainbow {
+      background-image: var(--rainbow);
+      color:#101010;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.45);
+      border:1px solid rgba(255,255,255,0.65);
+    }
+    .badge.legendary { background: linear-gradient(180deg, #ffd36a, #ffae00); }
+    .badge.myth { background: linear-gradient(180deg, #a5f5ff, #58d7ff); }
+    .badge.hero { background: linear-gradient(180deg, #caffc7, #59f2a1); }
+    .badge.secret { background: linear-gradient(180deg, #ff77e1, #f23fb5); color:#1b0b15; }
+
+    /* ========== 기록 리스트: 내부만 스크롤 허용 ========== */
+    .history {
+      margin-top:6px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:6px;
+      max-height:160px;
+      overflow:auto; /* 페이지는 스크롤 X, 기록만 스크롤 O */
+      padding-right:4px;
+    }
+    .history::-webkit-scrollbar { width:8px; }
+    .history::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius:999px;
+    }
+    .history-item {
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px; padding:8px 10px; border-radius:10px;
+      background: rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.08);
+      font-size:0.93rem;
+    }
+    .history-item .time {
+      color:var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ========== 운세 게이지 ========== */
+    .meter-wrap { margin-top:6px; display:grid; gap:6px; }
+    .meter {
+      --v: 0%;
+      position:relative;
+      height:10px;
+      border-radius:999px;
+      background: rgba(255,255,255,0.08);
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.12);
+    }
+    .meter::after {
+      content:"";
+      position:absolute; top:0; left:0; height:100%;
+      width:var(--v);
+      background:linear-gradient(90deg, #87a8ff, #ff77e1);
+      box-shadow: 0 0 18px rgba(255,255,255,0.25);
+    }
+    .footer-note {
+      text-align:center; color:var(--muted); font-size:0.88rem; margin-top:4px;
+    }
+
+    /* ========== 오버레이/컨페티 ========== */
+    .overlay {
+      position:fixed; inset:0; pointer-events:none;
+    }
+    .confetti {
+      position:absolute;
+      width:8px; height:14px;
+      opacity:0;
+      transform: translate3d(0,-40px,0) rotate(0deg);
+      border-radius:2px;
+    }
+
+    /* ========== 반짝이 텍스트 ========== */
+    .spark {
+      background: linear-gradient(90deg, #fff, #ffd36a, #ff77e1, #87a8ff, #fff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color:transparent;
+      animation: shine 5s linear infinite;
+    }
+    @keyframes shine {
+      0% { filter: drop-shadow(0 0 0 rgba(255,255,255,0.0)); }
+      50% { filter: drop-shadow(0 0 12px rgba(255,255,255,0.15)); }
+      100%{ filter: drop-shadow(0 0 0 rgba(255,255,255,0.0)); }
+    }
+
+    /* ========== 로딩 스피너 ========== */
+    .spinner {
+      width: 24px; height: 24px;
+      border-radius:50%;
+      border: 3px solid rgba(255,255,255,0.18);
+      border-top-color: #87a8ff;
+      animation: spin 0.9s linear infinite;
+      flex:0 0 auto;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ========== 얼굴 등장/펄스 ========== */
+    .face-pop {
+      animation: facePop 650ms ease;
+    }
+    @keyframes facePop {
+      0% { transform: scale(0.92); filter:brightness(0.9); }
+      60%{ transform: scale(1.03); filter:brightness(1.08); }
+      100%{ transform: scale(1.0); filter:brightness(1.0); }
+    }
+    .pulse {
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { transform: scale(1); filter: brightness(1); }
+      50%     { transform: scale(1.06); filter: brightness(1.08); }
+    }
+
+    .hidden { display:none !important; }
+
+    /* ========== 모바일 최적화 ========== */
+    @media (max-width: 920px){
+      .panel {
+        grid-template-columns: 1fr;
+      }
+      header h1 { font-size:1.6rem; }
+      header p { font-size:0.9rem; }
+      .rarity-list { max-height:120px; }
+      .history { max-height:160px; }
+      .image-wrap { max-width: 100%; }
+    }
+    @media (max-width: 560px){
+      .app { padding:12px; gap:10px; }
+      .panel { padding:10px; gap:10px; }
+      .button-row { gap:8px; }
+      .btn { padding:10px 14px; font-size:0.95rem; }
+      .result-title { font-size:1.1rem; }
+      .result-sub { font-size:0.9rem; }
+    }
+
+    /* iOS 브라우저 바로 인한 100vh 버그 보정: 안전 영역 */
+    @supports (padding: max(0px)) {
+      .viewport {
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-top: env(safe-area-inset-top);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="viewport" id="viewport">
+    <div class="app" id="app">
+      <header>
+        <h1><span class="spark">라부부 뽑기</span> — 모바일/PC 한 화면에 딱 맞춰서, 누르면 뽑기 시작</h1>
+        <p>얼굴은 지정된 이미지를 화면에 맞게 보여주고, 페이지는 스크롤되지 않아요. 희귀할수록 확률은 더 낮습니다.</p>
+      </header>
+
+      <div class="panel">
+        <!-- 왼쪽: 이미지 + 버튼 -->
+        <div class="left">
+          <div class="image-wrap" id="imageWrap">
+            <img
+              id="faceImg"
+              class="face-img"
+              alt="라부부 닮은 얼굴 이미지"
+              src="https://contents.sixshop.com/thumbnails/uploadedFiles/264542/product/image_1751000284997_1000.jpg"
+            />
+            <canvas id="fxCanvas" class="fx-canvas"></canvas>
+          </div>
+
+          <div class="button-row">
+            <button id="drawBtn" class="btn btn-secondary" title="한 번 뽑기">뽑기 시작하기</button>
+            <button id="autoBtn" class="btn btn-ghost" title="자동으로 여러 번 뽑기">자동 뽑기</button>
+            <button id="resetBtn" class="btn" title="기록과 보너스를 초기화">초기화</button>
+          </div>
+        </div>
+
+        <!-- 오른쪽: 정보/결과/기록 (높이 안 넘치도록 내부만 스크롤) -->
+        <div class="right">
+          <div class="stats">
+            <div class="card">
+              <h3>확률 정보</h3>
+              <p>희귀도가 높을수록 확률이 낮게 설정되어 있습니다.</p>
+              <div class="rarity-list" id="rarityList">
+                <!-- 동적으로 채움 -->
+              </div>
+              <div class="legend">
+                <span>※ 실제 확률에 따라 결과가 달라집니다.</span>
+                <span>※ 시크릿이 가장 낮은 확률입니다.</span>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3>진행 상태</h3>
+              <div class="meter-wrap">
+                <div><strong>총 시도:</strong> <span id="totalTries">0</span></div>
+                <div class="meter" id="luckMeter" style="--v:0%;"></div>
+                <div class="footer-note">최근 20회 결과로 운세 게이지가 변합니다.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card result" id="resultCard">
+            <div class="result-main">
+              <div class="spinner hidden" id="spinner"></div>
+              <div style="min-width:0;">
+                <div class="result-title" id="resultTitle">아직 뽑기 전이에요</div>
+                <div class="result-sub" id="resultSub">이미지나 버튼을 눌러 시작하세요.</div>
+              </div>
+              <span class="badge pulse" id="resultBadge">READY</span>
+            </div>
+          </div>
+
+          <div class="card" style="min-height:0; display:flex; flex-direction:column;">
+            <h3>뽑기 기록</h3>
+            <div class="history" id="historyList">
+              <!-- 항목 추가 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 애니메이션 오버레이 -->
+  <div class="overlay" id="overlay"></div>
+
+  <script>
+    // =========================
+    // 화면 스크롤 잠금/100vh 보정
+    // =========================
+    function setViewportHeightVar(){
+      const vh = window.innerHeight * 0.01; // 실제 보이는 영역 기준
+      document.documentElement.style.setProperty('--vh', vh + 'px');
+    }
+    setViewportHeightVar();
+    window.addEventListener('resize', setViewportHeightVar);
+    window.addEventListener('orientationchange', ()=>{
+      // 회전 시 약간 딜레이 후 재계산 (모바일 브라우저 바 애니메이션 대비)
+      setTimeout(setViewportHeightVar, 200);
+    });
+
+    // 문서 전체 스크롤 막기 보호 (모바일 스와이프)
+    document.addEventListener('touchmove', function(e){
+      // 내부 스크롤 허용 영역(기록/확률 리스트) 외에는 기본 스크롤 방지
+      const scrollable = e.target.closest('.history, .rarity-list');
+      if(!scrollable){
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    // =========================
+    // 설정: 희귀도 및 확률
+    // =========================
+    const RARITIES = [
+      // name, prob (%), badgeClass, theme
+      { name: "일반",     prob: 60.0, badgeClass:"",         theme:"normal"  },
+      { name: "레어",     prob: 20.0, badgeClass:"",         theme:"normal"  },
+      { name: "레인보우", prob: 10.0, badgeClass:"rainbow",  theme:"rainbow" },
+      { name: "전설",     prob: 5.0,  badgeClass:"legendary",theme:"legend"  },
+      { name: "신화",     prob: 3.0,  badgeClass:"myth",     theme:"myth"    },
+      { name: "영웅",     prob: 1.5,  badgeClass:"hero",     theme:"hero"    },
+      { name: "시크릿",   prob: 0.5,  badgeClass:"secret",   theme:"secret"  },
+    ];
+    const TOTAL_PROB = RARITIES.reduce((a,b)=>a+b.prob,0);
+
+    // =========================
+    // DOM 참조
+    // =========================
+    const faceImg     = document.getElementById("faceImg");
+    const fxCanvas    = document.getElementById("fxCanvas");
+    const fxCtx       = fxCanvas.getContext("2d");
+    const imageWrap   = document.getElementById("imageWrap");
+    const drawBtn     = document.getElementById("drawBtn");
+    const autoBtn     = document.getElementById("autoBtn");
+    const resetBtn    = document.getElementById("resetBtn");
+    const rarityList  = document.getElementById("rarityList");
+    const resultTitle = document.getElementById("resultTitle");
+    const resultSub   = document.getElementById("resultSub");
+    const resultBadge = document.getElementById("resultBadge");
+    const spinner     = document.getElementById("spinner");
+    const overlay     = document.getElementById("overlay");
+    const historyList = document.getElementById("historyList");
+    const totalTriesEl= document.getElementById("totalTries");
+
+    // 운세 게이지
+    const luckMeter   = document.getElementById("luckMeter");
+
+    // =========================
+    // 유틸
+    // =========================
+    function nowTime(){
+      const d = new Date();
+      const hh = String(d.getHours()).padStart(2,"0");
+      const mm = String(d.getMinutes()).padStart(2,"0");
+      const ss = String(d.getSeconds()).padStart(2,"0");
+      return `${hh}:${mm}:${ss}`;
+    }
+    function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
+
+    // 확률 기반 추첨
+    function drawRarity(){
+      const r = Math.random() * TOTAL_PROB;
+      let acc = 0;
+      for(const item of RARITIES){
+        acc += item.prob;
+        if(r <= acc) return item;
+      }
+      return RARITIES[RARITIES.length-1];
+    }
+
+    // =========================
+    // 확률 목록 UI 그리기
+    // =========================
+    function renderRarityList(){
+      rarityList.innerHTML = "";
+      RARITIES.forEach(r=>{
+        const div = document.createElement("div");
+        div.className = "rarity-item";
+
+        const label = document.createElement("div");
+        label.className = "label";
+        const dot = document.createElement("span");
+        dot.className = "dot " + (
+          r.name==="일반" ? "c-common" :
+          r.name==="레어" ? "c-rare" :
+          r.name==="레인보우" ? "c-rainbow" :
+          r.name==="전설" ? "c-legend" :
+          r.name==="신화" ? "c-myth" :
+          r.name==="영웅" ? "c-hero" : "c-secret"
+        );
+        const name = document.createElement("span");
+        name.textContent = r.name;
+
+        label.appendChild(dot);
+        label.appendChild(name);
+
+        const prob = document.createElement("div");
+        prob.className = "prob";
+        prob.textContent = r.prob.toFixed(2) + " %";
+
+        div.appendChild(label);
+        div.appendChild(prob);
+        rarityList.appendChild(div);
+      });
+    }
+
+    // =========================
+    // 뽑기 결과 표현
+    // =========================
+    const history = [];
+    const recentWeights = { // 운세 게이지 가중치
+      "일반": 1,
+      "레어": 2,
+      "레인보우": 4,
+      "전설": 6,
+      "신화": 8,
+      "영웅": 10,
+      "시크릿": 12
+    };
+
+    function setResult(item){
+      resultTitle.textContent = `${item.name} 당첨!`;
+      const desc = {
+        "일반": "언젠가 커다란 행운을 위해 워밍업 중이에요.",
+        "레어": "평균보다 살짝 좋은 하루. 작은 기쁨이 있어요.",
+        "레인보우": "다채로운 순간! 색감처럼 기분이 물들어요.",
+        "전설": "당신만의 이야기에 한 페이지가 더해졌어요.",
+        "신화": "신화 속에서 잠깐 나를 불러낸 듯한 반짝임.",
+        "영웅": "도전의 시간이었고, 당신은 해냈어요.",
+        "시크릿": "속삭이는 비밀. 드문 기회가 손에 들어왔어요."
+      }[item.name] || "행운은 뜻밖에 옵니다.";
+
+      resultSub.textContent = desc;
+
+      // 배지 색
+      resultBadge.textContent = item.name.toUpperCase();
+      resultBadge.className = "badge " + (item.badgeClass || "");
+    }
+
+    function addHistory(item){
+      history.unshift({ item, time: nowTime() });
+      if(history.length > 200) history.pop();
+
+      const el = document.createElement("div");
+      el.className = "history-item";
+      const left = document.createElement("div");
+      left.style.display = "flex";
+      left.style.alignItems = "center";
+      left.style.gap = "8px";
+
+      const dot = document.createElement("span");
+      dot.className = "dot " + (
+        item.name==="일반" ? "c-common" :
+        item.name==="레어" ? "c-rare" :
+        item.name==="레인보우" ? "c-rainbow" :
+        item.name==="전설" ? "c-legend" :
+        item.name==="신화" ? "c-myth" :
+        item.name==="영웅" ? "c-hero" : "c-secret"
+      );
+      const label = document.createElement("div");
+      label.textContent = item.name;
+
+      left.appendChild(dot);
+      left.appendChild(label);
+
+      const time = document.createElement("div");
+      time.className = "time";
+      time.textContent = nowTime();
+
+      el.appendChild(left);
+      el.appendChild(time);
+
+      historyList.prepend(el);
+    }
+
+    function updateCounters(){
+      totalTriesEl.textContent = history.length.toString();
+
+      const recent = history.slice(0,20);
+      const score = recent.reduce((sum,h)=> sum + (recentWeights[h.item.name]||0), 0);
+      const maxScore = 20 * recentWeights["시크릿"];
+      const pct = recent.length ? Math.round((score / maxScore) * 100) : 0;
+      luckMeter.style.setProperty("--v", pct + "%");
+    }
+
+    // =========================
+    // 애니메이션/효과
+    // =========================
+    let isDrawing = false;
+    let autoTimer = null;
+
+    function playDrawAnimation(){
+      spinner.classList.remove("hidden");
+      resultBadge.classList.add("pulse");
+      imageWrap.classList.add("face-pop");
+
+      // 이미지 살짝 줌
+      faceImg.style.transform = "scale(1.03)";
+      faceImg.style.filter = "brightness(1.05)";
+    }
+    function endDrawAnimation(){
+      spinner.classList.add("hidden");
+      resultBadge.classList.remove("pulse");
+      imageWrap.classList.remove("face-pop");
+
+      faceImg.style.transform = "scale(1)";
+      faceImg.style.filter = "brightness(1)";
+    }
+
+    function shootConfetti(theme="normal"){
+      const colors = theme==="legend" ? ["#ffd36a","#ffae00","#fff2b0","#ffcc66"] :
+                      theme==="myth"   ? ["#a5f5ff","#58d7ff","#cfffff","#87e7ff"] :
+                      theme==="hero"   ? ["#caffc7","#59f2a1","#a7ffc0","#78f7b5"] :
+                      theme==="secret" ? ["#ff77e1","#f23fb5","#ffc2f0","#ff9be6"] :
+                      theme==="rainbow"? ["#ff4d4d","#ffa64d","#fffb4d","#70ff4d","#4dbeff","#9a4dff","#ff4df0"] :
+                                         ["#cfd7f6","#87a8ff","#cfe0ff","#9bb9ff"];
+      const n = 65 + Math.floor(Math.random()*55);
+      for(let i=0;i<n;i++){
+        const c = document.createElement("div");
+        c.className = "confetti";
+        c.style.left = Math.random()*100 + "%";
+        c.style.top = "-20px";
+        c.style.background = colors[Math.floor(Math.random()*colors.length)];
+        c.style.opacity = 0.95;
+        const rot = Math.random()*360;
+        const tx = (Math.random()*2-1) * 60;
+        const duration = 1200 + Math.random()*1400;
+        overlay.appendChild(c);
+
+        const start = performance.now();
+        function step(t){
+          const dt = t - start;
+          const p = Math.min(dt/duration,1);
+          const y = p * (window.innerHeight + 60);
+          const x = Math.sin(p*Math.PI*2) * (theme==="rainbow" ? 18 : 12) + tx;
+          c.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rot + p*720}deg)`;
+          c.style.opacity = 1 - p*0.25;
+          if(p<1) requestAnimationFrame(step);
+          else overlay.removeChild(c);
+        }
+        requestAnimationFrame(step);
+      }
+    }
+
+    function playToneFor(item){
+      // 간단한 WebAudio 톤 (희귀도에 따라 음 높이/길이 변화)
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const ctxA = new AudioCtx();
+      const osc = ctxA.createOscillator();
+      const gain = ctxA.createGain();
+      osc.type = "triangle";
+      const base = {
+        "일반": 300,
+        "레어": 360,
+        "레인보우": 420,
+        "전설": 520,
+        "신화": 600,
+        "영웅": 680,
+        "시크릿": 760
+      }[item.name] || 400;
+      osc.frequency.value = base;
+      osc.connect(gain);
+      gain.connect(ctxA.destination);
+      gain.gain.value = 0.02;
+      osc.start();
+
+      const target = base + 80;
+      osc.frequency.exponentialRampToValueAtTime(target, ctxA.currentTime + 0.22);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctxA.currentTime + 0.28);
+
+      setTimeout(()=> { osc.stop(); ctxA.close(); }, 340);
+    }
+
+    // 이미지 위 빛 반사 효과 (캔버스)
+    function drawFXFlash(){
+      const rect = fxCanvas.getBoundingClientRect();
+      const ratio = window.devicePixelRatio || 1;
+      fxCanvas.width = Math.floor(rect.width * ratio);
+      fxCanvas.height = Math.floor(rect.height * ratio);
+      const w = fxCanvas.width, h = fxCanvas.height;
+
+      fxCtx.clearRect(0,0,w,h);
+
+      // 애니메이션 스윕
+      let start = performance.now();
+      function sweep(t){
+        const dt = t - start;
+        const p = Math.min(dt/800, 1);
+        const x = p * w;
+        fxCtx.clearRect(0,0,w,h);
+
+        const g2 = fxCtx.createLinearGradient(x-200, 0, x+200, 0);
+        g2.addColorStop(0, "rgba(255,255,255,0.0)");
+        g2.addColorStop(0.45, "rgba(255,255,255,0.12)");
+        g2.addColorStop(0.5, "rgba(255,255,255,0.28)");
+        g2.addColorStop(0.55, "rgba(255,255,255,0.12)");
+        g2.addColorStop(1, "rgba(255,255,255,0.0)");
+        fxCtx.globalCompositeOperation = "lighter";
+        fxCtx.fillStyle = g2;
+        fxCtx.fillRect(0, 0, w, h);
+
+        if(p<1) requestAnimationFrame(sweep);
+        else fxCtx.clearRect(0,0,w,h);
+      }
+      requestAnimationFrame(sweep);
+    }
+
+    // =========================
+    // 버튼/인터랙션
+    // =========================
+    function doDraw(){
+      if(isDrawing) return;
+      isDrawing = true;
+      playDrawAnimation();
+      drawFXFlash();
+      resultTitle.textContent = "뽑는 중...";
+      resultSub.textContent = "행운의 실타래를 감는 중입니다.";
+
+      setTimeout(()=>{
+        const item = drawRarity();
+        setResult(item);
+        addHistory(item);
+        updateCounters();
+        endDrawAnimation();
+
+        shootConfetti(item.theme);
+        playToneFor(item);
+
+        isDrawing = false;
+      }, 900 + Math.random()*300);
+    }
+
+    function startAuto(){
+      if(autoTimer){ stopAuto(); return; }
+      autoBtn.textContent = "자동 중지";
+      autoTimer = setInterval(()=> doDraw(), 1150);
+    }
+    function stopAuto(){
+      autoBtn.textContent = "자동 뽑기";
+      clearInterval(autoTimer);
+      autoTimer = null;
+    }
+
+    function resetAll(){
+      history.length = 0;
+      historyList.innerHTML = "";
+      totalTriesEl.textContent = "0";
+      luckMeter.style.setProperty("--v", "0%");
+      resultTitle.textContent = "아직 뽑기 전이에요";
+      resultSub.textContent = "이미지나 버튼을 눌러 시작하세요.";
+      resultBadge.textContent = "READY";
+      resultBadge.className = "badge";
+      faceImg.style.transform = "scale(1)";
+      faceImg.style.filter = "brightness(1)";
+      fxCtx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
+    }
+
+    drawBtn.addEventListener("click", doDraw);
+    autoBtn.addEventListener("click", ()=> autoTimer ? stopAuto() : startAuto());
+    resetBtn.addEventListener("click", resetAll);
+    faceImg.addEventListener("click", doDraw);
+
+    // 키보드: Enter로 뽑기
+    document.addEventListener("keydown",(e)=>{
+      if(e.key==="Enter") doDraw();
+    });
+
+    // =========================
+    // 반응형: 캔버스/이미지 리사이즈 처리
+    // =========================
+    function resizeFXCanvas(){
+      const rect = fxCanvas.getBoundingClientRect();
+      const ratio = window.devicePixelRatio || 1;
+      const w = Math.floor(rect.width * ratio);
+      const h = Math.floor(rect.height * ratio);
+      if(fxCanvas.width !== w || fxCanvas.height !== h){
+        fxCanvas.width = w;
+        fxCanvas.height = h;
+      }
+    }
+    function ensureImageFits(){
+      resizeFXCanvas();
+    }
+    window.addEventListener("resize", ensureImageFits);
+
+    // 이미지 로드 완료 후 초기화
+    function onImageLoaded(){
+      ensureImageFits();
+      imageWrap.classList.add("face-pop");
+      setTimeout(()=> imageWrap.classList.remove("face-pop"), 750);
+    }
+    if(faceImg.complete){
+      onImageLoaded();
+    } else {
+      faceImg.addEventListener("load", onImageLoaded);
+      faceImg.addEventListener("error", ()=>{
+        resultTitle.textContent = "이미지 로드 실패";
+        resultSub.textContent = "네트워크 상태를 확인하거나 새로고침 해주세요.";
+      });
+    }
+
+    // =========================
+    // 초기 렌더
+    // =========================
+    renderRarityList();
+    ensureImageFits();
+    resultBadge.classList.add("pulse");
+  </script>
+</body>
+</html>
