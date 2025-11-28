@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌙 달빛 AI 챗봇 (인메모리)</title>
+    <title>🌙 달빛 AI 챗봇</title>
     <!-- Inter 폰트 로드 -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <!-- Tailwind CSS 로드 -->
@@ -51,11 +51,6 @@
         .chat-history::-webkit-scrollbar-thumb:hover {
             background: #64748B;
         }
-
-        /* 확인 모달 배경 오버레이 */
-        .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.75);
-        }
     </style>
 </head>
 <body>
@@ -64,26 +59,26 @@
     <div class="chat-container w-full max-w-lg mx-auto rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[90vh] sm:h-[80vh] my-4">
 
         <!-- 챗봇 헤더 -->
-        <header class="p-4 bg-slate-900 border-b border-indigo-700/50 flex items-center justify-between relative">
-            
-            <button id="clear-chat-button" title="브라우저 메모리에 있는 모든 채팅 기록 삭제"
-                    class="p-2 bg-red-700 hover:bg-red-600 text-white text-sm font-medium rounded-xl transition duration-300 shadow-md">
-                기록 삭제
-            </button>
-
-            <h1 class="text-xl font-bold text-white flex items-center absolute left-1/2 transform -translate-x-1/2">
+        <header class="p-4 bg-slate-900 border-b border-indigo-700/50 flex items-center justify-center relative">
+            <h1 class="text-xl font-bold text-white flex items-center">
                 <span class="text-indigo-400 mr-2">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
                 </span>
                 달빛 AI 챗봇
             </h1>
-            
-            <!-- Firebase 제거로 인해 사용자 ID는 제거됨 -->
-            <div class="text-xs text-slate-500 max-w-[100px] select-none">인메모리 모드</div>
         </header>
 
         <!-- 메시지 기록 영역 -->
         <div id="chat-history" class="chat-history flex-grow p-4 space-y-6 overflow-y-auto">
+            <!-- 초기 환영 메시지 (AI) -->
+            <div class="flex justify-start">
+                <div class="ai-message max-w-xs md:max-w-md p-4 rounded-xl shadow-lg transition duration-300">
+                    <p class="font-semibold text-indigo-300 mb-1">달빛 AI</p>
+                    <p class="text-gray-200">
+                        안녕하세요! 저는 달빛 AI입니다. 무엇이든 물어보세요. 복잡한 아이디어부터 간단한 질문까지 도와드릴 준비가 되어 있습니다.
+                    </p>
+                </div>
+            </div>
             <!-- 메시지는 여기에 동적으로 추가됩니다 -->
         </div>
 
@@ -116,28 +111,11 @@
         <p id="message-text" class="text-white font-semibold"></p>
     </div>
 
-    <!-- 커스텀 확인 모달 (Confirm 대체) -->
-    <div id="confirmation-modal" class="hidden fixed inset-0 z-[99999] flex items-center justify-center modal-overlay">
-        <div class="bg-slate-800 p-6 rounded-xl shadow-2xl max-w-sm w-full border border-indigo-700">
-            <h3 class="text-lg font-bold text-white mb-4">확인 필요</h3>
-            <p id="modal-text" class="text-slate-300 mb-6">정말로 이 작업을 수행하시겠습니까?</p>
-            <div class="flex justify-end space-x-3">
-                <button id="modal-cancel-button" class="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-lg transition duration-200">
-                    취소
-                </button>
-                <button id="modal-confirm-button" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-lg transition duration-200">
-                    삭제
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <script type="module">
+    <script>
         // =======================================================================
         // 1. 설정 및 DOM 요소 정의
-        // (Firebase 관련 코드는 모두 제거되었습니다.)
         // =======================================================================
-        const DALBIT_API_KEY = typeof __api_key !== 'undefined' ? __api_key : ""; 
+        const DALBIT_API_KEY = "AIzaSyDhoxxpY2nqAdX4XUFmB20ukRlMXa1eLx8"; // 사용자 제공 API 키
         const API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/";
         const MODEL_NAME = "gemini-2.5-flash-preview-09-2025";
         const API_URL = `${API_BASE_URL}${MODEL_NAME}:generateContent?key=${DALBIT_API_KEY}`;
@@ -147,12 +125,8 @@
         const chatForm = document.getElementById('chat-form');
         const sendButton = document.getElementById('send-button');
         const loadingIndicator = document.getElementById('loading-indicator');
-        const clearChatButton = document.getElementById('clear-chat-button');
-        const messageBox = document.getElementById('message-box');
-        const messageText = document.getElementById('message-text');
-
-        // 인메모리 대화 기록 배열
-        let conversationHistory = []; 
+        
+        let conversationHistory = []; // 대화 기록을 저장하는 배열 (API 요청에 사용)
 
         // =======================================================================
         // 2. 유틸리티 함수
@@ -160,62 +134,37 @@
 
         /**
          * 사용자에게 메시지를 표시하는 함수 (Alert 대체)
+         * @param {string} message 표시할 메시지
+         * @param {string} type 메시지 유형 ('error' 또는 'success')
          */
         function showMessage(message, type = 'error') {
+            const messageBox = document.getElementById('message-box');
+            const messageText = document.getElementById('message-text');
             
             messageText.textContent = message;
             messageBox.classList.remove('hidden');
             messageBox.classList.add('flex');
 
-            // 테마 설정
-            messageBox.classList.remove('bg-red-600', 'bg-green-600');
-            messageBox.classList.add(type === 'error' ? 'bg-red-600' : 'bg-green-600');
+            if (type === 'error') {
+                messageBox.classList.remove('bg-green-600');
+                messageBox.classList.add('bg-red-600');
+            } else {
+                messageBox.classList.remove('bg-red-600');
+                messageBox.classList.add('bg-green-600');
+            }
             
             setTimeout(() => {
                 messageBox.classList.add('hidden');
                 messageBox.classList.remove('flex');
             }, 5000);
         }
-        
-        /**
-         * 커스텀 확인 모달을 표시하고 사용자의 응답을 기다리는 함수 (Confirm 대체)
-         */
-        function showConfirmModal(message) {
-            return new Promise(resolve => {
-                const modal = document.getElementById('confirmation-modal');
-                document.getElementById('modal-text').textContent = message;
-                const confirmBtn = document.getElementById('modal-confirm-button');
-                const cancelBtn = document.getElementById('modal-cancel-button');
-
-                modal.classList.remove('hidden');
-                
-                const handleConfirm = () => {
-                    modal.classList.add('hidden');
-                    confirmBtn.removeEventListener('click', handleConfirm);
-                    cancelBtn.removeEventListener('click', handleCancel);
-                    resolve(true);
-                };
-
-                const handleCancel = () => {
-                    modal.classList.add('hidden');
-                    confirmBtn.removeEventListener('click', handleConfirm);
-                    cancelBtn.removeEventListener('click', handleCancel);
-                    resolve(false);
-                };
-
-                confirmBtn.addEventListener('click', handleConfirm);
-                cancelBtn.addEventListener('click', handleCancel);
-            });
-        }
-
 
         /**
          * 채팅 메시지를 UI에 추가하는 함수
          * @param {string} text 메시지 내용
          * @param {string} role 'user' 또는 'model'
-         * @param {boolean} isWelcome 환영 메시지 여부
          */
-        function appendMessage(text, role, isWelcome = false) {
+        function appendMessage(text, role) {
             const messageWrapper = document.createElement('div');
             messageWrapper.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
 
@@ -223,11 +172,8 @@
             
             if (role === 'user') {
                 messageBubble.className = 'user-message max-w-xs md:max-w-md p-3 rounded-xl shadow-md text-white';
-                messageBubble.textContent = text;
             } else {
-                messageBubble.className = isWelcome 
-                    ? 'ai-message max-w-xs md:max-w-md p-4 rounded-xl shadow-lg transition duration-300 border-indigo-500' 
-                    : 'ai-message max-w-xs md:max-w-md p-4 rounded-xl shadow-lg transition duration-300';
+                messageBubble.className = 'ai-message max-w-xs md:max-w-md p-4 rounded-xl shadow-lg transition duration-300';
                 
                 const sender = document.createElement('p');
                 sender.className = 'font-semibold text-indigo-300 mb-1';
@@ -236,34 +182,22 @@
 
                 const content = document.createElement('p');
                 content.className = 'text-gray-200 whitespace-pre-wrap';
-                // 간단한 Markdown (볼드, 이탤릭, 줄바꿈)을 HTML로 변환하여 innerHTML 사용
-                let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // **볼드**
-                formattedText = formattedText.replace(/\*(.*?)\*/g, '<em>$1</em>'); // *이탤릭*
-                content.innerHTML = formattedText;
+                content.textContent = text;
                 messageBubble.appendChild(content);
             }
 
-            chatHistory.appendChild(messageWrapper);
-            messageWrapper.appendChild(messageBubble);
+            if (role === 'user') {
+                 // 사용자 메시지는 텍스트만 추가
+                 messageBubble.textContent = text;
+            }
 
+            messageWrapper.appendChild(messageBubble);
+            chatHistory.appendChild(messageWrapper);
+            
             // 스크롤을 가장 아래로 이동
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }
 
-        /**
-         * 초기 환영 메시지를 UI에 추가하고 메모리를 초기화합니다.
-         */
-        function initializeChat() {
-            chatHistory.innerHTML = '';
-            conversationHistory = [];
-            
-            appendMessage(
-                "안녕! 나는 달빛 AI야. 무엇이든 물어봐. 복잡한 아이디어부터 간단한 질문까지 도와줄 준비가 되어 있어. **(이 기록은 메모리에만 저장돼)**", 
-                'model', 
-                true
-            );
-        }
-        
         /**
          * 입력 필드의 상태에 따라 전송 버튼을 활성화/비활성화
          */
@@ -271,34 +205,19 @@
             sendButton.disabled = userInput.value.trim() === '';
         }
 
-        /**
-         * 대화 기록 전체를 삭제하는 함수
-         */
-        async function clearHistory() {
-            
-            const isConfirmed = await showConfirmModal("정말로 메모리의 모든 대화 기록을 삭제하시겠습니까? (저장되지 않습니다)");
-            if (!isConfirmed) return;
-
-            initializeChat();
-            showMessage('모든 채팅 기록이 삭제되었어.', 'success');
-        }
-
-
         // =======================================================================
         // 3. Gemini API 통신 로직 (Exponential Backoff 포함)
         // =======================================================================
 
         /**
          * Gemini API를 호출하는 핵심 함수 (지수 백오프 포함)
+         * @param {number} maxRetries 최대 재시도 횟수
+         * @param {number} delay 현재 지연 시간 (밀리초)
          */
         async function fetchGeminiResponse(maxRetries = 5, delay = 1000) {
-            if (conversationHistory.length === 0) {
-                 throw new Error("API 호출 시 conversationHistory가 비어 있습니다. 사용자 메시지가 누락되었습니다.");
-            }
-
             const payload = {
                 contents: conversationHistory,
-                // 시스템 지침: 반말, 장문 답변
+                // 시스템 지침을 추가하여 모델의 페르소나를 설정할 수 있습니다.
                 systemInstruction: {
                     parts: [{ text: "너는 한국어에 능통하며, 고급 데이터 분석 및 창의적 콘텐츠 생성을 전문으로 하는 '달빛 AI' 챗봇이야. 사용자와 친구처럼 편하고 격의 없는 말투(반말)를 사용하며, 질문에 대해 항상 매우 상세하고 광범위하게 정보를 제공하여 답변이 길고 깊이 있게 느껴지도록 작성해 줘." }]
                 }
@@ -312,35 +231,47 @@
                         body: JSON.stringify(payload)
                     });
 
+                    // HTTP 오류 처리
                     if (!response.ok) {
                         if (response.status === 429) {
+                            // 429 Too Many Requests: 재시도
                             throw new Error('Rate limit exceeded. Retrying...');
                         } else if (response.status >= 400 && response.status < 500) {
+                            // 클라이언트 오류 (4xx): 재시도하지 않음
                             const errorData = await response.json();
                             throw new Error(`Client Error: ${response.status} - ${errorData.error.message || 'Unknown client error'}`);
                         } else {
+                            // 서버 오류 (5xx): 재시도
                             throw new Error(`Server Error: ${response.status} - Retrying...`);
                         }
                     }
 
                     const result = await response.json();
                     
+                    // 응답 본문에서 텍스트 추출
                     const candidate = result.candidates?.[0];
 
                     if (candidate && candidate.content?.parts?.[0]?.text) {
                         return candidate.content.parts[0].text;
                     } else if (candidate && candidate.finishReason === 'SAFETY') {
-                        return "미안해. 요청한 내용은 안전 정책 때문에 생성할 수 없어.";
+                        // 안전 필터에 걸린 경우
+                        return "죄송합니다. 요청하신 내용은 안전 정책으로 인해 생성할 수 없습니다.";
                     } else {
                         throw new Error('API 응답에서 유효한 텍스트를 찾을 수 없습니다.');
                     }
 
                 } catch (error) {
-                    // 서버 오류나 속도 제한인 경우에만 재시도
+                    console.error(`API 호출 실패 (시도 ${i + 1}/${maxRetries}):`, error.message);
+                    
                     if (i < maxRetries - 1 && (error.message.includes('Rate limit') || error.message.includes('Server Error'))) {
+                        // 재시도 가능한 오류의 경우 지수 백오프로 대기
                         await new Promise(resolve => setTimeout(resolve, delay));
-                        delay *= 2; 
+                        delay *= 2; // 지연 시간 두 배 증가
+                    } else if (error.message.includes('Client Error')) {
+                        // 클라이언트 오류는 즉시 종료
+                        throw error;
                     } else {
+                        // 기타 오류는 최종적으로 throw
                         throw error;
                     }
                 }
@@ -354,6 +285,7 @@
 
         /**
          * 메시지 전송 처리 함수
+         * @param {Event} e 폼 제출 이벤트
          */
         async function handleSendMessage(e) {
             e.preventDefault();
@@ -365,37 +297,30 @@
             toggleButtonState();
             sendButton.disabled = true; 
             loadingIndicator.classList.remove('hidden');
-
-            // 2. 사용자 메시지 기록 및 UI 추가
-            const userMessage = { role: 'user', parts: [{ text: prompt }] };
-            conversationHistory.push(userMessage);
+            
+            // 2. 사용자 메시지 UI에 추가 및 기록 저장
             appendMessage(prompt, 'user');
+            conversationHistory.push({ role: "user", parts: [{ text: prompt }] });
             
             try {
-                // 3. API 호출
+                // 3. Gemini API 호출
                 const aiResponseText = await fetchGeminiResponse();
                 
-                // 4. AI 메시지 기록 및 UI 추가
-                const aiMessage = { role: 'model', parts: [{ text: aiResponseText }] };
-                conversationHistory.push(aiMessage);
+                // 4. AI 메시지 UI에 추가 및 기록 저장
                 appendMessage(aiResponseText, 'model');
-                
+                conversationHistory.push({ role: "model", parts: [{ text: aiResponseText }] });
+
             } catch (error) {
                 // 5. 오류 처리
                 console.error("최종 API 오류:", error);
-                const errorMessage = `API 통신 중 오류가 발생했어: ${error.message}. 대화 기록에서 마지막 사용자 메시지를 제거하고 다시 시도해 봐.`;
-                
-                // 오류 발생 시 마지막 사용자 메시지를 기록에서 제거 (재시도 시 문제가 된 메시지 제외)
-                conversationHistory.pop(); 
-                
-                // 오류 메시지를 UI에 표시
-                appendMessage(errorMessage, 'model');
+                const errorMessage = `API 통신 중 오류가 발생했습니다: ${error.message}. 잠시 후 다시 시도해 주세요.`;
+                appendMessage(errorMessage, 'model'); // 오류 메시지를 AI 말풍선으로 표시
                 showMessage(errorMessage, 'error');
             } finally {
                 // 6. 상태 복구
                 loadingIndicator.classList.add('hidden');
-                sendButton.disabled = false;
-                toggleButtonState();
+                sendButton.disabled = false; // 전송 버튼 다시 활성화
+                toggleButtonState(); // 입력 필드 상태에 따라 최종 결정
             }
         }
 
@@ -406,13 +331,14 @@
         // 이벤트 리스너 연결
         chatForm.addEventListener('submit', handleSendMessage);
         userInput.addEventListener('input', toggleButtonState);
-        clearChatButton.addEventListener('click', clearHistory);
 
-        // 초기 로드 시 채팅 초기화 및 버튼 상태 설정
-        window.onload = () => {
-             initializeChat();
-             toggleButtonState();
-        };
+        // 초기 로드 시 버튼 상태 설정
+        window.onload = toggleButtonState;
+
+        // API 키가 없으면 경고 메시지 표시 (캔버스 환경에서는 제공되므로 보통 불필요)
+        if (!DALBIT_API_KEY) {
+             showMessage("경고: API 키가 설정되지 않았습니다. API 호출이 실패할 수 있습니다.", 'error');
+        }
 
     </script>
 
