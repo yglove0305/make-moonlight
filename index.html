@@ -1,1219 +1,1032 @@
-
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" class="christmas-theme">
 <head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <meta name="description" content="달빛도구 - 밤하늘 아래 달빛과 별을 배경으로 한 도구 모음입니다. 조용하고 은은한 달빛 테마로 디자인을 바꾸고, 가독성과 접근성을 고려해 재구성했습니다." />
-  <meta name="keywords" content="달빛도구, 달빛, 밤, 스타필드, 툴 모음, 캘린더, 메트로놈, 게임" />
-  <meta name="author" content="달빛도구 팀" />
+  <!-- SEO 메타 데이터 -->
+  <meta name="description" content="달빛의 웹사이트 크리스마스 에디션 - 당신의 겨울밤을 밝혀주는 유용한 도구들과 게임 모음집입니다.">
+  <meta name="keywords" content="달빛의 웹사이트, 크리스마스, 산타, 눈내리는 배경, 달빛도구, 툴 모음, 게임">
+  <meta name="author" content="Moonlight Team">
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="🌙 달빛도구" />
-  <meta property="og:description" content="밤하늘 테마 - 버전 v.2.1" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://make-moonlight.vercel.app/" />
-  <meta property="og:image" content="/img/Copilot_20250927_135650.png" />
+  <meta property="og:title" content="🎄 달빛의 크리스마스 웹사이트">
+  <meta property="og:description" content="눈 내리는 겨울밤, 유용한 도구와 게임을 산타가 선물합니다.">
+  <meta property="og:type" content="website">
 
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="🌙 달빛도구" />
-  <meta name="twitter:description" content="밤하늘 테마 - 버전 v.2.1" />
-  <meta name="twitter:image" content="/img/Copilot_20250927_135650.png" />
+  <title>🎄 달빛의 크리스마스</title>
 
-  <!-- web app -->
-  <meta name="theme-color" content="#051024" />
-  <meta name="application-name" content="달빛도구" />
-  <meta name="apple-mobile-web-app-title" content="달빛도구" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="icon" href="/img/Copilot_20250927_135650.png" type="image/png" />
-  <title>달빛도구 — 밤하늘 테마</title>
+  <!-- Google Fonts: 크리스마스 느낌의 폰트 추가 (Mountains of Christmas) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
 
-  <!--(Noto Sans KR) -->
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet" />
-
-  <!-- Extensive CSS for "moonlit night" aesthetic -->
   <style>
-    /*
-      달빛도구 — 밤하늘 테마 스타일
-      디자인 목표:
-      - 깊은 밤(네이비/인디고) 배경
-      - 달(SVG) + 별 다층(앞/뒤)으로 입체감
-      - 구름과 가벼운 안개로 부드러운 분위기
-      - 기존 레이아웃(카드, 버튼)은 유지하되 색감 변경
-      - 접근성: prefers-reduced-motion, 대비, 키보드 포커스
+    /* [디자인 시스템: Christmas Night v4.0] 
+      - 배경: 짙은 겨울 밤하늘 + 눈 내리는 효과
+      - 컬러: 홀리 레드, 파인 그린, 스노우 화이트, 골드
+      - 질감: 성에 낀 유리 (Frosted Ice)
     */
 
-    :root{
-      /* 기본 (밤 테마) */
-      --bg-outer: radial-gradient(1200px 600px at 10% 10%, rgba(12,22,44,0.6), transparent 10%),
-                   radial-gradient(1000px 500px at 90% 85%, rgba(3,9,25,0.6), transparent 10%),
-                   linear-gradient(180deg, #021021 0%, #030616 45%, #000512 100%);
-      --bg-sky: linear-gradient(180deg, #06121a 0%, #021224 60%);
-      --surface: rgba(255,255,255,0.03);
-      --card-surface: rgba(255,255,255,0.02);
-      --muted: #9fb0c0;
-      --text: #e6f2ff;
-      --accent: #9b8cff;
-      --primary: #66e0ff;
-      --glass: rgba(255,255,255,0.02);
-      --card-radius: 16px;
-      --shadow-1: 0 8px 25px rgba(0,0,0,0.6);
-      --shadow-2: 0 18px 60px rgba(0,0,0,0.7);
-      --max-width: 1180px;
-      --focus-ring: 5px;
-      --star-color: rgba(255,255,255,0.95);
-      --moon-glow: rgba(150,170,255,0.06);
-      --glass-border: rgba(255,255,255,0.03);
-      --muted-bg: rgba(255,255,255,0.02);
+    :root {
+      /* 크리스마스 컬러 팔레트 */
+      --bg-night: #0f172a; /* 짙은 남색 */
+      --bg-gradient: linear-gradient(to bottom, #020617, #1e1b4b, #312e81);
+      
+      --xmas-red: #ef4444;
+      --xmas-green: #15803d;
+      --xmas-gold: #f59e0b;
+      --snow-white: #f8fafc;
+      
+      --card-frost: rgba(255, 255, 255, 0.1);
+      --card-border: rgba(255, 255, 255, 0.2);
+      --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      
+      --text-main: #f1f5f9;
+      --text-muted: #cbd5e1;
+      
+      --glow-text: 0 0 10px rgba(255, 255, 255, 0.5);
     }
 
-    /* Light override (사용자 선택 시) */
-    :root.light{
-      --bg-outer: linear-gradient(180deg,#f7fbff 0%, #f0f7ff 100%);
-      --bg-sky: linear-gradient(180deg,#f7fbff 0%, #eef6ff 100%);
-      --surface: #ffffff;
-      --card-surface: rgba(255,255,255,0.9);
-      --muted: #586069;
-      --text: #0b1720;
-      --primary: #2aa0d8;
-      --accent: #7c4dff;
-      --star-color: rgba(0,0,0,0.18);
-      --moon-glow: rgba(79,130,255,0.08);
-      --glass-border: rgba(11,23,32,0.06);
-      --muted-bg: rgba(11,23,32,0.04);
-    }
-
-    /* Basic reset */
+    /* 기본 설정 */
     *, *::before, *::after { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body{
-      margin:0;
-      font-family: "Noto Sans KR", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      background: var(--bg-outer), var(--bg-sky);
-      color: var(--text);
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      line-height:1.5;
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      align-items:stretch;
-      transition: background 420ms ease, color 320ms ease;
-      overflow-x:hidden;
+    
+    body {
+      margin: 0;
+      font-family: 'Poppins', 'Noto Sans KR', sans-serif;
+      background: var(--bg-night);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+      position: relative;
     }
 
-    /* Page containers */
-    header, main, footer {
-      position:relative;
-      z-index:20;
-      width:100%;
-      max-width: var(--max-width);
-      margin-left:auto;
-      margin-right:auto;
-      padding-left:20px;
-      padding-right:20px;
+    /* --- 배경 레이어 (그라디언트 + 눈) --- */
+    .winter-background {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: -1;
+      background: var(--bg-gradient);
     }
 
-    header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      margin:28px auto 18px;
-      padding:12px 0;
-      gap:18px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
-      border-radius: 14px;
-      border: 1px solid var(--glass-border);
-      box-shadow: var(--shadow-1);
-      backdrop-filter: blur(6px) saturate(1.02);
+    /* 눈송이 컨테이너 */
+    #snow-container {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
     }
 
-    /* Branding: enlarged moon icon w/ svg */
-    .brand{
-      display:flex;
-      gap:14px;
-      align-items:center;
+    .snowflake {
+      position: absolute;
+      top: -10px;
+      color: white;
+      font-size: 1em;
+      opacity: 0.8;
+      user-select: none;
+      animation-name: fall, sway;
+      animation-timing-function: linear, ease-in-out;
+      animation-iteration-count: infinite, infinite;
     }
 
-    .logo{
-      width:84px;
-      height:84px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:999px;
-      background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.08), rgba(255,255,255,0.02) 30%), linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      box-shadow: 0 8px 28px rgba(20,30,60,0.6), 0 0 40px var(--moon-glow);
-      border: 1px solid rgba(255,255,255,0.03);
-      transform: translateZ(0);
-      transition: transform 350ms cubic-bezier(.2,.9,.3,1), box-shadow 350ms;
+    @keyframes fall {
+      0% { top: -10%; }
+      100% { top: 100%; }
+    }
+    @keyframes sway {
+      0% { transform: translateX(0); }
+      50% { transform: translateX(20px); }
+      100% { transform: translateX(0); }
     }
 
-    .logo:focus{ outline: none; transform: translateY(-6px) scale(1.02) }
-
-    .logo svg { width:56px; height:56px; display:block; filter: drop-shadow(0 6px 18px rgba(100,130,255,0.08)); }
-
-    header h1{
-      margin:0;
-      font-size:1.2rem;
-      letter-spacing:-0.3px;
-      font-weight:900;
-      color:var(--text);
+    /* --- 크리스마스 전구 장식 (Header Top) --- */
+    .light-rope {
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      position: absolute;
+      z-index: 50;
+      margin: -15px 0 0 0;
+      padding: 0;
+      pointer-events: none;
+      width: 100%;
     }
 
-    header .brand p, header .brand div > .muted{ color:var(--muted); margin-top:6px; font-size:0.95rem; max-width:680px; }
-
-    .controls{ display:flex; gap:10px; align-items:center; margin-left:auto; }
-
-    /* Theme toggle as glass pill */
-    .theme-toggle{
-      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
-      border-radius:999px;
-      padding:8px 14px;
-      color:var(--text);
-      border:1px solid var(--glass-border);
-      display:inline-flex;
-      gap:10px;
-      align-items:center;
-      cursor:pointer;
-      font-weight:800;
-      font-size:0.95rem;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
-      transition: transform 180ms ease, box-shadow 200ms ease, background 200ms ease;
+    .light-rope li {
+      position: relative;
+      animation-fill-mode: both; 
+      animation-iteration-count: infinite;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: inline-block;
+      width: 12px;
+      height: 28px;
+      border-radius: 50%;
+      margin: 20px;
+      background: var(--xmas-green);
+      box-shadow: 0px 4.66px 24px 3px var(--xmas-green);
+      animation-name: flash-1;
+      animation-duration: 2s;
     }
 
-    .theme-toggle[aria-pressed="true"]{
-      transform: translateY(-2px) scale(1.01);
-      box-shadow: var(--shadow-2);
+    .light-rope li:nth-child(2n) {
+      background: var(--xmas-red);
+      box-shadow: 0px 4.66px 24px 3px var(--xmas-red);
+      animation-name: flash-2;
+      animation-duration: 0.4s;
+    }
+    
+    .light-rope li:nth-child(3n) {
+      background: var(--xmas-gold);
+      box-shadow: 0px 4.66px 24px 3px var(--xmas-gold);
+      animation-name: flash-3;
+      animation-duration: 1.1s;
     }
 
-    /* Hero: moon + stars */
-    .hero{
-      position:relative;
-      width:100%;
-      margin: 10px auto 26px;
-      display:flex;
-      gap:20px;
-      align-items:flex-start;
-      padding:28px;
-      border-radius:18px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.0));
-      border: 1px solid rgba(255,255,255,0.02);
-      box-shadow: 0 14px 40px rgba(0,0,0,0.6);
-      overflow:visible;
-      isolation:isolate;
+    .light-rope li:before {
+      content: "";
+      position: absolute;
+      background: #222;
+      width: 10px;
+      height: 9px;
+      border-radius: 3px;
+      top: -4px;
+      left: 1px;
     }
 
-    .hero-left{
-      width:320px;
-      min-width:260px;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      align-items:center;
-      justify-content:flex-start;
-      position:relative;
-      z-index:25;
+    .light-rope li:after {
+      content: "";
+      top: -14px;
+      left: 9px;
+      position: absolute;
+      width: 52px;
+      height: 18px;
+      border-bottom: solid #222 2px;
+      border-radius: 50%;
     }
 
-    .moon-wrap{
-      width:260px;
-      height:260px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:999px;
-      position:relative;
-      box-shadow: 0 18px 60px rgba(10,20,40,0.7), 0 0 90px rgba(150,170,255,0.05);
-      background: radial-gradient(circle at 30% 25%, rgba(255,255,255,0.06), rgba(255,255,255,0.02) 10%, transparent 60%);
-      border: 1px solid rgba(255,255,255,0.02);
+    @keyframes flash-1 { 
+      0%, 100% { background: var(--xmas-green); box-shadow: 0px 4.66px 24px 3px var(--xmas-green); opacity: 1; } 
+      50% { background: rgba(21, 128, 61, 0.4); box-shadow: 0px 4.66px 24px 3px rgba(21, 128, 61, 0.2); opacity: 0.5; }
+    }
+    @keyframes flash-2 { 
+      0%, 100% { background: var(--xmas-red); box-shadow: 0px 4.66px 24px 3px var(--xmas-red); opacity: 1; } 
+      50% { background: rgba(239, 68, 68, 0.4); box-shadow: 0px 4.66px 24px 3px rgba(239, 68, 68, 0.2); opacity: 0.5; }
+    }
+    @keyframes flash-3 { 
+      0%, 100% { background: var(--xmas-gold); box-shadow: 0px 4.66px 24px 3px var(--xmas-gold); opacity: 1; } 
+      50% { background: rgba(245, 158, 11, 0.4); box-shadow: 0px 4.66px 24px 3px rgba(245, 158, 11, 0.2); opacity: 0.5; }
     }
 
-    /* moon svg container */
-    .moon{
-      width:190px;
-      height:190px;
-      display:block;
-      filter: drop-shadow(0 12px 34px rgba(90,120,255,0.06));
-      transition: transform 800ms cubic-bezier(.2,.9,.3,1);
+    /* --- 레이아웃 --- */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 10;
     }
 
-    .moon:focus { outline: none; transform: scale(1.02) }
-
-    /* subtle rotating halo for life */
-    .moon-halo{
-      position:absolute;
-      left:50%;
-      top:50%;
-      transform: translate(-50%,-50%);
-      width:340px;
-      height:340px;
-      border-radius:50%;
-      z-index:20;
-      pointer-events:none;
-      background: radial-gradient(circle at 50% 45%, rgba(150,170,255,0.06), rgba(150,170,255,0.02) 18%, transparent 40%);
-      mix-blend-mode: screen;
-      filter: blur(12px);
-      opacity:0.9;
-      transition: opacity 420ms;
+    /* --- 헤더 --- */
+    header {
+      margin-top: 60px; /* 전구 공간 확보 */
+      padding: 16px 24px;
+      border-radius: 20px;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     }
 
-    .hero-right{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      padding-top:6px;
-      padding-bottom:6px;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: var(--text-main);
     }
 
-    .lead{
-      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.0));
+    .brand-logo {
+      width: 50px; height: 50px;
+      background: radial-gradient(circle, #fff, #cbd5e1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      border: 2px solid var(--xmas-red);
+      position: relative;
+    }
+    
+    /* 로고 위 미니 산타 모자 */
+    .brand-logo::after {
+      content: '🎅';
+      position: absolute;
+      top: -15px;
+      right: -10px;
+      font-size: 24px;
+      transform: rotate(15deg);
+    }
+
+    .brand-text h1 {
+      font-family: 'Mountains of Christmas', cursive;
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin: 0;
+      color: var(--xmas-gold);
+      text-shadow: 0 0 5px rgba(245, 158, 11, 0.5);
+    }
+    .brand-text span {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: block;
+    }
+
+    /* --- 컨트롤 & 번역기 --- */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    #google_translate_element {
       border-radius: 12px;
-      padding:16px;
-      color:var(--text);
-      box-shadow: none;
-      border: 1px solid var(--muted-bg);
-      backdrop-filter: blur(6px);
+      overflow: hidden;
+    }
+    .goog-te-gadget-simple {
+      background-color: rgba(255,255,255,0.1) !important;
+      border: 1px solid rgba(255,255,255,0.2) !important;
+      padding: 8px 12px !important;
+      border-radius: 12px !important;
+    }
+    .goog-te-gadget-simple span { color: white !important; font-weight: bold; }
+    
+    .goog-te-banner-frame { display: none !important; }
+    body { top: 0 !important; }
+
+    /* 테마 버튼 (크리스마스 트리 아이콘으로 변경) */
+    .theme-btn {
+      background: rgba(21, 128, 61, 0.3);
+      border: 1px solid var(--xmas-green);
+      color: var(--text-main);
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      transition: 0.3s;
+    }
+    .theme-btn:hover {
+      background: var(--xmas-green);
+      transform: scale(1.1) rotate(10deg);
+      box-shadow: 0 0 15px var(--xmas-green);
     }
 
-    /* Grid of cards */
-    .grid{
-      display:grid;
-      grid-template-columns: repeat(3, minmax(0,1fr));
-      gap:18px;
-      align-items:start;
+    /* --- 히어로 섹션 --- */
+    .hero {
+      text-align: center;
+      padding: 60px 20px 40px;
     }
 
-    @media (max-width:1000px){
-      .grid{ grid-template-columns: repeat(2, 1fr) }
-      .hero{ flex-direction:column; align-items:center }
-      .hero-left{ width:100%; min-width:0; order:2 }
-      .hero-right{ order:1; width:100% }
-    }
-    @media (max-width:640px){
-      .grid{ grid-template-columns: 1fr }
-      header{ padding:12px; margin:18px 12px }
-      .hero{ padding:18px }
-      .moon-wrap{ width:180px; height:180px }
+    .hero-moon-wrapper {
+      position: relative;
+      width: 160px; height: 160px;
+      margin: 0 auto 20px;
     }
 
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01));
-      border-radius: var(--card-radius);
-      padding:14px;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      min-height:120px;
-      box-shadow: var(--shadow-1);
-      border: 1px solid var(--muted-bg);
-      transition: transform 240ms cubic-bezier(.2,.9,.3,1), box-shadow 220ms, background 220ms;
-      isolation:isolate;
-      backdrop-filter: blur(6px);
-      position:relative;
-      overflow:hidden;
+    .moon-svg {
+      width: 100%; height: 100%;
+      filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.4));
+      animation: float 6s ease-in-out infinite;
     }
 
-    .card::after{
-      /* subtle star dust overlay */
-      content:"";
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      background: radial-gradient(circle at 10% 10%, rgba(255,255,255,0.01), transparent 8%), radial-gradient(circle at 90% 90%, rgba(255,255,255,0.01), transparent 8%);
-      mix-blend-mode: overlay;
+    /* SVG 내부 산타 모자 추가 스타일 */
+    .santa-hat-svg {
+      animation: swingHat 3s ease-in-out infinite alternate;
+      transform-origin: bottom center;
+    }
+    @keyframes swingHat {
+      from { transform: rotate(-5deg); }
+      to { transform: rotate(5deg); }
     }
 
-    .card:focus-within, .card:hover{
-      transform: translateY(-6px);
-      box-shadow: var(--shadow-2);
+    .hero h2 {
+      font-family: 'Mountains of Christmas', cursive;
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin: 10px 0;
+      background: linear-gradient(to right, #fff, #fcd34d, #fff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 20px rgba(255,255,255,0.2);
     }
 
-    .meta{
-      display:flex;
-      gap:14px;
-      align-items:center;
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin-bottom: 20px;
     }
 
-    .meta .icon{
-      font-size:1.9rem;
-      width:64px;
-      height:64px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:12px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      color:var(--primary);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.45);
-      flex-shrink:0;
+    /* --- 크리스마스 카운트다운 --- */
+    .countdown-box {
+      background: rgba(220, 38, 38, 0.2);
+      border: 1px solid rgba(220, 38, 38, 0.5);
+      border-radius: 50px;
+      padding: 10px 30px;
+      display: inline-block;
+      margin-bottom: 40px;
+      box-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
+      backdrop-filter: blur(5px);
+    }
+    .countdown-text {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #fca5a5;
+    }
+    .countdown-timer {
+      font-family: 'Courier New', monospace;
+      font-weight: 900;
+      color: #fff;
     }
 
-    .meta h3{
-      margin:0;
-      font-size:1.03rem;
-      font-weight:800;
-      letter-spacing:-0.2px;
-      color:var(--text);
-    }
-    .meta p{
-      margin:6px 0 0;
-      color:var(--muted);
-      font-size:0.95rem;
-      max-width:36ch;
+    /* --- 그리드 레이아웃 --- */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      padding-bottom: 80px;
     }
 
-    .actions{
-      display:flex;
-      gap:10px;
-      margin-top:auto;
-      align-items:center;
+    /* --- 카드 (Frosted Glass + Christmas Vibe) --- */
+    .card {
+      background: var(--card-frost);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--card-shadow);
+      transition: all 0.4s ease;
     }
 
-    a.btn-soft, a.btn-cta{
-      text-decoration:none;
-      padding:9px 14px;
-      border-radius:12px;
-      display:inline-flex;
-      gap:10px;
-      align-items:center;
-      font-weight:800;
-      font-size:0.95rem;
-      cursor:pointer;
+    /* 카드 상단 눈 쌓임 효과 (가상 요소) */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 6px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4));
+      border-radius: 20px 20px 0 0;
+      opacity: 0.8;
+    }
+    
+    /* 호버 시 골드 테두리 및 빛남 */
+    .card:hover {
+      transform: translateY(-10px) scale(1.02);
+      border-color: var(--xmas-gold);
+      box-shadow: 0 15px 40px rgba(245, 158, 11, 0.2);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card-icon {
+      width: 56px; height: 56px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: inset 0 0 10px rgba(255,255,255,0.1);
+    }
+
+    .card-title h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .card-desc {
+      color: #e2e8f0;
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+      flex-grow: 1;
+      font-weight: 300;
+    }
+
+    /* 버튼 스타일 (캔디 케인 느낌 or 골드) */
+    .card-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px 0;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      transition: 0.3s;
       border: none;
-      transition: transform 150ms ease, box-shadow 160ms ease, opacity 160ms;
-      min-height:40px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
     }
 
-    a.btn-soft{
-      color:var(--text);
-      background: transparent;
-      border:1px solid var(--muted-bg);
-      box-shadow: none;
-      color:var(--text);
+    .btn-soft {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .btn-soft:hover {
+      background: rgba(255,255,255,0.25);
     }
 
-    a.btn-soft:hover{ transform: translateY(-3px); background: rgba(255,255,255,0.02) }
-
-    a.btn-cta{
-      color:white;
-      background: linear-gradient(90deg,var(--primary),var(--accent));
-      box-shadow: 0 8px 26px rgba(124,77,255,0.12);
+    .btn-primary {
+      background: linear-gradient(135deg, var(--xmas-red), #b91c1c);
+      color: white;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #b91c1c, var(--xmas-red));
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
+      transform: translateY(-2px);
+    }
+    
+    /* 리본 장식 (일부 카드에 적용) */
+    .ribbon {
+      position: absolute;
+      top: -5px; right: -5px;
+      width: 70px; height: 70px;
+      overflow: hidden;
+    }
+    .ribbon::before {
+      content: 'New';
+      position: absolute;
+      top: 15px; right: -18px;
+      width: 100px;
+      background: var(--xmas-gold);
+      color: #000;
+      text-align: center;
+      font-size: 12px;
+      font-weight: bold;
+      transform: rotate(45deg);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
 
-    a.btn-cta:active{ transform: translateY(0) scale(0.997) }
-    a.btn-cta:focus{ box-shadow: 0 12px 30px rgba(0,0,0,0.12), 0 0 0 var(--focus-ring) rgba(79,130,255,0.08) }
-
-    footer{
-      width:100%;
-      margin:30px auto;
-      padding:18px 20px;
-      display:flex;
-      gap:12px;
-      justify-content:center;
-      align-items:center;
-      color:var(--muted);
-      font-size:0.95rem;
-      border-top: 1px solid var(--muted-bg);
-      background: transparent;
+    /* --- 푸터 --- */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--text-muted);
+      background: rgba(0,0,0,0.4);
+      position: relative;
+    }
+    
+    /* 산타 썰매 애니메이션 컨테이너 */
+    .sleigh-container {
+      position: fixed;
+      top: 15%;
+      left: -200px;
+      z-index: 5;
+      pointer-events: none;
+      animation: sleighRide 25s linear infinite;
+      animation-delay: 5s;
+    }
+    
+    .sleigh-svg {
+      width: 150px;
+      filter: drop-shadow(0 10px 5px rgba(0,0,0,0.3));
     }
 
-    /* STARFIELD - 다층 구성 (back, mid, front) */
-    .starfield{
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      z-index:0;
-      overflow:hidden;
-      filter: blur(0px) saturate(1.05);
-      opacity:0.95;
-      transition: opacity 320ms ease;
-      background: transparent;
-      isolation:isolate;
+    @keyframes sleighRide {
+      0% { left: -200px; transform: translateY(0) rotate(5deg); }
+      20% { transform: translateY(20px) rotate(0deg); }
+      40% { transform: translateY(-20px) rotate(-5deg); }
+      60% { transform: translateY(10px) rotate(2deg); }
+      100% { left: 110vw; transform: translateY(-10px) rotate(5deg); }
     }
 
-    /* Each layer sits absolutely and animates differently to create parallax illusion */
-    .star-layer{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      overflow:hidden;
-      pointer-events:none;
-    }
-
-    .star-layer .star{
-      position:absolute;
-      border-radius:50%;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,1), rgba(255,255,255,0.6));
-      box-shadow: 0 0 8px rgba(255,255,255,0.08);
-      transform: translateZ(0);
-      will-change: transform, opacity;
-    }
-
-    /* small faint stars */
-    .star-layer.back .star{ width:1px; height:1px; opacity:0.28; filter: blur(0.5px); }
-    .star-layer.mid .star{ width:1.6px; height:1.6px; opacity:0.6; filter: blur(0.2px); }
-    .star-layer.front .star{ width:2.6px; height:2.6px; opacity:0.95; }
-
-    /* twinkle animation using keyframes (kept simple) */
-    @keyframes twinkle {
-      0% { opacity: 0.2; transform: scale(0.9) translateY(0); }
-      50% { opacity: 1; transform: scale(1.15) translateY(-2px); }
-      100% { opacity: 0.2; transform: scale(0.9) translateY(0); }
-    }
-
-    .star.twinkle{ animation: twinkle 4s ease-in-out infinite; }
-
-    /* clouds/nebula */
-    .clouds{
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      z-index:5;
-      opacity:0.35;
-      mix-blend-mode: screen;
-      filter: blur(18px) contrast(1.02) saturate(1.1);
-    }
-    .cloud{
-      position:absolute;
-      width:420px;
-      height:220px;
-      background: radial-gradient(closest-side, rgba(90,110,150,0.12), rgba(20,30,60,0.0));
-      border-radius:50%;
-      left:10%;
-      top:8%;
-      transform: translateZ(0);
-    }
-
-    /* subtle horizon glow */
-    .horizon-glow{
-      position:fixed;
-      left:0;
-      right:0;
-      bottom:-8%;
-      height:30vh;
-      z-index:2;
-      background: radial-gradient(ellipse at center, rgba(50,80,130,0.08), transparent 35%);
-      pointer-events:none;
-      mix-blend-mode: overlay;
-      filter: blur(80px);
-    }
-
-    /* Focus styles */
-    :focus{
-      outline: none;
-      box-shadow: 0 0 0 var(--focus-ring) rgba(79,130,255,0.08);
-      border-radius:8px;
-    }
-
-    /* Reduced motion */
-    @media (prefers-reduced-motion: reduce){
-      .star, .card, .theme-toggle, .moon, .moon-halo { transition:none !important; animation:none !important }
-      .theme-toggle, .card:hover{ transform:none !important }
-    }
-
-    /* tiny responsive tweaks */
-    @media (max-width:440px){
-      .meta .icon{ width:52px; height:52px; font-size:1.5rem }
-      .meta h3{ font-size:1rem }
-      .logo{ width:72px; height:72px }
-    }
-
-    /* small text */
-    .muted-small{ color:var(--muted); font-size:0.9rem; }
-
-    /* Additional utility classes for decorative captions */
-    .caption{
-      font-size:0.85rem;
-      color:var(--muted);
-    }
-
-    /* Decorative separator */
-    .sep{
-      height:1px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02), transparent);
-      margin:8px 0;
+    /* 모바일 반응형 */
+    @media (max-width: 768px) {
+      .hero h2 { font-size: 2.2rem; }
+      header { flex-direction: column; gap: 16px; margin-top: 50px; }
+      .controls { width: 100%; justify-content: space-between; }
+      .brand { margin-bottom: 5px; }
+      .card:hover { transform: none; }
     }
   </style>
 </head>
 <body>
-  <!-- Decorative layers: stars (multi-layer), clouds, horizon glow -->
-  <div class="starfield" aria-hidden="true">
-    <div class="star-layer back" id="star-back" aria-hidden="true"></div>
-    <div class="star-layer mid" id="star-mid" aria-hidden="true"></div>
-    <div class="star-layer front" id="star-front" aria-hidden="true"></div>
+
+  <!-- 배경 레이어 -->
+  <div class="winter-background"></div>
+  <div id="snow-container"></div> <!-- 눈송이들이 여기에 생성됨 -->
+  
+  <!-- 크리스마스 썰매 -->
+  <div class="sleigh-container">
+    <svg class="sleigh-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 12C4 12 5.5 12 6.5 10.5C7.5 9 10 11.5 13 10C16 8.5 18 10 18 10V14H4V12Z" fill="#ef4444" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M4 14H18V15H4V14Z" fill="#15803d"/>
+      <path d="M2 17C2 17 3 18 6 18H18C20 18 21 17 21 16" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M14 10L14.5 8M16 10L16.5 8" stroke="white" stroke-width="1.5"/>
+      <circle cx="15" cy="8" r="1.5" fill="#fca5a5"/> <!-- 산타 얼굴 -->
+    </svg>
   </div>
 
-  <div class="clouds" aria-hidden="true">
-    <div class="cloud" style="left:5%; top:6%; width:520px; height:260px; opacity:0.26;"></div>
-    <div class="cloud" style="left:65%; top:2%; width:380px; height:220px; opacity:0.18;"></div>
-    <div class="cloud" style="left:42%; top:28%; width:620px; height:320px; opacity:0.12;"></div>
-  </div>
+  <div class="container">
+    
+    <!-- 전구 장식 -->
+    <ul class="light-rope">
+      <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
+      <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
+      <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
+      <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
+    </ul>
 
-  <div class="horizon-glow" aria-hidden="true"></div>
-
-  <header role="banner">
-    <div class="brand" aria-hidden="false">
-      <div class="logo" aria-hidden="true" tabindex="0" title="달빛도구 로고">
-        <!-- Inline SVG moon with subtle craters and phase mask for animation -->
-        <svg class="moon" viewBox="0 0 200 200" role="img" aria-label="달">
-          <defs>
-            <radialGradient id="g1" cx="30%" cy="25%">
-              <stop offset="0%" stop-color="#fff" stop-opacity="0.98"/>
-              <stop offset="40%" stop-color="#f1f6ff" stop-opacity="0.85"/>
-              <stop offset="100%" stop-color="#9bb0ff" stop-opacity="0.06"/>
-            </radialGradient>
-            <filter id="crater" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="1.2" result="b"/>
-              <feComponentTransfer><feFuncA type="linear" slope="0.9"/></feComponentTransfer>
-              <feBlend in="SourceGraphic" in2="b" mode="screen"/>
-            </filter>
-            <mask id="phaseMask">
-              <!-- white means visible; black hides -->
-              <rect x="-10" y="-10" width="220" height="220" fill="white"></rect>
-              <!-- the moon phase shadow will be drawn dynamically by JS by changing transform of the ellipse inside this mask -->
-              <ellipse id="phaseShadow" cx="120" cy="100" rx="40" ry="80" fill="black"></ellipse>
-            </mask>
-          </defs>
-
-          <g filter="url(#crater)" mask="url(#phaseMask)">
-            <circle cx="100" cy="100" r="80" fill="url(#g1)" />
-            <!-- small craters for texture -->
-            <circle cx="70" cy="85" r="6" fill="rgba(255,255,255,0.06)" />
-            <circle cx="120" cy="60" r="4.4" fill="rgba(0,0,0,0.06)" />
-            <circle cx="140" cy="120" r="5" fill="rgba(255,255,255,0.04)" />
-            <circle cx="90" cy="130" r="3.2" fill="rgba(0,0,0,0.05)" />
-          </g>
-
-          <!-- outer subtle rim -->
-          <circle cx="100" cy="100" r="82.4" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="2"/>
-        </svg>
-      </div>
-      <div style="text-align:left">
-        <h1>달빛도구(Ai)</h1>
-        <div class="caption" style="margin-top:6px; max-width:660px">
-         이번 겨울 신비로운 일이 일어납니다.
+    <!-- 상단 헤더 -->
+    <header>
+      <a href="#" class="brand">
+        <div class="brand-logo">🌙</div>
+        <div class="brand-text">
+          <h1>Merry Moonlight</h1>
+          <span>Christmas Edition v3.0</span>
         </div>
+      </a>
+
+      <div class="controls">
+        <!-- 구글 번역 기능 -->
+        <div id="google_translate_element" title="Change Language"></div>
+        
+        <!-- 테마 토글 버튼 (트리 모양) -->
+        <button class="theme-btn" id="themeToggle" aria-label="테마 변경">
+          <span>🎄</span>
+        </button>
       </div>
-    </div>
+    </header>
 
-    <div class="controls" role="toolbar" aria-label="환경 설정">
-      <button id="themeToggle" class="theme-toggle" aria-pressed="true" title="테마 전환" aria-label="테마 전환 (T 단축키)">
-        🌙 다크
-      </button>
-    </div>
-  </header>
-
-  <main role="main">
-    <!-- Hero section: moon + greeting + short explanation -->
-    <section class="hero" aria-labelledby="hero-title" role="region">
-      <div class="hero-left" aria-hidden="false">
-        <div class="moon-wrap" aria-hidden="true">
-          <div class="moon-halo" aria-hidden="true"></div>
-          <!-- The moon svg above is already in header.logo; add an extra interactive moon here too for emphasis -->
-          <svg class="moon" id="heroMoon" viewBox="0 0 200 200" role="img" aria-label="주 달">
+    <main>
+      <!-- 히어로 섹션 -->
+      <section class="hero">
+        
+        <div class="hero-moon-wrapper">
+          <!-- SVG Moon with Santa Hat -->
+          <svg class="moon-svg" viewBox="0 0 200 200">
             <defs>
-              <radialGradient id="g2" cx="40%" cy="35%">
-                <stop offset="0%" stop-color="#fff" stop-opacity="0.98"/>
-                <stop offset="48%" stop-color="#f1f6ff" stop-opacity="0.9"/>
-                <stop offset="100%" stop-color="#6fa3ff" stop-opacity="0.06"/>
+              <radialGradient id="moonGradient" cx="30%" cy="30%">
+                <stop offset="0%" stop-color="#fff" />
+                <stop offset="50%" stop-color="#e2e8f0" />
+                <stop offset="100%" stop-color="#cbd5e1" />
               </radialGradient>
-              <mask id="m2">
-                <rect x="-10" y="-10" width="220" height="220" fill="white"></rect>
-                <ellipse id="m2Ellipse" cx="120" cy="100" rx="42" ry="82" fill="black"></ellipse>
-              </mask>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
             </defs>
-            <g mask="url(#m2)">
-              <circle cx="100" cy="100" r="80" fill="url(#g2)"></circle>
-              <circle cx="75" cy="88" r="5" fill="rgba(255,255,255,0.06)"></circle>
-              <circle cx="120" cy="62" r="4" fill="rgba(0,0,0,0.05)"></circle>
+            <!-- 달 -->
+            <circle cx="100" cy="100" r="80" fill="url(#moonGradient)" filter="url(#glow)" />
+            <!-- 크레이터 -->
+            <circle cx="60" cy="70" r="10" fill="rgba(0,0,0,0.1)" />
+            <circle cx="110" cy="120" r="15" fill="rgba(0,0,0,0.1)" />
+            <circle cx="140" cy="60" r="8" fill="rgba(0,0,0,0.1)" />
+
+            <!-- 산타 모자 (SVG Path) -->
+            <g class="santa-hat-svg" transform="translate(60, 0)">
+              <path d="M10 50 Q 50 10 90 50 L 50 50 Z" fill="#ef4444" /> <!-- 모자 빨간 부분 -->
+              <circle cx="10" cy="50" r="12" fill="white" /> <!-- 폼폼 -->
+              <rect x="30" y="45" width="80" height="15" rx="8" fill="white" /> <!-- 모자 털 부분 -->
             </g>
-            <circle cx="100" cy="100" r="82.4" fill="none" stroke="rgba(255,255,255,0.035)" stroke-width="2"></circle>
           </svg>
         </div>
-        <div class="caption muted-small" style="text-align:center; margin-top:6px;">
-          지금 보는 것은 밤하늘 모드입니다 — 조용히 달빛을 즐기세요.
-        </div>
-      </div>
 
-      <div class="hero-right" aria-hidden="false">
-        <div id="hero-title" class="lead" style="font-weight:800; font-size:1.05rem;">
-          달빛 아래의 도구들
-        </div>
-        <div class="lead" style="margin-top:4px;">
-          메리크리스마스🎄 ! 이번 겨울 신비로운 일이 일어납니다.
+        <h2>Merry Christmas & Happy New Year</h2>
+        
+        <!-- 카운트다운 박스 -->
+        <div class="countdown-box">
+          <span class="countdown-text">🎅 Santa comes in: </span>
+          <span id="countdown" class="countdown-timer">00d 00h 00m 00s</span>
         </div>
 
-        <div class="sep" aria-hidden="true"></div>
-
-        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-          <a class="btn-cta" href="/ai.html" rel="noopener">Ai 한테 질문하기</a>
-          <a class="btn-soft" href="/make/metronome.html" rel="noopener">메트로놈</a>
-          <a class="btn-soft" href="/make/puzzle.html" rel="noopener">게임 모음</a>
-        </div>
-      </div>
-    </section>
-
-    <section class="grid" aria-label="도구 카드 목록">
-      <!-- Cards kept from original content, but restyled for night theme.
-           Kept titles and links intact to preserve functionality. -->
-
-      <article class="card" role="article" aria-labelledby="card-calendar">
-        <div class="meta">
-          <div class="icon" aria-hidden="true">📅</div>
-          <div>
-            <h3 id="card-calendar">캘린더</h3>
-            <p>월간/주간 보기, 일정 추가 및 간단한 메모 기능을 제공합니다.</p>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="btn-soft" href="/make/calendar.html" rel="noopener">열기</a>
-          <a class="btn-cta" href="/make/calendar.html" rel="noopener">사용하기</a>
-        </div>
-      </article>
-
-      <article class="card" role="article" aria-labelledby="card-metronome">
-        <div class="meta">
-          <div class="icon" aria-hidden="true">⏱</div>
-          <div>
-            <h3 id="card-metronome">메트로놈</h3>
-            <p>템포, 박자 설정과 시각적 비트 표시로 연주 연습에 최적화되어 있습니다.</p>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="btn-soft" href="/make/metronome.html" rel="noopener">열기</a>
-          <a class="btn-cta" href="/make/metronome.html" rel="noopener">연습 시작</a>
-        </div>
-      </article>
-
-      <article class="card" role="article" aria-labelledby="card-sample">
-        <div class="meta">
-          <div class="icon" aria-hidden="true">🧩</div>
-          <div>
-            <h3 id="card-sample">샘플</h3>
-            <p>프로젝트 샘플과 템플릿 모음으로 빠르게 시작하세요.</p>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="btn-soft" href="/make/sample.html" rel="noopener">열기</a>
-          <a class="btn-cta" href="/make/sample.html" rel="noopener">템플릿</a>
-        </div>
-      </article>
-
-      <article class="card" role="article" aria-labelledby="card-messenger">
-        <div class="meta">
-          <div class="icon" aria-hidden="true">💬</div>
-          <div>
-            <h3 id="card-messenger">로컬메신저 (지원 안함)</h3>
-            <p>같은 네트워크에서 간단히 메시지를 주고받을 수 있는 도구입니다.</p>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="btn-soft" href="/make/메신저.html" rel="noopener">열기</a>
-          <a class="btn-cta" href="/make/메신저.html" rel="noopener">채팅</a>
-        </div>
-      </article>
-
-      <article class="card" role="article" aria-labelledby="card-storage">
-        <div class="meta">
-          <div class="icon" aria-hidden="true">🗄</div>
-          <div>
-            <h3 id="card-storage">저장공간 마스터</h3>
-            <p>파일 정리, 용량 시각화, 간단한 백업 도구를 제공합니다.</p>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="btn-soft" href="/make/storage-space.html" rel="noopener">열기</a>
-          <a class="btn-cta" href="/make/storage-space.html" rel="noopener">관리</a>
-        </div>
-      </article>
-
-      <article class="card" role="article" aria-labelledby="card-starcraft">
-        <div class="meta">
-          <div class="icon" aria-hidden="true">🎮</div>
-          <div>
-            <h3 id="card-starcraft">스타 1 게임 팁</h3>
-            <p>오프닝 빌드, 맵별 전략, 키 바인딩 팁을 정리해 둔 공간입니다.</p>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="btn-soft" href="/make/스타크래프트.html" rel="noopener">열기</a>
-          <a class="btn-cta" href="/make/스타크래프트.html" rel="noopener">팁 보기</a>
-        </div>
-      </article>
-
-      <article class="card" role="article" aria-labelledby="card-puzzle">
-        <div class="meta">
-          <div class="icon" aria-hidden="true">🧠</div>
-          <div>
-            <h3 id="card-puzzle">똑같은 카드 찾기</h3>
-            <p>커피 한잔 하면서 즐기세요.</p>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="btn-soft" href="/make/puzzle.html" rel="noopener">열기</a>
-          <a class="btn-cta" href="/make/puzzle.html" rel="noopener">플레이</a>
-        </div>
-      </article>
-
-      <article class="card" role="article" aria-labelledby="card-book">
-        <div class="meta">
-          <div class="icon" aria-hidden="true">📚</div>
-          <div>
-            <h3 id="card-book">동물,곤충 도감</h3>
-            <p>동물과 곤충에 관심 있나요? 자세히 알아보세요!</p>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="btn-soft" href="/make/book.html" rel="noopener">열기</a>
-          <a class="btn-cta" href="/make/book.html" rel="noopener">도감 보기</a>
-        </div>
-      </article>
-
-      <article class="card" role="article" aria-labelledby="card-money">
-        <div class="meta">
-          <div class="icon" aria-hidden="true">💰</div>
-          <div>
-            <h3 id="card-money">용돈 기입장</h3>
-            <p>용돈을 쓰거나 받은 날을 기록하세요!</p>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="btn-soft" href="/make/money.html" rel="noopener">열기</a>
-          <a class="btn-cta" href="/make/money.html" rel="noopener">기입장 쓰기</a>
-        </div>
-      </article>
-
-      <article class="card" role="article" aria-labelledby="card-insect">
-        <div class="meta">
-          <div class="icon" aria-hidden="true">🐛</div>
-          <div>
-            <h3 id="card-insect">곤충 도감</h3>
-            <p>곤충이 신기하면 이 사이트를 방문하세요!</p>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="btn-soft" href="/make/곤충도감.html" rel="noopener">열기</a>
-          <a class="btn-cta" href="/make/곤충도감.html" rel="noopener">방문하기</a>
-        </div>
-      </article>
-
-      <article class="card" role="article" aria-labelledby="card-cat">
-        <div class="meta">
-          <div class="icon" aria-hidden="true">😺</div>
-          <div>
-            <h3 id="card-cat">냥냥 타이쿤</h3>
-            <p>고양이를 클릭해서 업그레이드 하세요!</p>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="btn-soft" href="/make/냥냥타이쿤.html" rel="noopener">열기</a>
-          <a class="btn-cta" href="/make/냥냥타이쿤.html" rel="noopener">플레이하기</a>
-        </div>
-      </article>
-
-      <article class="card" role="article" aria-labelledby="card-maze">
-        <div class="meta">
-          <div class="icon" aria-hidden="true">🌀</div>
-          <div>
-            <h3 id="card-maze">미로 생성기</h3>
-            <p>미로를 만들어서 플레이 해보세요.</p>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="btn-soft" href="/make/qr.html" rel="noopener">열기</a>
-          <a class="btn-cta" href="/make/qr.html" rel="noopener">생성</a>
-        </div>
-      </article>
-
-      <article class="card" role="article" aria-labelledby="card-bmi">
-        <div class="meta">
-          <div class="icon" aria-hidden="true">⚖️</div>
-          <div>
-            <h3 id="card-bmi">BMI 계산기</h3>
-            <p>내가 비만인지 확인하는 도구 입니다.</p>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="btn-soft" href="/make/bmi.html" rel="noopener">열기</a>
-          <a class="btn-cta" href="/make/bmi.html" rel="noopener">확인하러 가기</a>
-        </div>
-      </article>
-
-      <article class="card" role="article" aria-labelledby="card-farm">
-        <div class="meta">
-          <div class="icon" aria-hidden="true">🌾</div>
-          <div>
-            <h3 id="card-farm">농장 키우기</h3>
-            <p>나만의 농장 가꾸기.</p>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="btn-soft" href="/make/농장.html" rel="noopener">열기</a>
-          <a class="btn-cta" href="/make/농장.html" rel="noopener">플레이</a>
-        </div>
-      </article>
-
-      <article class="card" role="article" aria-labelledby="card-farm">
-        <div class="meta">
-          <div class="icon" aria-hidden="true">🌾</div>
-          <div>
-            <h3 id="card-farm">달빛도구 설문지</h3>
-            <p>설문지에 참여하세요!</p>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="btn-soft" href="data/설문.html" rel="noopener">열기</a>
-          <a class="btn-cta" href="data/설문.html" rel="noopener">참여</a>
-        </div>
-      </article>
-
-      <article class="card" role="article" aria-labelledby="card-farm">
-        <div class="meta">
-          <div class="icon" aria-hidden="true">🌾</div>
-          <div>
-            <h3 id="card-farm">bubble-shooter</h3>
-            <p>버블을 쏘기!(불안정,컴퓨터 사양 ram 20gb 필요)</p>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="btn-soft" href="data/버블.html" rel="noopener">열기</a>
-          <a class="btn-cta" href="data/버블.html" rel="noopener">플레이</a>
-        </div>
-      </article>
-
-      <article class="card" role="article" aria-labelledby="card-farm">
-        <div class="meta">
-          <div class="icon" aria-hidden="true">⚡</div>
-          <div>
-            <h3 id="card-farm">스피드 클릭</h3>
-            <p>최대한 빠르게 클릭해서 대결하세요!</p>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="btn-soft" href="make/버블.html" rel="noopener">열기</a>
-          <a class="btn-cta" href="make/버블.html" rel="noopener">플레이</a>
-        </div>
-      </article>
-
-      <article class="card" role="article" aria-labelledby="card-farm">
-        <div class="meta">
-          <div class="icon" aria-hidden="true">😀</div>
-          <div>
-            <h3 id="card-farm">스네이크 게임</h3>
-            <p>똑똑한 지능형 snka.ai와 같이 경쟁하세요!</p>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="btn-soft" href="make/snake.html" rel="noopener">열기</a>
-          <a class="btn-cta" href="make/snake.html" rel="noopener">대결!</a>
-        </div>
-      </article>
- <article class="card" role="article" aria-labelledby="card-farm">
-        <div class="meta">
-          <div class="icon" aria-hidden="true">🎊</div>
-          <div>
-            <h3 id="card-farm">브롤스타즈</h3>
-            <p>인기게임 1위 가장 인기있는 게임!</p>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="btn-soft" href="make/브롤스타즈.html" rel="noopener">열기</a>
-          <a class="btn-cta" href="make/브롤스타즈.html" rel="noopener">전투</a>
-        </div>
-      </article>
-
- <article class="card" role="article" aria-labelledby="card-farm">
-        <div class="meta">
-          <div class="icon" aria-hidden="true">✨</div>
-          <div>
-            <h3 id="card-farm">라부부 뽑기</h3>
-            <p>시크릿이 나오면 행운이 올거에요!</p>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="btn-soft" href="make/라부부.html" rel="noopener">열기</a>
-          <a class="btn-cta" href="make/라부부.html" rel="noopener">뽑기</a>
-        </div>
-      </article>
-
-      
-    </section>
-
-    <section class="intro" aria-labelledby="intro-title" style="margin-top:26px;">
-      <div class="lead" id="intro-title">
-        <strong class="badge" style="background: linear-gradient(90deg,#ffd86b,#ff8a8a); color:#081827;">✨ 새 버전 v.2.4.Ai7.0</strong>
-        <p style="margin-top:10px; color:var(--muted);">
-          홈화면에 ai 바로가기를 추가 했습니다.
+        <p>
+          달빛의 웹사이트가 겨울옷을 입었습니다.<br>
+          따뜻한 코코아 한 잔과 함께 게임과 도구들을 즐겨보세요!
         </p>
+      </section>
+
+      <!-- 카드 그리드 -->
+      <section class="grid">
+
+        <!-- 1. 캘린더 (선물 상자 컨셉) -->
+        <article class="card">
+          <div class="ribbon"></div>
+          <div class="card-header">
+            <div class="card-icon">📅</div>
+            <div class="card-title"><h3>Holiday Calendar</h3></div>
+          </div>
+          <p class="card-desc">연말 약속과 새해 계획을 정리하세요. 크리스마스 파티 일정도 잊지 마세요!</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/calendar.html" class="btn btn-soft">미리보기</a>
+            <a href="https://make-moonlight.pages.dev/make/calendar.html" class="btn btn-primary">일정 관리</a>
+          </div>
+        </article>
+
+        <!-- 2. 메트로놈 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon">🔔</div>
+            <div class="card-title"><h3>Carol Metronome</h3></div>
+          </div>
+          <p class="card-desc">징글벨 징글벨~ 캐롤 연습할 때 박자를 정확하게 맞춰보세요.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/metronome.html" class="btn btn-soft">열기</a>
+            <a href="https://make-moonlight.pages.dev/make/metronome.html" class="btn btn-primary">연습 시작</a>
+          </div>
+        </article>
+
+        <!-- 3. 게임 모음 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon">🎁</div>
+            <div class="card-title"><h3>Winter Games</h3></div>
+          </div>
+          <p class="card-desc">추운 겨울, 이불 밖은 위험해요! 집에서 즐기는 다양한 미니게임 모음.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/sample.html" class="btn btn-soft">목록</a>
+            <a href="https://make-moonlight.pages.dev/make/sample.html" class="btn btn-primary">플레이</a>
+          </div>
+        </article>
+
+        <!-- 4. 저장공간 마스터 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon">🗄</div>
+            <div class="card-title"><h3>Storage Master</h3></div>
+          </div>
+          <p class="card-desc">새해를 맞이하여 묵은 파일들을 정리하고 용량을 확보하세요.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/storage-space.html" class="btn btn-soft">확인</a>
+            <a href="https://make-moonlight.pages.dev/make/storage-space.html" class="btn btn-primary">청소하기</a>
+          </div>
+        </article>
+
+        <!-- 5. 스타크래프트 팁 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon">🎮</div>
+            <div class="card-title"><h3>StarCraft Tips</h3></div>
+          </div>
+          <p class="card-desc">눈 덮인 로스트 템플에서의 승리를 위한 전략 가이드.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/%EC%8A%A4%ED%83%80%ED%81%AC%EB%9E%98%ED%94%84%ED%8A%B8.html" class="btn btn-soft">팁 보기</a>
+            <a href="https://make-moonlight.pages.dev/make/%EC%8A%A4%ED%83%80%ED%81%AC%EB%9E%98%ED%94%84%ED%8A%B8.html" class="btn btn-primary">공략</a>
+          </div>
+        </article>
+
+        <!-- 6. 똑같은 카드 찾기 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon">🃏</div>
+            <div class="card-title"><h3>Memory Match</h3></div>
+          </div>
+          <p class="card-desc">똑같은 루돌프를 찾아라! 기억력을 테스트하는 카드 뒤집기 게임.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/puzzle.html" class="btn btn-soft">열기</a>
+            <a href="https://make-moonlight.pages.dev/make/puzzle.html" class="btn btn-primary">게임 시작</a>
+          </div>
+        </article>
+
+        <!-- 7. 동물/곤충 도감 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon">🦌</div>
+            <div class="card-title"><h3>Nature Book</h3></div>
+          </div>
+          <p class="card-desc">순록과 겨울잠 자는 동물들에 대해 알아보세요.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/book.html" class="btn btn-soft">열기</a>
+            <a href="https://make-moonlight.pages.dev/make/book.html" class="btn btn-primary">탐색</a>
+          </div>
+        </article>
+
+        <!-- 8. 용돈 기입장 -->
+        <article class="card">
+          <div class="ribbon"></div>
+          <div class="card-header">
+            <div class="card-icon">💰</div>
+            <div class="card-title"><h3>Money Planner</h3></div>
+          </div>
+          <p class="card-desc">크리스마스 선물 비용과 세뱃돈 관리를 위한 필수 아이템.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/money.html" class="btn btn-soft">보기</a>
+            <a href="https://make-moonlight.pages.dev/make/money.html" class="btn btn-primary">기록하기</a>
+          </div>
+        </article>
+
+        <!-- 9. 곤충 도감 (별도) -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon">🐞</div>
+            <div class="card-title"><h3>Insect Wiki</h3></div>
+          </div>
+          <p class="card-desc">겨울에는 보기 힘든 곤충들의 세계를 탐험해보세요.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/%EA%B3%A4%EC%B6%A9%EB%8F%84%EA%B0%90.html" class="btn btn-soft">열기</a>
+            <a href="https://make-moonlight.pages.dev/make/%EA%B3%A4%EC%B6%A9%EB%8F%84%EA%B0%90.html" class="btn btn-primary">방문</a>
+          </div>
+        </article>
+
+        <!-- 10. 냥냥 타이쿤 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon">😺</div>
+            <div class="card-title"><h3>Cat Tycoon</h3></div>
+          </div>
+          <p class="card-desc">산타 모자를 쓴 고양이들을 키우고 최고의 집사가 되어보세요!</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/%EB%83%A5%EB%83%A5%ED%83%80%EC%9D%B4%EC%BF%A4.html" class="btn btn-soft">보기</a>
+            <a href="https://make-moonlight.pages.dev/make/%EB%83%A5%EB%83%A5%ED%83%80%EC%9D%B4%EC%BF%A4.html" class="btn btn-primary">키우기</a>
+          </div>
+        </article>
+
+        <!-- 11. 미로 생성기 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon">❄️</div>
+            <div class="card-title"><h3>Ice Maze</h3></div>
+          </div>
+          <p class="card-desc">복잡한 얼음 미로를 탈출하여 따뜻한 집으로 돌아가세요.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/qr.html" class="btn btn-soft">보기</a>
+            <a href="https://make-moonlight.pages.dev/make/qr.html" class="btn btn-primary">생성</a>
+          </div>
+        </article>
+
+        <!-- 12. BMI 계산기 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon">⚖️</div>
+            <div class="card-title"><h3>BMI Check</h3></div>
+          </div>
+          <p class="card-desc">겨울철 늘어난 체중이 걱정되시나요? 건강 상태를 확인하세요.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/bmi.html" class="btn btn-soft">열기</a>
+            <a href="https://make-moonlight.pages.dev/make/bmi.html" class="btn btn-primary">계산하기</a>
+          </div>
+        </article>
+
+        <!-- 13. 농장 키우기 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon">🌲</div>
+            <div class="card-title"><h3>Winter Farm</h3></div>
+          </div>
+          <p class="card-desc">눈 덮인 농장에서 작물을 키우고 크리스마스 트리를 심으세요.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/%EB%86%8D%EC%9E%A5.html" class="btn btn-soft">보기</a>
+            <a href="https://make-moonlight.pages.dev/make/%EB%86%8D%EC%9E%A5.html" class="btn btn-primary">경작</a>
+          </div>
+        </article>
+
+        <!-- 14. 설문지 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon">📝</div>
+            <div class="card-title"><h3>Wish List</h3></div>
+          </div>
+          <p class="card-desc">산타 할아버지(운영자)에게 바라는 점을 적어주세요.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/data/%EC%84%A4%EB%AC%B8.html" class="btn btn-soft">열기</a>
+            <a href="https://make-moonlight.pages.dev/data/%EC%84%A4%EB%AC%B8.html" class="btn btn-primary">참여</a>
+          </div>
+        </article>
+
+        <!-- 15. 버블 슈터 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon">🔵</div>
+            <div class="card-title"><h3>Snow Shooter</h3></div>
+          </div>
+          <p class="card-desc">알록달록 오너먼트(버블)를 쏘아 터트리세요! 팡팡!</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/data/%EB%B2%84%EB%B8%94.html" class="btn btn-soft">보기</a>
+            <a href="https://make-moonlight.pages.dev/data/%EB%B2%84%EB%B8%94.html" class="btn btn-primary">슈팅</a>
+          </div>
+        </article>
+
+        <!-- 16. 스피드 클릭 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon">⚡</div>
+            <div class="card-title"><h3>Speed Click</h3></div>
+          </div>
+          <p class="card-desc">추위에 언 손을 녹이세요! 광속 클릭으로 신기록 달성!</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/%EB%B2%84%EB%B8%94.html" class="btn btn-soft">도전</a>
+            <a href="https://make-moonlight.pages.dev/make/%EB%B2%84%EB%B8%94.html" class="btn btn-primary">플레이</a>
+          </div>
+        </article>
+
+        <!-- 17. 스네이크 게임 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon">🐍</div>
+            <div class="card-title"><h3>Snake Game</h3></div>
+          </div>
+          <p class="card-desc">지능형 뱀과의 대결. 뱀도 크리스마스 선물을 좋아할까요?</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/snake.html" class="btn btn-soft">보기</a>
+            <a href="https://make-moonlight.pages.dev/make/snake.html" class="btn btn-primary">대결</a>
+          </div>
+        </article>
+
+        <!-- 18. 브롤스타즈 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon">💀</div>
+            <div class="card-title"><h3>Brawl Stars</h3></div>
+          </div>
+          <p class="card-desc">브롤스타즈 팬 페이지. 겨울 업데이트 정보를 확인하세요.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/%EB%B8%8C%EB%A1%A4%EC%8A%A4%ED%83%80%EC%A6%88.html" class="btn btn-soft">정보</a>
+            <a href="https://make-moonlight.pages.dev/make/%EB%B8%8C%EB%A1%A4%EC%8A%A4%ED%83%80%EC%A6%88.html" class="btn btn-primary">전투</a>
+          </div>
+        </article>
+
+        <!-- 19. 라부부 뽑기 -->
+        <article class="card">
+          <div class="ribbon"></div>
+          <div class="card-header">
+            <div class="card-icon">✨</div>
+            <div class="card-title"><h3>Lucky Draw</h3></div>
+          </div>
+          <p class="card-desc">크리스마스 특집 라부부 뽑기! 시크릿 에디션을 노려보세요.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/%EB%9D%BC%EB%B6%80%EB%B6%80.html" class="btn btn-soft">열기</a>
+            <a href="https://make-moonlight.pages.dev/make/%EB%9D%BC%EB%B6%80%EB%B6%80.html" class="btn btn-primary">뽑기</a>
+          </div>
+        </article>
+
+        
+        
+
+
+      </section>
+    </main>
+
+    <!-- 푸터 -->
+    <footer>
+      <p style="font-family:'Mountains of Christmas'; font-size:1.5rem; color:#fff;">May your days be merry and bright.</p>
+      <p>© 2025 Moonlight Website. All rights reserved.</p>
+      <div style="margin-top:10px;">
+        <a href="https://help-moonlight.pages.dev/help/help=html5-error342@123" target="_blank" style="color:var(--xmas-gold);">오류 신고 및 도움말</a>
       </div>
-      <div class="lead" aria-hidden="false" style="margin-top:10px;">
-        <strong class="badge" style="background: linear-gradient(90deg,#7c4dff,#66e0ff); color:#04102b;">알림🔔</strong>
-        <p style="margin-top:10px; color:var(--muted);">
-          프리미엄 체험판 링크 (곧 종료) https://moonnew-0417.vercel.app/
-        </p>
-      </div>
-    </section>
+    </footer>
+  </div>
 
-  </main>
-
-  <footer role="contentinfo">
-    <div>© 2025 달빛도구</div>
-    <div style="opacity:0.7">|</div>
-    <a href="https://help-moonlight.pages.dev/help/help=html5-error342@123" rel="noopener" style="color:var(--muted); text-decoration:none">오류 도움 문서</a>
-  </footer>
-
-  <!-- JavaScript: 스타 필드 생성 + 달 페이즈 제어 + 테마 토글 + 링크 보완 -->
-  <script>
-
-// 최적화된 starfield 생성 코드
-
-(function () {
-  "use strict";
-
-  // DOM 캐싱
-  const starBack = document.getElementById('star-back');
-  const starMid = document.getElementById('star-mid');
-  const starFront = document.getElementById('star-front');
-  const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  // 빠른 렌더링을 위한 DocumentFragment 사용
-  function populateLayerOptimized(container, count, sizeRange, twinkleChance) {
-    if (!container) return;
-    // 미리 비우고
-    while (container.firstChild) container.removeChild(container.firstChild);
-
-    // DocumentFragment로 직접 추가
-    const frag = document.createDocumentFragment();
-
-    for (let i = 0; i < count; i++) {
-      const el = document.createElement('span');
-      el.className = 'star';
-      const size = sizeRange[0] + Math.random() * (sizeRange[1] - sizeRange[0]);
-      el.style.width = size + 'px';
-      el.style.height = size + 'px';
-      el.style.left = (Math.random() * 100) + '%';
-      el.style.top = (Math.random() * 100) + '%';
-      el.style.opacity = (0.25 + Math.random() * 0.6).toFixed(2);
-      if (!prefersReduced && Math.random() < twinkleChance) {
-        el.classList.add('twinkle');
-        el.style.animationDelay = (Math.random() * 4) + 's';
-        el.style.animationDuration = (3 + Math.random() * 3) + 's';
-      }
-      frag.appendChild(el);
+  <!-- 자바스크립트 영역 -->
+  
+  <!-- 1. 구글 번역 스크립트 -->
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'ko',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        autoDisplay: false,
+        includedLanguages: 'ko,en,ja,zh-CN,es,fr,de'
+      }, 'google_translate_element');
     }
-    // 한번에 DOM에 추가
-    container.appendChild(frag);
-  }
-
-  // 스타 개수를 무작정 늘리지 않고, 반응형으로 조절
-  function getStarCounts() {
-    const w = window.innerWidth, h = window.innerHeight;
-    // 화면 크기에 따라 별 개수 자동 조절 (너무 많으면 렉)
-    if (w * h < 400_000) return [22, 32, 20]; // 모바일
-    if (w * h < 1_000_000) return [32, 40, 30]; // 태블릿
-    return [40, 50, 40]; // 데스크탑
-  }
-
-  function renderAllStars() {
-    const [back, mid, front] = getStarCounts();
-    // 최대 200개 이내로 유지
-    populateLayerOptimized(starBack, back, [1, 2], 0);         // 뒷별 twinkle OFF
-    populateLayerOptimized(starMid, mid, [1, 2.2], 0.1);       // 중간 별
-    populateLayerOptimized(starFront, front, [1.6, 3], 0.25);  // 앞별
-  }
-
-  // 최초 생성
-  renderAllStars();
-
-  // 리사이즈마다 (성능 과다낭비 막기: 200ms debounce)
-  let resizeTimer;
-  window.addEventListener('resize', function () {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(renderAllStars, 200);
-  });
-})();
-// 버전 로그
-  console.log('%c달빛도구 v.2.4', 'font-size: 22px; font-weight: bold; color: #9bb0ff;');
-  console.log('비밀의 크리스마스 🎄 행복한 하루 보내세요!');
-
-  (function () {
-    "use strict";
-
-    // 작은 헬퍼
-    const $ = s => document.querySelector(s);
-    const $$ = s => Array.from(document.querySelectorAll(s));
-    const starBack = $('#star-back');
-    const starMid = $('#star-mid');
-    const starFront = $('#star-front');
-    const THEME_KEY = "moonlight:theme";
-
-    // 접근성 관련 체크
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    // 스타 필드 생성: 다층(백, 미드, 프론트)
-    function populateLayer(container, count, sizeRange, twinkleChance) {
-      if (!container) return;
-      container.innerHTML = '';
-      const w = container.clientWidth || window.innerWidth;
-      const h = container.clientHeight || window.innerHeight;
-      for (let i = 0; i < count; i++) {
-        const el = document.createElement('span');
-        el.className = 'star';
-        const size = sizeRange[0] + Math.random() * (sizeRange[1] - sizeRange[0]);
-        el.style.width = size + 'px';
-        el.style.height = size + 'px';
-        el.style.left = (Math.random() * 100) + '%';
-        el.style.top = (Math.random() * 100) + '%';
-        const opa = 0.25 + Math.random() * 0.9;
-        el.style.opacity = opa;
-        if (!prefersReduced && Math.random() < twinkleChance) {
-          // staggered twinkle
-          el.classList.add('twinkle');
-          el.style.animationDelay = (Math.random() * 6) + 's';
-          el.style.animationDuration = (3 + Math.random() * 5) + 's';
-        }
-        container.appendChild(el);
-      }
-    }
-
-    // 전체 스타 필드 초기화 & 리사이즈 핸들
-    function createStarfield() {
-      // counts tuned for depth
-      populateLayer(starBack, 120, [0.6, 1.2], 0.08);
-      populateLayer(starMid, 90, [1.0, 1.8], 0.22);
-      populateLayer(starFront, 50, [1.6, 3.0], 0.35);
-    }
-
-    // 달의 페이즈(음영) 애니메이션: mask ellipse를 좌우로 이동시켜 만듭니다.
-    function animateMoonPhase() {
-      const phase = document.getElementById('m2Ellipse') || document.getElementById('phaseShadow');
-      if (!phase || prefersReduced) return;
-      let dir = 1;
-      let pos = 0;
-      // 간단한 애니메이션 루프 (CSP 친화적)
-      setInterval(() => {
-        pos += 0.4 * dir;
-        if (pos > 60) dir = -1;
-        if (pos < -60) dir = 1;
-        // 요소가 있다면 transform을 바꿔 페이즈처럼 보이게 함
-        phase.setAttribute('cx', 120 + pos * 0.5);
-        // 약간 ry 변화로 페이즈 변화의 느낌 추가
-        phase.setAttribute('ry', 72 + Math.sin(pos / 10) * 6);
-      }, prefersReduced ? 1000 : 160);
-    }
-
-    // 테마 적용 및 토글
-    const root = document.documentElement;
-    const themeToggle = $('#themeToggle');
-    function applyTheme(theme) {
-      if (theme === 'light') {
-        root.classList.remove('dark');
-        root.classList.add('light');
-        themeToggle.setAttribute('aria-pressed', 'false');
-        themeToggle.textContent = '☀️ 라이트';
-      } else {
-        root.classList.remove('light');
-        root.classList.add('dark');
-        themeToggle.setAttribute('aria-pressed', 'true');
-        themeToggle.textContent = '🌙 다크';
-      }
-    }
-
-    function toggleTheme() {
-      const isLight = root.classList.contains('light');
-      const next = isLight ? 'dark' : 'light';
-      localStorage.setItem(THEME_KEY, next);
-      applyTheme(next);
-    }
-
-    function initTheme() {
-      const saved = localStorage.getItem(THEME_KEY);
-      if (saved) {
-        applyTheme(saved);
-        return;
-      }
-      // 기본: 밤하늘 모드 우선
-      applyTheme('dark');
-    }
-
-    // 링크 보안 보완 (외부 링크 새 탭)
-    function enhanceLinks() {
-      const anchors = $$('a[href]');
-      anchors.forEach(a => {
-        try {
-          const href = a.getAttribute('href');
-          if (!href) return;
-          if (href.startsWith('http://') || href.startsWith('https://')) {
-            const url = new URL(href, location.href);
-            if (url.hostname !== location.hostname) {
-              a.setAttribute('target', '_blank');
-              a.setAttribute('rel', 'noopener noreferrer');
-            }
-          }
-        } catch (e) {
-          // ignore malformed href
-        }
-      });
-    }
-
-    // 초기화
-    function init() {
-      createStarfield();
-      // responsive 리사이즈에 대응
-      let t;
-      window.addEventListener('resize', () => {
-        clearTimeout(t);
-        t = setTimeout(createStarfield, 280);
-      }, { passive: true });
-
-      initTheme();
-      if (themeToggle) {
-        themeToggle.addEventListener('click', toggleTheme);
-        themeToggle.addEventListener('keydown', (ev) => {
-          if (ev.key === 'Enter' || ev.key === ' ') {
-            ev.preventDefault();
-            toggleTheme();
-          }
-        });
-      }
-
-      // 단축키(T)로 테마 토글
-      window.addEventListener('keydown', (ev) => {
-        const active = document.activeElement;
-        if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)) {
-          return;
-        }
-        if (ev.key.toLowerCase() === 't') {
-          toggleTheme();
-        }
-      });
-
-      enhanceLinks();
-      animateMoonPhase();
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
-    }
-
-    // 오류 로깅 (로컬에서만 자세히)
-    window.addEventListener('error', (ev) => {
-      if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-        console.error('Unhandled error:', ev.error || ev.message, ev);
-      }
-    });
-
-  })();
   </script>
+  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+  <!-- 2. 크리스마스 기능 로직 -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      /* --- 1. 눈송이 생성 시스템 (Snowflake System) --- */
+      const snowContainer = document.getElementById('snow-container');
+      const snowSymbols = ['❄', '❅', '❆', '•'];
+      const maxSnowflakes = 100; // 성능을 위해 개수 제한
+
+      function createSnowflake() {
+        if (snowContainer.childElementCount > maxSnowflakes) return;
+
+        const flake = document.createElement('div');
+        flake.classList.add('snowflake');
+        flake.innerText = snowSymbols[Math.floor(Math.random() * snowSymbols.length)];
+        
+        // 랜덤 속성 부여
+        const startLeft = Math.random() * 100;
+        const duration = Math.random() * 5 + 5; // 5~10초
+        const size = Math.random() * 1.5 + 0.5; // 크기
+        const delay = Math.random() * 5;
+
+        flake.style.left = startLeft + 'vw';
+        flake.style.animationDuration = duration + 's, ' + (Math.random() * 3 + 2) + 's'; // 낙하, 흔들림 시간
+        flake.style.fontSize = size + 'em';
+        flake.style.animationDelay = delay + 's';
+        flake.style.opacity = Math.random() * 0.7 + 0.3;
+
+        snowContainer.appendChild(flake);
+
+        // 애니메이션 끝나면 제거 후 재생성
+        setTimeout(() => {
+          flake.remove();
+          createSnowflake();
+        }, (duration + delay) * 1000);
+      }
+
+      // 초기 눈송이 생성
+      for(let i=0; i<50; i++) {
+        setTimeout(createSnowflake, Math.random() * 3000);
+      }
+      setInterval(createSnowflake, 500);
+
+
+      /* --- 2. 크리스마스 카운트다운 타이머 --- */
+      function updateCountdown() {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        let targetDate = new Date(`December 25, ${currentYear} 00:00:00`);
+
+        // 만약 이미 지났다면 내년 크리스마스로
+        if (now > targetDate) {
+          targetDate = new Date(`December 25, ${currentYear + 1} 00:00:00`);
+        }
+
+        const diff = targetDate - now;
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        document.getElementById('countdown').innerText = 
+          `${days}d ${hours.toString().padStart(2,'0')}h ${minutes.toString().padStart(2,'0')}m ${seconds.toString().padStart(2,'0')}s`;
+      }
+      
+      setInterval(updateCountdown, 1000);
+      updateCountdown();
+
+
+      /* --- 3. 테마 토글 (크리스마스 트리 점등 효과) --- */
+      const themeBtn = document.getElementById('themeToggle');
+      const html = document.documentElement;
+      
+      themeBtn.addEventListener('click', () => {
+        // 간단한 시각적 피드백 (반짝임)
+        themeBtn.style.textShadow = "0 0 20px yellow";
+        setTimeout(() => { themeBtn.style.textShadow = "none"; }, 500);
+
+        // 여기서는 다크모드/라이트모드 대신 '파티 모드' 느낌으로 전환 가능
+        // 현재 CSS는 Dark Theme 기반으로 고정되어 있어, 배경 색상만 살짝 변경
+        const currentBg = getComputedStyle(document.body).getPropertyValue('--bg-gradient');
+        
+        if (html.classList.contains('party-mode')) {
+          html.classList.remove('party-mode');
+          document.body.style.setProperty('--bg-gradient', 'linear-gradient(to bottom, #020617, #1e1b4b, #312e81)'); // 기본 겨울밤
+        } else {
+          html.classList.add('party-mode');
+          document.body.style.setProperty('--bg-gradient', 'linear-gradient(to bottom, #450a0a, #7f1d1d, #020617)'); // 레드 크리스마스
+        }
+      });
+
+
+      /* --- 4. 링크 보안 설정 --- */
+      const links = document.querySelectorAll('a[href^="http"]');
+      links.forEach(link => {
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
+      });
+
+      console.log("%c 🎄 Merry Christmas from Moonlight Website! 🎅 ", "background: #165b33; color: #fff; padding: 8px; border-radius: 4px; font-size: 14px;");
+    });
+  </script>
+
 </body>
 </html>
