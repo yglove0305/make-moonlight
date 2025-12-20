@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christmas Village Defense</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #050b1a;
+            font-family: 'Mountains of Christmas', cursive;
+        }
+
+        canvas {
+            display: block;
+            cursor: crosshair;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        }
+
+        .interactable {
+            pointer-events: auto;
+        }
+
+        .menu-screen {
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .btn-christmas {
+            background: #c0392b;
+            color: white;
+            border: 4px solid #f1c40f;
+            padding: 1rem 2.5rem;
+            font-size: 1.8rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            border-radius: 50px;
+        }
+
+        .btn-christmas:hover {
+            background: #e74c3c;
+            transform: scale(1.1);
+            box-shadow: 0 0 25px #f1c40f;
+        }
+
+        .stat-bar {
+            height: 20px;
+            background: #222;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #ddd;
+        }
+
+        .stat-fill-hp { background: linear-gradient(90deg, #e74c3c, #c0392b); width: 100%; transition: width 0.3s; }
+        .stat-fill-exp { background: linear-gradient(90deg, #3498db, #2980b9); width: 0%; transition: width 0.3s; }
+    </style>
+</head>
+<body>
+
+<canvas id="gameCanvas"></canvas>
+
+<div id="ui-layer">
+    <!-- Top Bar -->
+    <div class="flex justify-between p-6 items-start">
+        <div class="space-y-3">
+            <div>
+                <div class="text-3xl mb-1">Village Health</div>
+                <div class="stat-bar w-72"><div id="hp-bar" class="stat-fill-hp"></div></div>
+            </div>
+            <div>
+                <div class="text-xl">Level: <span id="level-val" class="text-blue-300">1</span></div>
+                <div class="stat-bar w-56"><div id="exp-bar" class="stat-fill-exp"></div></div>
+            </div>
+        </div>
+        <div class="text-right">
+            <div class="text-5xl text-yellow-400 font-bold mb-1">Stars: <span id="gold-val">0</span></div>
+            <div class="text-3xl text-red-300">Wave: <span id="wave-val">1</span></div>
+            <div class="text-xl opacity-80">Enemies Approaching: <span id="enemies-val">0</span></div>
+        </div>
+    </div>
+
+    <!-- Upgrade Menu -->
+    <div id="upgrade-menu" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] bg-red-950/95 border-8 border-yellow-600 p-8 rounded-[40px] interactable text-center shadow-2xl">
+        <h2 class="text-5xl mb-6 text-yellow-100 decoration-double underline">Village Armory</h2>
+        <div class="space-y-5">
+            <div class="flex flex-col gap-1">
+                <button onclick="upgrade('damage')" class="w-full bg-green-800 p-3 rounded-xl hover:bg-green-700 border-2 border-green-300 transition-colors">
+                    <span class="text-2xl block">Stronger Snowballs</span>
+                    <span class="text-sm text-yellow-300">Damage +25 (Cost: <span id="cost-damage">50</span>)</span>
+                </button>
+            </div>
+            <div class="flex flex-col gap-1">
+                <button onclick="upgrade('speed')" class="w-full bg-orange-700 p-3 rounded-xl hover:bg-orange-600 border-2 border-orange-300 transition-colors">
+                    <span class="text-2xl block text-white font-bold">MULTI-SHOT</span>
+                    <span class="text-sm text-yellow-300">Projectiles Per Click +1 (Cost: <span id="cost-speed">150</span>)</span>
+                </button>
+            </div>
+            <div class="flex flex-col gap-1">
+                <button onclick="upgrade('health')" class="w-full bg-blue-800 p-3 rounded-xl hover:bg-blue-700 border-2 border-blue-300 transition-colors">
+                    <span class="text-2xl block">Repair Village</span>
+                    <span class="text-sm text-yellow-300">Restore 50 HP (Cost: 100)</span>
+                </button>
+            </div>
+            <button onclick="startNextWave()" class="w-full bg-yellow-500 text-red-900 font-bold p-5 rounded-2xl mt-4 text-3xl hover:bg-yellow-400 transform active:scale-95 transition-all">
+                NEXT CHALLENGE
+            </button>
+        </div>
+    </div>
+
+    <!-- Screens -->
+    <div id="start-screen" class="menu-screen absolute inset-0 interactable">
+        <h1 class="text-9xl mb-8 text-white text-center drop-shadow-lg">
+            Winter<br><span class="text-red-500">Guardians</span>
+        </h1>
+        <p class="text-3xl mb-12 text-blue-200 animate-pulse">Unlimited Fire Power! Click as fast as you can!</p>
+        <button onclick="startGame()" class="btn-christmas">Start Defending</button>
+    </div>
+
+    <div id="game-over-screen" class="menu-screen absolute inset-0 hidden interactable">
+        <h1 class="text-9xl mb-4 text-red-600">The Village Fell</h1>
+        <p class="text-4xl mb-8 text-gray-300">The Grinches took all the presents...</p>
+        <div class="text-3xl mb-8 bg-white/10 p-4 rounded-xl">Survived till Wave: <span id="final-wave" class="text-yellow-400">0</span></div>
+        <button onclick="location.reload()" class="btn-christmas">Try Again</button>
+    </div>
+</div>
+
+<script>
+/**
+ * Game Configuration & State
+ */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+let width, height;
+let gameRunning = false;
+let waveInProgress = false;
+
+const state = {
+    gold: 0,
+    hp: 100,
+    maxHp: 100,
+    level: 1,
+    exp: 0,
+    nextLevelExp: 100,
+    wave: 1,
+    damage: 30,
+    multiShot: 1, // 공격 속도 대신 한 번에 나가는 발사체 수
+    upgrades: {
+        damage: 1,
+        speed: 1
+    }
+};
+
+const particles = [];
+const projectiles = [];
+const enemies = [];
+const snowflakes = [];
+const buildings = [];
+const damageTexts = [];
+
+/**
+ * Classes
+ */
+class Snowflake {
+    constructor() { this.reset(); }
+    reset() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * -height;
+        this.size = Math.random() * 3 + 1;
+        this.speed = Math.random() * 1 + 0.5;
+        this.velX = Math.random() * 0.5 - 0.25;
+    }
+    update() {
+        this.y += this.speed;
+        this.x += this.velX;
+        if (this.y > height) this.reset();
+    }
+    draw() {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+class Projectile {
+    constructor(x, y, targetX, targetY, angleOffset = 0) {
+        this.x = x;
+        this.y = y;
+        let angle = Math.atan2(targetY - y, targetX - x) + angleOffset;
+        this.vx = Math.cos(angle) * 18;
+        this.vy = Math.sin(angle) * 18;
+        this.radius = 8;
+        this.color = '#ffffff';
+    }
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+    }
+    draw() {
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#3498db';
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    }
+}
+
+class Enemy {
+    constructor(wave) {
+        const side = Math.random() > 0.5 ? 1 : -1;
+        this.x = side === 1 ? width + 50 : -50;
+        this.y = height - 90 - Math.random() * 30;
+        
+        // 난이도 곡선: 1단계는 매우 적고, 갈수록 기하급수적으로 상향
+        const scale = Math.pow(wave, 1.4);
+        this.speed = (0.7 + Math.random() * 0.8) * (1 + wave * 0.05);
+        this.hp = 20 + (scale * 20);
+        this.maxHp = this.hp;
+        this.size = 28;
+        
+        this.isElite = Math.random() > 0.94 - (wave * 0.01);
+        if(this.isElite) {
+            this.hp *= 5;
+            this.maxHp = this.hp;
+            this.size *= 1.8;
+            this.speed *= 0.6;
+            this.color = '#1b4d3e'; 
+        } else {
+            this.color = '#2ecc71';
+        }
+    }
+    update() {
+        const targetX = width / 2;
+        if (this.x < targetX) this.x += this.speed;
+        else this.x -= this.speed;
+
+        if (Math.abs(this.x - targetX) < 45) {
+            state.hp -= 0.3; 
+            createExplosion(this.x, this.y, '#e74c3c', 2);
+        }
+    }
+    draw() {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y - this.size);
+        ctx.lineTo(this.x - this.size/2, this.y);
+        ctx.lineTo(this.x + this.size/2, this.y);
+        ctx.fill();
+        
+        ctx.fillStyle = 'yellow';
+        ctx.fillRect(this.x - 6, this.y - this.size + 10, 4, 4);
+        ctx.fillRect(this.x + 2, this.y - this.size + 10, 4, 4);
+
+        const barW = this.size * 1.5;
+        ctx.fillStyle = '#111';
+        ctx.fillRect(this.x - barW/2, this.y - this.size - 15, barW, 6);
+        ctx.fillStyle = this.hp / this.maxHp > 0.3 ? '#2ecc71' : '#e74c3c';
+        ctx.fillRect(this.x - barW/2, this.y - this.size - 15, barW * (this.hp / this.maxHp), 6);
+    }
+}
+
+class Particle {
+    constructor(x, y, color, speedScale = 1) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.vx = (Math.random() - 0.5) * 12 * speedScale;
+        this.vy = (Math.random() - 0.5) * 12 * speedScale;
+        this.life = 1.0;
+        this.decay = Math.random() * 0.04 + 0.02;
+    }
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= this.decay;
+    }
+    draw() {
+        ctx.globalAlpha = this.life;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+    }
+}
+
+class DamageText {
+    constructor(x, y, text, color = 'white') {
+        this.x = x;
+        this.y = y;
+        this.text = text;
+        this.color = color;
+        this.life = 1.0;
+    }
+    update() {
+        this.y -= 1.5;
+        this.life -= 0.03;
+    }
+    draw() {
+        ctx.globalAlpha = this.life;
+        ctx.fillStyle = this.color;
+        ctx.font = 'bold 24px Mountains of Christmas';
+        ctx.textAlign = 'center';
+        ctx.fillText(this.text, this.x, this.y);
+        ctx.globalAlpha = 1;
+    }
+}
+
+/**
+ * Engine
+ */
+function init() {
+    resize();
+    snowflakes.length = 0;
+    for (let i = 0; i < 250; i++) snowflakes.push(new Snowflake());
+    
+    const centerX = width / 2;
+    buildings.push({ x: centerX - 160, y: height - 100, w: 70, h: 90, color: '#4a2c2a' });
+    buildings.push({ x: centerX + 90, y: height - 100, w: 70, h: 90, color: '#4a2c2a' });
+    buildings.push({ x: centerX - 50, y: height - 120, w: 100, h: 120, color: '#c0392b', type: 'base' });
+}
+
+function resize() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+}
+
+window.addEventListener('resize', resize);
+
+function spawnWave() {
+    waveInProgress = true;
+    // 1단계는 1~2마리로 매우 쉽게, 단계가 올라가면 제곱으로 증가
+    let enemyCount = Math.floor(1 + (state.wave * 1.5) + (Math.pow(state.wave, 2.3) * 0.12));
+    let spawned = 0;
+    
+    const interval = setInterval(() => {
+        if (spawned >= enemyCount || !gameRunning) {
+            clearInterval(interval);
+            return;
+        }
+        enemies.push(new Enemy(state.wave));
+        spawned++;
+        document.getElementById('enemies-val').innerText = (enemyCount - spawned) + enemies.length;
+    }, Math.max(80, 1600 - (state.wave * 150)));
+}
+
+function createExplosion(x, y, color, count = 10) {
+    for (let i = 0; i < count; i++) {
+        particles.push(new Particle(x, y, color));
+    }
+}
+
+function update() {
+    if (!gameRunning) return;
+
+    snowflakes.forEach(s => s.update());
+    
+    // Projectiles
+    for (let i = projectiles.length - 1; i >= 0; i--) {
+        const p = projectiles[i];
+        p.update();
+        if (p.x < 0 || p.x > width || p.y < 0 || p.y > height) projectiles.splice(i, 1);
+    }
+
+    // Enemies & Collision
+    for (let ei = enemies.length - 1; ei >= 0; ei--) {
+        const e = enemies[ei];
+        e.update();
+        
+        for (let pi = projectiles.length - 1; pi >= 0; pi--) {
+            const p = projectiles[pi];
+            const dist = Math.hypot(e.x - p.x, e.y - p.y);
+            if (dist < e.size) {
+                e.hp -= state.damage;
+                damageTexts.push(new DamageText(e.x, e.y - 30, Math.floor(state.damage), '#f1c40f'));
+                projectiles.splice(pi, 1);
+                createExplosion(p.x, p.y, '#ffffff', 4);
+                
+                if (e.hp <= 0) {
+                    enemies.splice(ei, 1);
+                    state.gold += e.isElite ? 120 : 30;
+                    state.exp += 35;
+                    createExplosion(e.x, e.y, e.color, 25);
+                    checkLevelUp();
+                    break;
+                }
+            }
+        }
+    }
+
+    particles.forEach((p, i) => {
+        p.update();
+        if (p.life <= 0) particles.splice(i, 1);
+    });
+
+    damageTexts.forEach((t, i) => {
+        t.update();
+        if (t.life <= 0) damageTexts.splice(i, 1);
+    });
+
+    // UI Updates
+    document.getElementById('hp-bar').style.width = (state.hp / state.maxHp * 100) + '%';
+    document.getElementById('exp-bar').style.width = (state.exp / state.nextLevelExp * 100) + '%';
+    document.getElementById('gold-val').innerText = Math.floor(state.gold);
+    document.getElementById('enemies-val').innerText = enemies.length;
+
+    if (state.hp <= 0) gameOver();
+
+    if (waveInProgress && enemies.length === 0) {
+        waveInProgress = false;
+        setTimeout(showUpgradeMenu, 500);
+    }
+}
+
+function checkLevelUp() {
+    if (state.exp >= state.nextLevelExp) {
+        state.level++;
+        state.exp -= state.nextLevelExp;
+        state.nextLevelExp = Math.floor(state.nextLevelExp * 1.5);
+        state.damage += 15;
+        document.getElementById('level-val').innerText = state.level;
+    }
+}
+
+function draw() {
+    ctx.clearRect(0, 0, width, height);
+
+    // Sky
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, height);
+    skyGrad.addColorStop(0, '#02040a');
+    skyGrad.addColorStop(0.5, '#050b1a');
+    skyGrad.addColorStop(1, '#0f172a');
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(0, 0, width, height);
+
+    // Ground
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.moveTo(0, height - 100);
+    ctx.quadraticCurveTo(width/2, height - 130, width, height - 100);
+    ctx.lineTo(width, height);
+    ctx.lineTo(0, height);
+    ctx.fill();
+
+    // Buildings
+    buildings.forEach(b => {
+        ctx.fillStyle = b.color;
+        ctx.fillRect(b.x, b.y, b.w, b.h);
+        
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.moveTo(b.x - 15, b.y);
+        ctx.lineTo(b.x + b.w/2, b.y - 50);
+        ctx.lineTo(b.x + b.w + 15, b.y);
+        ctx.fill();
+
+        if (state.hp > 0) {
+            ctx.fillStyle = '#fde047';
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#fde047';
+            ctx.fillRect(b.x + 15, b.y + 25, 15, 15);
+            ctx.shadowBlur = 0;
+        }
+    });
+
+    // Cannon
+    ctx.save();
+    ctx.translate(width/2, height - 100);
+    const angle = Math.atan2(mouseY - (height - 100), mouseX - width/2);
+    ctx.rotate(angle);
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(0, -15, 60, 30);
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(50, -17, 15, 34);
+    ctx.restore();
+
+    snowflakes.forEach(s => s.draw());
+    projectiles.forEach(p => p.draw());
+    enemies.forEach(e => e.draw());
+    particles.forEach(p => p.draw());
+    damageTexts.forEach(t => t.draw());
+}
+
+/**
+ * Event Handlers
+ */
+let mouseX = 0, mouseY = 0;
+window.addEventListener('mousemove', e => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+});
+
+const handleFire = () => {
+    if (!gameRunning || !waveInProgress) return;
+    
+    // 공격 속도 제한 제거: 클릭하는 대로 무제한 발사
+    for(let i = 0; i < state.multiShot; i++) {
+        // 멀티샷일 때 약간의 각도 분산 추가
+        const offset = (i - (state.multiShot - 1) / 2) * 0.1;
+        projectiles.push(new Projectile(width/2, height - 100, mouseX, mouseY, offset));
+    }
+};
+
+window.addEventListener('mousedown', handleFire);
+
+// 꾹 누르고 있을 때의 자동 발사 속도도 비약적으로 상승 (거의 즉시 수준)
+let fireInterval = null;
+window.addEventListener('mousedown', () => {
+    fireInterval = setInterval(handleFire, 30); 
+});
+window.addEventListener('mouseup', () => {
+    clearInterval(fireInterval);
+});
+
+function startGame() {
+    document.getElementById('start-screen').classList.add('hidden');
+    gameRunning = true;
+    init();
+    spawnWave();
+    requestAnimationFrame(gameLoop);
+}
+
+function showUpgradeMenu() {
+    document.getElementById('upgrade-menu').classList.remove('hidden');
+    document.getElementById('wave-val').innerText = state.wave;
+    updateUpgradeCosts();
+}
+
+function updateUpgradeCosts() {
+    document.getElementById('cost-damage').innerText = Math.floor(state.upgrades.damage * 60 * Math.pow(1.3, state.upgrades.damage-1));
+    document.getElementById('cost-speed').innerText = Math.floor(state.upgrades.speed * 150 * Math.pow(1.5, state.upgrades.speed-1));
+}
+
+function upgrade(type) {
+    const costDamage = Math.floor(state.upgrades.damage * 60 * Math.pow(1.3, state.upgrades.damage-1));
+    const costSpeed = Math.floor(state.upgrades.speed * 150 * Math.pow(1.5, state.upgrades.speed-1));
+
+    if (type === 'damage' && state.gold >= costDamage) {
+        state.gold -= costDamage;
+        state.damage += 25;
+        state.upgrades.damage++;
+    } else if (type === 'speed' && state.gold >= costSpeed) {
+        state.gold -= costSpeed;
+        // 이제 쿨타임 대신 한 번에 나가는 발사체 수를 늘림
+        state.multiShot++;
+        state.upgrades.speed++;
+    } else if (type === 'health' && state.gold >= 100) {
+        state.gold -= 100;
+        state.hp = Math.min(state.maxHp, state.hp + 50);
+    }
+    updateUpgradeCosts();
+}
+
+function startNextWave() {
+    state.wave++;
+    document.getElementById('upgrade-menu').classList.add('hidden');
+    spawnWave();
+}
+
+function gameOver() {
+    gameRunning = false;
+    document.getElementById('game-over-screen').classList.remove('hidden');
+    document.getElementById('final-wave').innerText = state.wave;
+}
+
+function gameLoop() {
+    update();
+    draw();
+    if (gameRunning || !waveInProgress) requestAnimationFrame(gameLoop);
+}
+
+// Touch support
+window.addEventListener('touchstart', e => {
+    mouseX = e.touches[0].clientX;
+    mouseY = e.touches[0].clientY;
+    handleFire();
+});
+
+</script>
+</body>
+</html>
