@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메리 크리스마스! 달빛도구 에디션</title>
+    <style>
+        /* CSS 전역 변수 설정 */
+        :root {
+            --bg-color: #0b132b;
+            --envelope-color: #d62828;
+            --envelope-dark: #b91d1d;
+            --envelope-light: #ef4444;
+            --paper-color: #fdf0d5;
+            --accent-color: #fca311;
+            --gold: #ffd700;
+            --transition-speed: 0.7s;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at center, #1c2541 0%, #0b132b 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            touch-action: none; /* 모바일 스크롤 방지 */
+        }
+
+        /* 눈 내리는 효과 캔버스 */
+        #snow-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* 전체 컨테이너 */
+        .wrapper {
+            position: relative;
+            z-index: 10;
+            perspective: 1500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 편지 봉투 전체 구조 */
+        .envelope-wrapper {
+            position: relative;
+            width: 350px;
+            height: 250px;
+            background-color: var(--envelope-color);
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            transform-style: preserve-3d;
+        }
+
+        .envelope-wrapper:hover {
+            transform: translateY(-5px) rotateX(5deg);
+        }
+
+        /* 봉투 덮개 (삼각형 부분) */
+        .lid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 175px solid transparent;
+            border-right: 175px solid transparent;
+            border-top: 130px solid var(--envelope-light);
+            transform-origin: top;
+            transition: transform var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 4; /* 덮개가 항상 위에 있도록 */
+            backface-visibility: hidden;
+        }
+
+        /* 봉투 안쪽 포켓 (시각적 깊이감) */
+        .envelope-wrapper::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 175px solid transparent;
+            border-right: 175px solid transparent;
+            border-bottom: 130px solid var(--envelope-dark);
+            z-index: 2;
+        }
+
+        /* 봉투 전면 하단부 */
+        .envelope-wrapper::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 130px;
+            background: var(--envelope-color);
+            z-index: 3;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        /* 실제 편지지 */
+        .letter {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 330px;
+            height: 230px;
+            background-color: var(--paper-color);
+            border-radius: 5px;
+            z-index: 1; /* 처음엔 포켓 뒤에 위치 */
+            transition: transform var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1), 
+                        height var(--transition-speed) ease,
+                        z-index 0s linear 0.35s; /* 중간에 z-index 교체 */
+            padding: 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        /* 편지지 내부 콘텐츠 */
+        .letter-content {
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            text-align: center;
+            width: 100%;
+            transform: translateY(20px);
+            transition: all 0.5s ease 0.4s;
+        }
+
+        .letter h1 {
+            color: #b91d1d;
+            margin: 0 0 15px 0;
+            font-size: 22px;
+            border-bottom: 2px solid #b91d1d;
+            padding-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .letter p {
+            color: #333;
+            line-height: 1.6;
+            font-size: 14.5px;
+            margin: 8px 0;
+            word-break: keep-all;
+        }
+
+        .letter .santa-icon {
+            font-size: 45px;
+            margin-top: 15px;
+            display: block;
+        }
+
+        /* 봉투가 열렸을 때의 상태 */
+        .envelope-wrapper.open .lid {
+            transform: rotateX(180deg);
+            z-index: 0; /* 열리면 뒤로 이동 */
+        }
+
+        .envelope-wrapper.open .letter {
+            transform: translateY(-160px);
+            height: 400px;
+            z-index: 5; /* 덮개와 포켓보다 앞으로 나옴 */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .envelope-wrapper.open .letter-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 안내 문구 */
+        .instruction {
+            position: absolute;
+            bottom: -70px;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-weight: 300;
+            letter-spacing: 1px;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .pulse {
+            animation: breathe 2s infinite ease-in-out;
+        }
+
+        @keyframes breathe {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        /* 장식 요소 */
+        .decoration {
+            position: absolute;
+            pointer-events: none;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
+            z-index: 5;
+        }
+        
+        .tree { bottom: 5%; right: 5%; font-size: 100px; }
+        .gift { bottom: 7%; left: 5%; font-size: 80px; }
+        .star { top: 5%; right: 10%; font-size: 40px; color: gold; animation: blink 1.5s infinite; }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* 모바일 대응 최적화 */
+        @media (max-width: 480px) {
+            .envelope-wrapper {
+                width: 300px;
+                height: 220px;
+            }
+            .lid {
+                border-left-width: 150px;
+                border-right-width: 150px;
+                border-top-width: 110px;
+            }
+            .envelope-wrapper::before {
+                border-left-width: 150px;
+                border-right-width: 150px;
+                border-bottom-width: 110px;
+            }
+            .letter {
+                width: 280px;
+                height: 200px;
+            }
+            .envelope-wrapper.open .letter {
+                height: 360px;
+                transform: translateY(-140px);
+            }
+            .tree { font-size: 60px; bottom: 20px; right: 20px; }
+            .gift { font-size: 50px; bottom: 20px; left: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="snow-canvas"></canvas>
+
+    <div class="decoration tree">🎄</div>
+    <div class="decoration gift">🎁</div>
+    <div class="decoration star">⭐</div>
+
+    <div class="wrapper">
+        <div class="envelope-wrapper" id="envelope">
+            <div class="lid"></div>
+            <div class="letter">
+                <div class="letter-content">
+                    <h1>메리 크리스마스</h1>
+                    <p>안녕하세요!</p>
+                    <p><strong>달빛도구 크리스마스 에디션 3.0</strong>이<br>드디어 출시되었습니다!</p>
+                    <p>재미있는 <strong>게임</strong>을 추가하고,<br><strong>산타를 추가하였습니다.</strong></p>
+                    <p>많이 플레이해주세요!</p>
+                    <div class="santa-icon">🎅🏻🦌✨</div>
+                </div>
+            </div>
+            <div class="instruction pulse">봉투를 터치하여 열어보세요</div>
+        </div>
+    </div>
+
+    <script>
+        // 봉투 인터랙션 제어
+        const envelope = document.getElementById('envelope');
+        const instruction = document.querySelector('.instruction');
+        
+        envelope.addEventListener('click', (e) => {
+            envelope.classList.toggle('open');
+            
+            if(envelope.classList.contains('open')) {
+                instruction.style.opacity = '0';
+            } else {
+                instruction.style.opacity = '1';
+            }
+        });
+
+        // 눈 내리는 효과 엔진
+        const canvas = document.getElementById('snow-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, snowflakes;
+
+        function initSnow() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            
+            snowflakes = [];
+            // 화면 크기에 따른 적절한 눈송이 수 조절
+            const count = Math.floor((width * height) / 8000); 
+            
+            for (let i = 0; i < count; i++) {
+                snowflakes.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 3 + 1,
+                    speed: Math.random() * 1.5 + 0.5,
+                    opacity: Math.random() * 0.7 + 0.3,
+                    wind: Math.random() * 0.5 - 0.25
+                });
+            }
+        }
+
+        function drawSnow() {
+            ctx.clearRect(0, 0, width, height);
+            
+            snowflakes.forEach(flake => {
+                ctx.beginPath();
+                ctx.fillStyle = `rgba(255, 255, 255, ${flake.opacity})`;
+                ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                flake.y += flake.speed;
+                flake.x += flake.wind;
+                
+                if (flake.y > height) {
+                    flake.y = -10;
+                    flake.x = Math.random() * width;
+                }
+                if (flake.x > width) flake.x = 0;
+                else if (flake.x < 0) flake.x = width;
+            });
+            
+            requestAnimationFrame(drawSnow);
+        }
+
+        // 창 크기 조절 대응 및 초기화
+        window.addEventListener('resize', initSnow);
+        window.onload = () => {
+            initSnow();
+            drawSnow();
+        };
+    </script>
+</body>
+</html>
