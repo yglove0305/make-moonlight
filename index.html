@@ -990,11 +990,11 @@
  function updateCountdown() {
         const now = new Date();
         const currentYear = now.getFullYear();
-        let targetDate = new Date(`, ${currentYear} `);
+        let targetDate = new Date(` `);
 
         // 만약 이미 지났다면 내년 크리스마스로
         if (now > targetDate) {
-          targetDate = new Date(`, ${currentYear + 1} `);
+          targetDate = new Date(`,  `);
         }
      
 
