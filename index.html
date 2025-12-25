@@ -988,16 +988,7 @@
       setInterval(createSnowflake, 500);
 
 
-      /* --- 2. 크리스마스 카운트다운 타이머 --- */
-      function updateCountdown() {
-        const now = new Date();
-        const currentYear = now.getFullYear();
-        let targetDate = new Date(`December 25, ${currentYear} 00:00:00`);
-
-        // 만약 이미 지났다면 내년 크리스마스로
-        if (now > targetDate) {
-          targetDate = new Date(`December 25, ${currentYear + 1} 00:00:00`);
-        }
+     
 
         const diff = targetDate - now;
 
