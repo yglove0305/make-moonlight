@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merry Christmas 2025 - Secret Gateway</title>
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Noto+Sans+KR:wght@300;500;700&display=swap');
+
+        :root {
+            --christmas-red: #c41e3a;
+            --christmas-green: #165b33;
+            --gold: #d4af37;
+            --snow-white: #f8f9fa;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle at center, #1a472a 0%, #072a1a 100%);
+            color: var(--snow-white);
+            font-family: 'Noto Sans KR', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .christmas-font {
+            font-family: 'Mountains of Christmas', cursive;
+        }
+
+        /* Snowfall Animation */
+        .snow-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .snowflake {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10vh) translateX(0); }
+            100% { transform: translateY(110vh) translateX(20px); }
+        }
+
+        /* Main Card Styling */
+        .main-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            border-radius: 2rem;
+            padding: 3rem;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            z-index: 10;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(212, 175, 55, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .main-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .title-glow {
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
+            color: var(--gold);
+        }
+
+        .input-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--christmas-green);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .input-box:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+            transform: scale(1.02);
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, var(--christmas-red) 0%, #8b0000 100%);
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(196, 30, 58, 0.4);
+        }
+
+        .submit-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(196, 30, 58, 0.6);
+            filter: brightness(1.2);
+        }
+
+        /* Message Box Customization */
+        #message-box {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            z-index: 100;
+            display: none;
+            animation: fadeInOut 3s forwards;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -20px); }
+            15% { opacity: 1; transform: translate(-50%, 0); }
+            85% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
+        }
+
+        /* Decoration Ornaments */
+        .ornament {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.6;
+            animation: swing 3s ease-in-out infinite alternate;
+            transform-origin: top center;
+        }
+
+        @keyframes swing {
+            from { transform: rotate(-10deg); }
+            to { transform: rotate(10deg); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Snow Layer -->
+    <div class="snow-container" id="snow-layer"></div>
+
+    <!-- Background Ornaments -->
+    <div class="ornament" style="top: 20px; left: 10%;">🎄</div>
+    <div class="ornament" style="top: 50px; right: 15%; animation-delay: 0.5s;">🔔</div>
+    <div class="ornament" style="bottom: 100px; left: 5%; animation-delay: 1.2s;">🎁</div>
+    <div class="ornament" style="bottom: 50px; right: 8%; animation-delay: 0.8s;">❄️</div>
+
+    <!-- Error/Status Message -->
+    <div id="message-box"></div>
+
+    <!-- Main Entry UI -->
+    <div class="main-card">
+        <h1 class="christmas-font text-6xl mb-4 title-glow">Merry Christmas</h1>
+        <p class="text-xl mb-8 font-light text-gray-300">2025 비밀 코드를 입력하여<br>선물 페이지로 이동하세요.</p>
+        
+        <div class="space-y-6">
+            <div class="relative">
+                <input type="text" id="secret-code" 
+                       class="input-box w-full px-6 py-4 rounded-full text-center text-xl placeholder-gray-500"
+                       placeholder="여기에 코드를 입력하세요"
+                       autocomplete="off">
+            </div>
+
+            <button onclick="checkCode()" 
+                    class="submit-btn w-full py-4 rounded-full text-lg cursor-pointer">
+                입장하기
+            </button>
+        </div>
+
+        <div class="mt-8 text-sm text-gray-400">
+            <p>Hint: 2025○○○○○○○○○</p>
+        </div>
+    </div>
+
+    <script>
+        // Generate Snowflakes
+        function createSnow() {
+            const container = document.getElementById('snow-layer');
+            const count = 100;
+            
+            for (let i = 0; i < count; i++) {
+                const flake = document.createElement('div');
+                flake.className = 'snowflake';
+                
+                const size = Math.random() * 5 + 2;
+                const pos = Math.random() * 100;
+                const delay = Math.random() * 5;
+                const duration = Math.random() * 3 + 4;
+                
+                flake.style.width = `${size}px`;
+                flake.style.height = `${size}px`;
+                flake.style.left = `${pos}%`;
+                flake.style.animationDelay = `${delay}s`;
+                flake.style.animationDuration = `${duration}s`;
+                
+                container.appendChild(flake);
+            }
+        }
+
+        // Message Display Helper
+        function showMessage(msg, isError = true) {
+            const box = document.getElementById('message-box');
+            box.innerText = msg;
+            box.style.display = 'block';
+            box.style.backgroundColor = isError ? 'rgba(196, 30, 58, 0.9)' : 'rgba(22, 91, 51, 0.9)';
+            
+            // Auto hide after animation
+            setTimeout(() => {
+                box.style.display = 'none';
+            }, 3000);
+        }
+
+        // Main Logic
+        function checkCode() {
+            const input = document.getElementById('secret-code').value.trim();
+            const targetCode = "2025메리크리스마스";
+            const targetUrl = "https://make-moonlight.pages.dev/data/new.html";
+
+            if (input === "") {
+                showMessage("코드를 입력해주세요! 🎅");
+                return;
+            }
+
+            if (input === targetCode) {
+                showMessage("인증 성공! 페이지로 이동합니다. 🎁", false);
+                
+                // Add a small delay for the effect
+                setTimeout(() => {
+                    window.location.href = targetUrl;
+                }, 1000);
+            } else {
+                showMessage("코드가 틀렸습니다. 다시 확인해보세요! 🦌");
+                // Shake effect for the card
+                const card = document.querySelector('.main-card');
+                card.style.animation = 'shake 0.5s';
+                setTimeout(() => card.style.animation = '', 500);
+            }
+        }
+
+        // Allow Enter Key
+        document.getElementById('secret-code').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                checkCode();
+            }
+        });
+
+        // Initialize
+        window.onload = () => {
+            createSnow();
+            console.log("Welcome to 2025 Christmas Gateway");
+        };
+
+        // Shake animation definition via JS for simplicity
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-10px); }
+                75% { transform: translateX(10px); }
+            }
+        `;
+        document.head.appendChild(style);
+
+    </script>
+</body>
+</html>
