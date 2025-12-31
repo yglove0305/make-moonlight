@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="ko" class="newyear-theme">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO 메타 데이터 -->
+  <meta name="description" content="달빛의 웹사이트 2026 신년 에디션 - 병오년 새해 복 많이 받으세요! 새해 목표와 유용한 도구 모음집입니다.">
+  <meta name="keywords" content="달빛의 웹사이트, 2026년, 새해, 신년, 병오년, 말띠, 새해인사, 운세, 도구 모음">
+  <meta name="author" content="Moonlight Team">
+
+  <meta property="og:title" content="🌅 달빛의 2026 새해 웹사이트">
+  <meta property="og:description" content="희망찬 2026년 붉은 말의 해, 당신의 시작을 응원하는 달빛의 도구함입니다.">
+  <meta property="og:type" content="website">
+
+  <title>🌅 달빛의 2026 새해 (Happy New Year)</title>
+
+  <!-- Google Fonts: 세련되고 힘찬 느낌의 폰트 (Sunflower, Noto Sans KR) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Sunflower:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome for Icons (Optional Fallback handled by emoji if needed) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    /* [디자인 시스템: Midnight Sunrise v2026] 
+       - 배경: 여명(Dawn)이 밝아오는 깊은 밤하늘
+       - 컬러: 2026 레드(붉은 말), 샴페인 골드, 미드나잇 네이비
+    */
+
+    :root {
+      /* 뉴이어 컬러 팔레트 */
+      --bg-midnight: #0f172a;
+      --bg-gradient: linear-gradient(135deg, #020617 0%, #172554 50%, #450a0a 100%);
+      
+      --ny-gold: #fbbf24;      /* 희망찬 골드 */
+      --ny-red: #dc2626;       /* 병오년 레드 */
+      --ny-silver: #e2e8f0;    /* 차분한 실버 */
+      --ny-white: #ffffff;
+      
+      --card-glass: rgba(15, 23, 42, 0.6);
+      --card-border: rgba(251, 191, 36, 0.2); /* 골드 틴트 */
+      --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      
+      --glow-gold: 0 0 15px rgba(251, 191, 36, 0.5);
+    }
+
+    /* 기본 설정 */
+    *, *::before, *::after { box-sizing: border-box; }
+    
+    body {
+      margin: 0;
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--bg-midnight);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+      position: relative;
+    }
+
+    /* --- 배경 레이어 (그라디언트 + 캔버스) --- */
+    .sky-background {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: -2;
+      background: var(--bg-gradient);
+      background-size: 400% 400%;
+      animation: skyShift 20s ease infinite;
+    }
+
+    @keyframes skyShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* 불꽃놀이/별 캔버스 */
+    #canvas-container {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* --- 레이아웃 --- */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* --- 헤더 --- */
+    header {
+      margin-top: 20px;
+      padding: 16px 24px;
+      border-radius: 20px;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-logo {
+      width: 50px; height: 50px;
+      background: linear-gradient(135deg, var(--ny-gold), #b45309);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+      position: relative;
+      transform: rotate(-5deg);
+    }
+    
+    /* 2026 뱃지 */
+    .brand-logo::after {
+      content: '2026';
+      position: absolute;
+      bottom: -8px;
+      right: -8px;
+      background: var(--ny-red);
+      color: white;
+      font-size: 10px;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    .brand-text h1 {
+      font-family: 'Sunflower', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
+      color: var(--ny-white);
+      letter-spacing: -0.5px;
+    }
+    .brand-text span {
+      font-size: 0.8rem;
+      color: var(--ny-gold);
+      display: block;
+      font-weight: 500;
+    }
+
+    /* --- 컨트롤 & 기능 --- */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-icon {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--text-main);
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      transition: 0.3s;
+    }
+    .btn-icon:hover {
+      background: var(--ny-gold);
+      color: #000;
+      transform: scale(1.1);
+      box-shadow: var(--glow-gold);
+    }
+
+    /* --- 히어로 섹션 --- */
+    .hero {
+      text-align: center;
+      padding: 80px 20px 60px;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background: rgba(220, 38, 38, 0.2);
+      border: 1px solid var(--ny-red);
+      color: #fca5a5;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      box-shadow: 0 0 10px rgba(220, 38, 38, 0.4);
+      animation: pulseRed 2s infinite;
+    }
+    
+    @keyframes pulseRed {
+      0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    }
+
+    .hero h2 {
+      font-family: 'Sunflower', sans-serif;
+      font-size: 4rem;
+      font-weight: 700;
+      margin: 10px 0;
+      line-height: 1.1;
+      background: linear-gradient(to right, #fff, #fcd34d, #fff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(251, 191, 36, 0.3);
+    }
+
+    .hero h2 span.year {
+      display: block;
+      font-size: 6rem;
+      color: var(--ny-red); /* 2026 강조 */
+      -webkit-text-fill-color: var(--ny-gold);
+      text-shadow: 2px 2px 0px #b45309;
+    }
+
+    .hero p {
+      color: var(--text-sub);
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* --- 카운트다운 --- */
+    .countdown-wrapper {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 50px;
+      flex-wrap: wrap;
+    }
+
+    .time-unit {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 15px 20px;
+      border-radius: 12px;
+      text-align: center;
+      min-width: 80px;
+      backdrop-filter: blur(5px);
+    }
+    .time-val {
+      display: block;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--ny-gold);
+      font-family: 'Courier New', monospace;
+    }
+    .time-label {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      text-transform: uppercase;
+    }
+
+    /* --- 그리드 레이아웃 --- */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      padding-bottom: 80px;
+    }
+
+    /* --- 카드 디자인 --- */
+    .card {
+      background: var(--card-glass);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(16px);
+      box-shadow: var(--card-shadow);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* 카드 상단 빛 효과 */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+      transform: rotate(45deg);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    
+    .card:hover {
+      transform: translateY(-10px);
+      border-color: var(--ny-gold);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(251, 191, 36, 0.05);
+    }
+    .card:hover::before { opacity: 1; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card-icon {
+      width: 56px; height: 56px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--ny-gold);
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    .card-title h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+      font-family: 'Sunflower', sans-serif;
+    }
+
+    .card-desc {
+      color: #cbd5e1;
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+      flex-grow: 1;
+      font-weight: 400;
+      line-height: 1.5;
+    }
+
+    /* 버튼 스타일 */
+    .card-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px 0;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      transition: 0.3s;
+      border: none;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-soft {
+      background: rgba(255,255,255,0.05);
+      color: var(--text-sub);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-soft:hover {
+      background: rgba(255,255,255,0.15);
+      color: white;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--ny-gold), #b45309);
+      color: #0f172a;
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #fbbf24, #d97706);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(251, 191, 36, 0.5);
+    }
+
+    /* New 태그 (리본 대신 뱃지로 변경) */
+    .badge-new {
+      position: absolute;
+      top: 15px; right: 15px;
+      background: var(--ny-red);
+      color: white;
+      font-size: 0.7rem;
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.5);
+    }
+
+    /* --- 푸터 --- */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--text-sub);
+      background: rgba(2, 6, 23, 0.8);
+      position: relative;
+    }
+    
+    .footer-quote {
+      font-family: 'Sunflower', sans-serif;
+      font-size: 1.4rem;
+      color: var(--ny-gold);
+      margin-bottom: 10px;
+    }
+
+    /* --- 모바일 대응 --- */
+    @media (max-width: 768px) {
+      .hero h2 { font-size: 2.5rem; }
+      .hero h2 span.year { font-size: 4rem; }
+      header { flex-direction: column; gap: 16px; align-items: stretch; }
+      .controls { justify-content: flex-end; }
+      .brand { justify-content: center; }
+      .countdown-wrapper { gap: 10px; }
+      .time-unit { min-width: 60px; padding: 10px; }
+      .time-val { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 배경 레이어 -->
+  <div class="sky-background"></div>
+  <div id="canvas-container"><canvas id="fireworksCanvas"></canvas></div>
+
+  <div class="container">
+    
+    <!-- 상단 헤더 -->
+    <header>
+      <a href="#" class="brand">
+        <div class="brand-logo">🐎</div>
+        <div class="brand-text">
+          <h1>Moonlight 2026</h1>
+          <span>New Year Edition</span>
+        </div>
+      </a>
+
+      <div class="controls">
+        <!-- 구글 번역 (기능 유지, 스타일 개선) -->
+        <div id="google_translate_element" style="display:none;"></div> <!-- 숨김처리 후 커스텀 버튼으로 제어 가능하나 간단히 유지 -->
+        
+        <button class="btn-icon" id="muteBtn" title="BGM 끄기/켜기 (UI Only)">
+          <i class="fas fa-volume-up"></i>
+        </button>
+        <button class="btn-icon" id="fireworkBtn" title="불꽃놀이 효과 토글">
+          <i class="fas fa-magic"></i>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <!-- 히어로 섹션 -->
+      <section class="hero">
+        
+        <div class="hero-badge">Year of the Red Horse 2026</div>
+
+        <h2>
+          Happy New Year<br>
+          <span class="year">2026</span>
+        </h2>
+        
+        <p>
+          병오년(丙午年), 붉은 말의 해가 밝았습니다.<br>
+          달빛이 당신의 힘찬 도약을 응원합니다. 새해 복 많이 받으세요!
+        </p>
+
+        <!-- 카운트다운 박스 -->
+        <div class="countdown-wrapper">
+          <div class="time-unit">
+            <span class="time-val" id="days">00</span>
+            <span class="time-label">Days</span>
+          </div>
+          <div class="time-unit">
+            <span class="time-val" id="hours">00</span>
+            <span class="time-label">Hours</span>
+          </div>
+          <div class="time-unit">
+            <span class="time-val" id="minutes">00</span>
+            <span class="time-label">Min</span>
+          </div>
+          <div class="time-unit">
+            <span class="time-val" id="seconds">00</span>
+            <span class="time-label">Sec</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- 카드 그리드 -->
+      <section class="grid">
+
+        <!-- 1. 신년 운세 (기존 게임 대체) -->
+        <article class="card">
+          <div class="badge-new">New</div>
+          <div class="card-header">
+            <div class="card-icon"><i class="fas fa-star"></i></div>
+            <div class="card-title"><h3>2026 Fortune</h3></div>
+          </div>
+          <p class="card-desc">병오년 당신의 운세는? 재미로 보는 신년 타로와 운세 뽑기.</p>
+          <div class="card-actions">
+            <a href="#" class="btn btn-soft" onclick="alert('준비 중입니다!')">미리보기</a>
+            <a href="https://make-moonlight.pages.dev/make/santa.html" class="btn btn-primary">운세 보기</a>
+          </div>
+        </article>
+
+        <!-- 2. 일정 관리 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon"><i class="fas fa-calendar-alt"></i></div>
+            <div class="card-title"><h3>2026 Planner</h3></div>
+          </div>
+          <p class="card-desc">작심삼일은 이제 그만! 새해 목표와 주요 약속을 완벽하게 관리하세요.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/calendar.html" class="btn btn-soft">달력</a>
+            <a href="https://make-moonlight.pages.dev/make/calendar.html" class="btn btn-primary">계획 세우기</a>
+          </div>
+        </article>
+
+        <!-- 3. 메트로놈 -> 리듬 트레이너 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon"><i class="fas fa-music"></i></div>
+            <div class="card-title"><h3>Rhythm Start</h3></div>
+          </div>
+          <p class="card-desc">새해에는 악기 하나 배워볼까요? 정확한 박자를 위한 메트로놈.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/metronome.html" class="btn btn-soft">열기</a>
+            <a href="https://make-moonlight.pages.dev/make/metronome.html" class="btn btn-primary">연습 하기</a>
+          </div>
+        </article>
+
+        <!-- 4. 게임 모음 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon"><i class="fas fa-gamepad"></i></div>
+            <div class="card-title"><h3>Holiday Games</h3></div>
+          </div>
+          <p class="card-desc">연휴에 심심할 틈이 없어요. 가족들과 함께 즐기는 미니게임 모음.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/sample.html" class="btn btn-soft">목록</a>
+            <a href="https://make-moonlight.pages.dev/make/sample.html" class="btn btn-primary">플레이</a>
+          </div>
+        </article>
+
+        <!-- 5. 저장공간 정리 (디지털 디톡스) -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon"><i class="fas fa-hdd"></i></div>
+            <div class="card-title"><h3>Digital Cleanup</h3></div>
+          </div>
+          <p class="card-desc">새해맞이 디지털 대청소! 묵은 파일들을 정리하고 쾌적하게 시작하세요.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/storage-space.html" class="btn btn-soft">확인</a>
+            <a href="https://make-moonlight.pages.dev/make/storage-space.html" class="btn btn-primary">정리하기</a>
+          </div>
+        </article>
+
+        <!-- 6. 스타크래프트 팁 (변함 없음) -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon"><i class="fas fa-rocket"></i></div>
+            <div class="card-title"><h3>Game Strategy</h3></div>
+          </div>
+          <p class="card-desc">영원한 명작, 스타크래프트의 승리 전략을 연구해보세요.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/%EC%8A%A4%ED%83%80%ED%81%AC%EB%9E%98%ED%94%84%ED%8A%B8.html" class="btn btn-soft">팁 보기</a>
+            <a href="https://make-moonlight.pages.dev/make/%EC%8A%A4%ED%83%80%ED%81%AC%EB%9E%98%ED%94%84%ED%8A%B8.html" class="btn btn-primary">공략</a>
+          </div>
+        </article>
+
+        <!-- 7. 기억력 게임 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon"><i class="fas fa-brain"></i></div>
+            <div class="card-title"><h3>Memory Test</h3></div>
+          </div>
+          <p class="card-desc">새해에는 더 똑똑해지자! 두뇌 회전을 돕는 카드 뒤집기 게임.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/puzzle.html" class="btn btn-soft">열기</a>
+            <a href="https://make-moonlight.pages.dev/make/puzzle.html" class="btn btn-primary">도전</a>
+          </div>
+        </article>
+
+        <!-- 8. 자연 도감 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon"><i class="fas fa-leaf"></i></div>
+            <div class="card-title"><h3>Nature 2026</h3></div>
+          </div>
+          <p class="card-desc">2026년 붉은 말의 해, 동물들과 자연에 대해 알아보세요.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/book.html" class="btn btn-soft">열기</a>
+            <a href="https://make-moonlight.pages.dev/make/book.html" class="btn btn-primary">탐색</a>
+          </div>
+        </article>
+
+        <!-- 9. 자산 관리 (세뱃돈) -->
+        <article class="card">
+          <div class="badge-new">Hot</div>
+          <div class="card-header">
+            <div class="card-icon"><i class="fas fa-coins"></i></div>
+            <div class="card-title"><h3>Asset Manager</h3></div>
+          </div>
+          <p class="card-desc">세뱃돈과 연말 정산, 새해 저축 계획을 꼼꼼하게 기록하세요.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/money.html" class="btn btn-soft">보기</a>
+            <a href="https://make-moonlight.pages.dev/make/money.html" class="btn btn-primary">기록하기</a>
+          </div>
+        </article>
+
+        <!-- 10. 고양이 타이쿤 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon"><i class="fas fa-cat"></i></div>
+            <div class="card-title"><h3>Cat Tycoon</h3></div>
+          </div>
+          <p class="card-desc">올해도 고양이는 귀엽습니다. 냥냥이들과 함께 힐링하세요.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/%EB%83%A5%EB%83%A5%ED%83%80%EC%9D%B4%EC%BF%A4.html" class="btn btn-soft">보기</a>
+            <a href="https://make-moonlight.pages.dev/make/%EB%83%A5%EB%83%A5%ED%83%80%EC%9D%B4%EC%BF%A4.html" class="btn btn-primary">키우기</a>
+          </div>
+        </article>
+
+        <!-- 11. 미로 찾기 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon"><i class="fas fa-map-signs"></i></div>
+            <div class="card-title"><h3>Maze Runner</h3></div>
+          </div>
+          <p class="card-desc">복잡한 미로를 탈출하여 2026년의 출구를 찾으세요!</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/qr.html" class="btn btn-soft">보기</a>
+            <a href="https://make-moonlight.pages.dev/make/qr.html" class="btn btn-primary">생성</a>
+          </div>
+        </article>
+
+        <!-- 12. 건강 관리 (BMI) -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon"><i class="fas fa-weight"></i></div>
+            <div class="card-title"><h3>Health Check</h3></div>
+          </div>
+          <p class="card-desc">새해 건강이 최고! BMI를 체크하고 운동 계획을 세우세요.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/bmi.html" class="btn btn-soft">열기</a>
+            <a href="https://make-moonlight.pages.dev/make/bmi.html" class="btn btn-primary">체크하기</a>
+          </div>
+        </article>
+
+        <!-- 13. 농장 키우기 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon"><i class="fas fa-seedling"></i></div>
+            <div class="card-title"><h3>Happy Farm</h3></div>
+          </div>
+          <p class="card-desc">희망의 씨앗을 심으세요. 정성껏 키우면 복이 옵니다.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/%EB%86%8D%EC%9E%A5.html" class="btn btn-soft">보기</a>
+            <a href="https://make-moonlight.pages.dev/make/%EB%86%8D%EC%9E%A5.html" class="btn btn-primary">경작</a>
+          </div>
+        </article>
+
+        <!-- 14. 소원 빌기 -->
+        <article class="card">
+          <div class="badge-new">Wish</div>
+          <div class="card-header">
+            <div class="card-icon"><i class="fas fa-pray"></i></div>
+            <div class="card-title"><h3>Make a Wish</h3></div>
+          </div>
+          <p class="card-desc">2026년에 꼭 이루고 싶은 소원을 적어보세요.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/data/%EC%84%A4%EB%AC%B8.html" class="btn btn-soft">보기</a>
+            <a href="https://make-moonlight.pages.dev/data/%EC%84%A4%EB%AC%B8.html" class="btn btn-primary">소원 적기</a>
+          </div>
+        </article>
+
+        <!-- 15. 버블 슈터 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon"><i class="fas fa-bullseye"></i></div>
+            <div class="card-title"><h3>Bubble Pop</h3></div>
+          </div>
+          <p class="card-desc">스트레스는 팡팡 터트려버리세요! 상쾌한 버블 슈팅.</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/data/%EB%B2%84%EB%B8%94.html" class="btn btn-soft">보기</a>
+            <a href="https://make-moonlight.pages.dev/data/%EB%B2%84%EB%B8%94.html" class="btn btn-primary">슈팅</a>
+          </div>
+        </article>
+
+        <!-- 16. 럭키 드로우 -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-icon"><i class="fas fa-gem"></i></div>
+            <div class="card-title"><h3>Lucky Draw</h3></div>
+          </div>
+          <p class="card-desc">새해 행운의 주인공은 누구? 대박 기원 랜덤 뽑기!</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/%EB%9D%BC%EB%B6%80%EB%B6%80.html" class="btn btn-soft">열기</a>
+            <a href="https://make-moonlight.pages.dev/make/%EB%9D%BC%EB%B6%80%EB%B6%80.html" class="btn btn-primary">뽑기</a>
+          </div>
+        </article>
+
+      </section>
+    </main>
+
+    <!-- 푸터 -->
+    <footer>
+      <p class="footer-quote">"The best is yet to come."</p>
+      <p>© 2026 Moonlight New Year Edition. All rights reserved.</p>
+      <div style="margin-top:15px; font-size: 0.9rem; opacity: 0.7;">
+        Designed for the Year of the Red Horse 🐎
+      </div>
+    </footer>
+  </div>
+
+  <!-- Javascript Logic -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      /* --- 1. 2026 카운트다운 로직 --- */
+      const targetDate = new Date("January 1, 2026 00:00:00").getTime();
+      
+      // 만약 이미 지났다면(2026년 중이라면) 2027년으로 설정 (자동갱신)
+      const nowTest = new Date().getTime();
+      let finalTarget = targetDate;
+      if(nowTest > targetDate) {
+        finalTarget = new Date("January 1, 2027 00:00:00").getTime();
+        document.querySelector('.hero h2 span.year').innerText = "2027"; // 텍스트 자동 변경
+        document.querySelector('.hero-badge').innerText = "Counting down to 2027";
+      }
+
+      function updateCountdown() {
+        const now = new Date().getTime();
+        const distance = finalTarget - now;
+
+        const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((distance % (1000 * 60)) / 1000);
+
+        document.getElementById('days').innerText = d.toString().padStart(2, '0');
+        document.getElementById('hours').innerText = h.toString().padStart(2, '0');
+        document.getElementById('minutes').innerText = m.toString().padStart(2, '0');
+        document.getElementById('seconds').innerText = s.toString().padStart(2, '0');
+      }
+
+      setInterval(updateCountdown, 1000);
+      updateCountdown();
+
+
+      /* --- 2. 캔버스 불꽃놀이 (Simple Particle System) --- */
+      const canvas = document.getElementById('fireworksCanvas');
+      const ctx = canvas.getContext('2d');
+      let w, h;
+      let particles = [];
+      let fireworksEnabled = true;
+
+      function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      class Particle {
+        constructor() {
+          this.x = Math.random() * w;
+          this.y = h + Math.random() * 100; // 바닥 아래에서 시작
+          this.vx = Math.random() * 4 - 2;
+          this.vy = Math.random() * -10 - 5; // 위로 솟구침
+          this.gravity = 0.2;
+          this.life = Math.random() * 100 + 100;
+          this.alpha = 1;
+          this.color = `hsl(${Math.random() * 360}, 70%, 50%)`;
+          this.size = Math.random() * 3 + 1;
+          this.exploded = false;
+        }
+
+        update() {
+          if (!this.exploded) {
+            // 솟구치는 단계
+            this.x += this.vx;
+            this.y += this.vy;
+            this.vy += this.gravity * 0.5;
+            if (this.vy >= 0 || this.y < h * 0.2) {
+              this.explode();
+            }
+          } else {
+            // 폭발 후 퍼지는 단계
+            this.x += this.vx;
+            this.y += this.vy;
+            this.vy += this.gravity * 0.2; // 가볍게 떨어짐
+            this.alpha -= 0.015;
+            this.life--;
+          }
+        }
+
+        explode() {
+          this.exploded = true;
+          // 폭발 시 속도 재설정 (사방으로 퍼짐)
+          const angle = Math.random() * Math.PI * 2;
+          const speed = Math.random() * 5;
+          this.vx = Math.cos(angle) * speed;
+          this.vy = Math.sin(angle) * speed;
+        }
+
+        draw() {
+          ctx.globalAlpha = this.alpha;
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      function loop() {
+        if (!fireworksEnabled) {
+            ctx.clearRect(0, 0, w, h);
+            requestAnimationFrame(loop);
+            return;
+        }
+
+        // 잔상 효과 (검은색을 옅게 덧칠)
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.2)';
+        ctx.fillRect(0, 0, w, h);
+
+        // 파티클 생성 (랜덤)
+        if (Math.random() < 0.05) { // 빈도 조절
+          particles.push(new Particle());
+          // 폭발 시 여러 파편 생성 느낌을 위해 추가
+        }
+
+        // 파티클 업데이트 및 그리기
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.update();
+          p.draw();
+          
+          if (p.life <= 0 || p.alpha <= 0) {
+            particles.splice(i, 1);
+          }
+        }
+
+        // 폭발 시 서브 파티클 생성 (간단화: 기존 파티클 재활용 로직 대신 시각적 효과만)
+        
+        requestAnimationFrame(loop);
+      }
+      
+      loop();
+
+      /* --- 3. 컨트롤 버튼 로직 --- */
+      const muteBtn = document.getElementById('muteBtn');
+      let isMuted = false;
+      muteBtn.addEventListener('click', () => {
+        isMuted = !isMuted;
+        muteBtn.innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+        // 실제 오디오가 있다면 audio.muted = isMuted;
+      });
+
+      const fireworkBtn = document.getElementById('fireworkBtn');
+      fireworkBtn.addEventListener('click', () => {
+        fireworksEnabled = !fireworksEnabled;
+        fireworkBtn.style.color = fireworksEnabled ? 'var(--ny-gold)' : 'var(--text-sub)';
+      });
+
+      console.log("%c 🌅 Happy New Year 2026! 🐎 ", "background: #dc2626; color: #fff; padding: 10px; font-size: 16px; border-radius: 5px;");
+    });
+  </script>
+</body>
+</html>
