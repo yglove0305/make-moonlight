@@ -1,56 +1,60 @@
+
 <!DOCTYPE html>
-<html lang="ko" class="christmas-theme">
+<html lang="ko" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="30">
-
-<!-- Open Graph (SNS 공유용) -->
-<meta property="og:title" content="웹페이지 제목">
-<meta property="og:description" content="https://lh3.googleusercontent.com/gg-dl/ABS2GSn3NyfS_5AdKRnO17ObuEgmJ5h9sh53BJRPCUqTRootNX1b7AjSz_KLmlKjOkVrGaQn1Pp0f6ssqHBDv_onk4Bo0Up_oVMlMj2hMshXziLDc900rqjVB8G0Q8bgzTHUyOiaatfxrvpkFkAPFo3Vu6DY_fLRh9nxwfLXMV9DupKCSCBbMw=s1024-rj">
-<meta property="og:url" content="https://make-moonlight.pages.dev/">
+  
   <!-- SEO 메타 데이터 -->
-  <meta name="description" content="달빛의 웹사이트 크리스마스 에디션 - 당신의 겨울밤을 밝혀주는 유용한 도구들과 게임 모음집입니다.">
-  <meta name="keywords" content="달빛의 웹사이트, 크리스마스, 산타, 눈내리는 배경, 달빛도구, 툴 모음, 게임">
+  <meta name="description" content="달빛의 웹사이트 - 당신의 밤을 밝혀주는 유용한 도구들과 게임 모음집입니다. (구: 달빛도구)">
+  <meta name="keywords" content="달빛의 웹사이트, 달빛도구, 툴 모음, 게임, 번역,  메트로놈, 캘린더">
   <meta name="author" content="Moonlight Team">
 
-  <meta property="og:title" content="🎄 달빛의 크리스마스 웹사이트">
-  <meta property="og:description" content="눈 내리는 겨울밤, 유용한 도구와 게임을 산타가 선물합니다.">
+  <meta property="og:title" content="🌙 달빛의 웹사이트">
+  <meta property="og:description" content="유용한 도구와 게임 을 모아 봤습니다. made by Yg , gemini ai">
   <meta property="og:type" content="website">
 
-  <title>🎄 달빛의 크리스마스</title>
+  <title>달빛의 웹사이트</title>
 
-  <!-- Google Fonts: 크리스마스 느낌의 폰트 추가 (Mountains of Christmas) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <!-- Google Fonts: 가독성 좋은 폰트 조합 -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
 
   <style>
-    /* [디자인 시스템: Christmas Night v4.0] 
-      - 배경: 짙은 겨울 밤하늘 + 눈 내리는 효과
-      - 컬러: 홀리 레드, 파인 그린, 스노우 화이트, 골드
-      - 질감: 성에 낀 유리 (Frosted Ice)
+    /* [디자인 시스템: Mystic Aurora v3.0] 
+      - 배경: 깊은 밤하늘 + 오로라 그라디언트 애니메이션
+      - 질감: 유리(Glassmorphism) 효과
+      - 인터랙션: 부드러운 호버 및 클릭 효과
     */
 
     :root {
-      /* 크리스마스 컬러 팔레트 */
-      --bg-night: #0f172a; /* 짙은 남색 */
-      --bg-gradient: linear-gradient(to bottom, #020617, #1e1b4b, #312e81);
-      
-      --xmas-red: #ef4444;
-      --xmas-green: #15803d;
-      --xmas-gold: #f59e0b;
-      --snow-white: #f8fafc;
-      
-      --card-frost: rgba(255, 255, 255, 0.1);
-      --card-border: rgba(255, 255, 255, 0.2);
-      --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-      
-      --text-main: #f1f5f9;
-      --text-muted: #cbd5e1;
-      
-      --glow-text: 0 0 10px rgba(255, 255, 255, 0.5);
+      /* 다크 모드 (기본) */
+      --bg-deep: #05070a;
+      --text-main: #eef2ff;
+      --text-muted: #94a3b8;
+      --glass-bg: rgba(20, 25, 40, 0.4);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --card-bg: rgba(30, 35, 50, 0.4);
+      --primary-glow: #6366f1; /* Indigo */
+      --accent-glow: #d946ef;  /* Magenta */
+      --secondary-glow: #06b6d4; /* Cyan */
+      --shadow-soft: 0 10px 30px -10px rgba(0,0,0,0.5);
+      --radius-lg: 24px;
+      --radius-md: 16px;
+    }
+
+    /* 라이트 모드 오버라이드 */
+    :root.light {
+      --bg-deep: #f8fafc;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --glass-bg: rgba(255, 255, 255, 0.65);
+      --glass-border: rgba(0, 0, 0, 0.06);
+      --card-bg: rgba(255, 255, 255, 0.7);
+      --primary-glow: #4f46e5;
+      --accent-glow: #c026d3;
+      --secondary-glow: #0891b2;
+      --shadow-soft: 0 10px 30px -10px rgba(0,0,0,0.1);
     }
 
     /* 기본 설정 */
@@ -59,134 +63,60 @@
     body {
       margin: 0;
       font-family: 'Poppins', 'Noto Sans KR', sans-serif;
-      background: var(--bg-night);
+      background-color: var(--bg-deep);
       color: var(--text-main);
       min-height: 100vh;
       overflow-x: hidden;
+      transition: background-color 0.5s ease, color 0.3s ease;
       line-height: 1.6;
-      position: relative;
     }
 
-    /* --- 배경 레이어 (그라디언트 + 눈) --- */
-    .winter-background {
+    /* --- 배경 애니메이션 (오로라 & 별) --- */
+    .background-layer {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
+      z-index: -2;
+      background: var(--bg-deep);
+      overflow: hidden;
+    }
+
+    .aurora {
+      position: absolute;
+      width: 100%; height: 100%;
+      background: 
+        radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 90% 80%, rgba(217, 70, 239, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 60%);
+      filter: blur(80px);
+      animation: auroraMove 20s infinite alternate;
+    }
+
+    @keyframes auroraMove {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.1); }
+    }
+
+    .starfield {
+      position: fixed;
+      inset: 0;
       z-index: -1;
-      background: var(--bg-gradient);
-    }
-
-    /* 눈송이 컨테이너 */
-    #snow-container {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
       pointer-events: none;
-      z-index: 1;
-      overflow: hidden;
-    }
-
-    .snowflake {
-      position: absolute;
-      top: -10px;
-      color: white;
-      font-size: 1em;
-      opacity: 0.8;
-      user-select: none;
-      animation-name: fall, sway;
-      animation-timing-function: linear, ease-in-out;
-      animation-iteration-count: infinite, infinite;
-    }
-
-    @keyframes fall {
-      0% { top: -10%; }
-      100% { top: 100%; }
-    }
-    @keyframes sway {
-      0% { transform: translateX(0); }
-      50% { transform: translateX(20px); }
-      100% { transform: translateX(0); }
-    }
-
-    /* --- 크리스마스 전구 장식 (Header Top) --- */
-    .light-rope {
-      text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      position: absolute;
-      z-index: 50;
-      margin: -15px 0 0 0;
-      padding: 0;
-      pointer-events: none;
-      width: 100%;
-    }
-
-    .light-rope li {
-      position: relative;
-      animation-fill-mode: both; 
-      animation-iteration-count: infinite;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: inline-block;
-      width: 12px;
-      height: 28px;
-      border-radius: 50%;
-      margin: 20px;
-      background: var(--xmas-green);
-      box-shadow: 0px 4.66px 24px 3px var(--xmas-green);
-      animation-name: flash-1;
-      animation-duration: 2s;
-    }
-
-    .light-rope li:nth-child(2n) {
-      background: var(--xmas-red);
-      box-shadow: 0px 4.66px 24px 3px var(--xmas-red);
-      animation-name: flash-2;
-      animation-duration: 0.4s;
     }
     
-    .light-rope li:nth-child(3n) {
-      background: var(--xmas-gold);
-      box-shadow: 0px 4.66px 24px 3px var(--xmas-gold);
-      animation-name: flash-3;
-      animation-duration: 1.1s;
-    }
-
-    .light-rope li:before {
-      content: "";
+    .star {
       position: absolute;
-      background: #222;
-      width: 10px;
-      height: 9px;
-      border-radius: 3px;
-      top: -4px;
-      left: 1px;
-    }
-
-    .light-rope li:after {
-      content: "";
-      top: -14px;
-      left: 9px;
-      position: absolute;
-      width: 52px;
-      height: 18px;
-      border-bottom: solid #222 2px;
+      background: white;
       border-radius: 50%;
+      opacity: 0;
+      animation: twinkle var(--duration, 3s) infinite ease-in-out;
     }
 
-    @keyframes flash-1 { 
-      0%, 100% { background: var(--xmas-green); box-shadow: 0px 4.66px 24px 3px var(--xmas-green); opacity: 1; } 
-      50% { background: rgba(21, 128, 61, 0.4); box-shadow: 0px 4.66px 24px 3px rgba(21, 128, 61, 0.2); opacity: 0.5; }
-    }
-    @keyframes flash-2 { 
-      0%, 100% { background: var(--xmas-red); box-shadow: 0px 4.66px 24px 3px var(--xmas-red); opacity: 1; } 
-      50% { background: rgba(239, 68, 68, 0.4); box-shadow: 0px 4.66px 24px 3px rgba(239, 68, 68, 0.2); opacity: 0.5; }
-    }
-    @keyframes flash-3 { 
-      0%, 100% { background: var(--xmas-gold); box-shadow: 0px 4.66px 24px 3px var(--xmas-gold); opacity: 1; } 
-      50% { background: rgba(245, 158, 11, 0.4); box-shadow: 0px 4.66px 24px 3px rgba(245, 158, 11, 0.2); opacity: 0.5; }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.1; transform: scale(0.8); }
+      50% { opacity: 0.8; transform: scale(1.2); box-shadow: 0 0 8px white; }
     }
 
-    /* --- 레이아웃 --- */
+    /* --- 레이아웃 컨테이너 --- */
     .container {
       max-width: 1200px;
       margin: 0 auto;
@@ -195,18 +125,23 @@
       z-index: 10;
     }
 
-    /* --- 헤더 --- */
+    /* --- 헤더 스타일 --- */
     header {
-      margin-top: 60px; /* 전구 공간 확보 */
+      margin-top: 20px;
       padding: 16px 24px;
-      border-radius: 20px;
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-lg);
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid var(--glass-border);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--shadow-soft);
+      position: sticky;
+      top: 20px;
+      z-index: 100;
+      transition: all 0.3s ease;
     }
 
     .brand {
@@ -218,146 +153,153 @@
     }
 
     .brand-logo {
-      width: 50px; height: 50px;
-      background: radial-gradient(circle, #fff, #cbd5e1);
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, #e0e7ff, #818cf8);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
-      border: 2px solid var(--xmas-red);
-      position: relative;
-    }
-    
-    /* 로고 위 미니 산타 모자 */
-    .brand-logo::after {
-      content: '🎅';
-      position: absolute;
-      top: -15px;
-      right: -10px;
       font-size: 24px;
-      transform: rotate(15deg);
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+      border: 2px solid rgba(255,255,255,0.2);
     }
 
     .brand-text h1 {
-      font-family: 'Mountains of Christmas', cursive;
-      font-size: 1.6rem;
-      font-weight: 700;
+      font-size: 1.15rem;
+      font-weight: 800;
       margin: 0;
-      color: var(--xmas-gold);
-      text-shadow: 0 0 5px rgba(245, 158, 11, 0.5);
+      letter-spacing: -0.5px;
     }
     .brand-text span {
       font-size: 0.8rem;
       color: var(--text-muted);
       display: block;
+      font-weight: 500;
     }
 
-    /* --- 컨트롤 & 번역기 --- */
+    /* 컨트롤 영역 (번역기 + 테마) */
     .controls {
       display: flex;
       align-items: center;
       gap: 12px;
     }
 
+    /* 구글 번역기 커스텀 스타일링 (숨김 처리 후 예쁘게) */
     #google_translate_element {
-      border-radius: 12px;
+      display: inline-block;
       overflow: hidden;
+      border-radius: 12px;
     }
-    .goog-te-gadget-simple {
-      background-color: rgba(255,255,255,0.1) !important;
-      border: 1px solid rgba(255,255,255,0.2) !important;
-      padding: 8px 12px !important;
-      border-radius: 12px !important;
-    }
-    .goog-te-gadget-simple span { color: white !important; font-weight: bold; }
     
-    .goog-te-banner-frame { display: none !important; }
-    body { top: 0 !important; }
+    .goog-te-gadget-simple {
+      background-color: rgba(255,255,255,0.08) !important;
+      border: 1px solid var(--glass-border) !important;
+      padding: 6px 10px !important;
+      border-radius: 12px !important;
+      font-size: 13px !important;
+      line-height: 20px !important;
+      display: flex !important;
+      align-items: center;
+      color: var(--text-main) !important;
+      transition: 0.2s;
+    }
+    
+    .goog-te-gadget-simple:hover {
+      background-color: rgba(255,255,255,0.15) !important;
+    }
 
-    /* 테마 버튼 (크리스마스 트리 아이콘으로 변경) */
+    .goog-te-gadget-simple span {
+      color: var(--text-main) !important;
+      font-weight: 600 !important;
+    }
+    
+    .goog-te-gadget-simple img {
+      display: none !important; /* 구글 아이콘 숨김 */
+    }
+
+    /* 구글 탑 배너 강제 제거 */
+    body { top: 0 !important; }
+    .goog-te-banner-frame { display: none !important; }
+
+    /* 테마 버튼 */
     .theme-btn {
-      background: rgba(21, 128, 61, 0.3);
-      border: 1px solid var(--xmas-green);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--glass-border);
       color: var(--text-main);
-      width: 44px; height: 44px;
+      width: 40px; height: 40px;
       border-radius: 50%;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.4rem;
+      font-size: 1.2rem;
       transition: 0.3s;
     }
     .theme-btn:hover {
-      background: var(--xmas-green);
-      transform: scale(1.1) rotate(10deg);
-      box-shadow: 0 0 15px var(--xmas-green);
+      background: rgba(255,255,255,0.2);
+      transform: rotate(15deg);
     }
 
     /* --- 히어로 섹션 --- */
     .hero {
       text-align: center;
-      padding: 60px 20px 40px;
+      padding: 80px 20px 60px;
     }
 
-    .hero-moon-wrapper {
+    .hero-moon {
+      width: 140px; height: 140px;
+      margin: 0 auto 30px;
       position: relative;
-      width: 160px; height: 160px;
-      margin: 0 auto 20px;
     }
 
+    /* SVG Moon Animation */
     .moon-svg {
       width: 100%; height: 100%;
-      filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.4));
+      filter: drop-shadow(0 0 20px var(--primary-glow));
       animation: float 6s ease-in-out infinite;
     }
-
-    /* SVG 내부 산타 모자 추가 스타일 */
-    .santa-hat-svg {
-      animation: swingHat 3s ease-in-out infinite alternate;
-      transform-origin: bottom center;
-    }
-    @keyframes swingHat {
-      from { transform: rotate(-5deg); }
-      to { transform: rotate(5deg); }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
     }
 
     .hero h2 {
-      font-family: 'Mountains of Christmas', cursive;
-      font-size: 3.5rem;
-      font-weight: 700;
-      margin: 10px 0;
-      background: linear-gradient(to right, #fff, #fcd34d, #fff);
+      font-size: 2.8rem;
+      font-weight: 900;
+      margin: 0 0 16px;
+      background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 20px rgba(255,255,255,0.2);
+    }
+    
+    :root.light .hero h2 {
+      background: linear-gradient(135deg, #1e293b 0%, #4f46e5 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .hero p {
       color: var(--text-muted);
       font-size: 1.1rem;
-      margin-bottom: 20px;
+      max-width: 600px;
+      margin: 0 auto 32px;
+      word-break: keep-all;
     }
 
-    /* --- 크리스마스 카운트다운 --- */
-    .countdown-box {
-      background: rgba(220, 38, 38, 0.2);
-      border: 1px solid rgba(220, 38, 38, 0.5);
-      border-radius: 50px;
-      padding: 10px 30px;
-      display: inline-block;
-      margin-bottom: 40px;
-      box-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
-      backdrop-filter: blur(5px);
+    /* 알림 배지 */
+    .notice-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      padding: 6px 16px;
+      border-radius: 99px;
+      font-size: 0.9rem;
+      color: #a5b4fc;
+      margin-bottom: 24px;
     }
-    .countdown-text {
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #fca5a5;
-    }
-    .countdown-timer {
-      font-family: 'Courier New', monospace;
-      font-weight: 900;
-      color: #fff;
+    :root.light .notice-badge {
+      color: #4f46e5;
+      background: rgba(99, 102, 241, 0.1);
     }
 
     /* --- 그리드 레이아웃 --- */
@@ -368,38 +310,35 @@
       padding-bottom: 80px;
     }
 
-    /* --- 카드 (Frosted Glass + Christmas Vibe) --- */
+    /* --- 카드 스타일 --- */
     .card {
-      background: var(--card-frost);
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
       padding: 24px;
       display: flex;
       flex-direction: column;
       position: relative;
       overflow: hidden;
-      backdrop-filter: blur(10px);
-      box-shadow: var(--card-shadow);
-      transition: all 0.4s ease;
+      backdrop-filter: blur(12px);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
-    /* 카드 상단 눈 쌓임 효과 (가상 요소) */
     .card::before {
       content: '';
       position: absolute;
-      top: 0; left: 0; width: 100%; height: 6px;
-      background: linear-gradient(90deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4));
-      border-radius: 20px 20px 0 0;
-      opacity: 0.8;
+      top: 0; left: 0; width: 100%; height: 4px;
+      background: linear-gradient(90deg, var(--primary-glow), var(--accent-glow));
+      opacity: 0;
+      transition: 0.3s;
     }
-    
-    /* 호버 시 골드 테두리 및 빛남 */
+
     .card:hover {
-      transform: translateY(-10px) scale(1.02);
-      border-color: var(--xmas-gold);
-      box-shadow: 0 15px 40px rgba(245, 158, 11, 0.2);
-      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
+      border-color: rgba(255,255,255,0.2);
     }
+    .card:hover::before { opacity: 1; }
 
     .card-header {
       display: flex;
@@ -410,32 +349,30 @@
 
     .card-icon {
       width: 56px; height: 56px;
-      background: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
       border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 28px;
-      border: 1px solid rgba(255,255,255,0.2);
-      box-shadow: inset 0 0 10px rgba(255,255,255,0.1);
+      flex-shrink: 0;
     }
 
     .card-title h3 {
       margin: 0;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       font-weight: 700;
-      color: #fff;
     }
 
     .card-desc {
-      color: #e2e8f0;
+      color: var(--text-muted);
       font-size: 0.95rem;
       margin-bottom: 24px;
       flex-grow: 1;
-      font-weight: 300;
+      line-height: 1.5;
+      word-break: keep-all;
     }
 
-    /* 버튼 스타일 (캔디 케인 느낌 or 골드) */
     .card-actions {
       display: flex;
       gap: 10px;
@@ -444,151 +381,92 @@
 
     .btn {
       flex: 1;
-      padding: 12px 0;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      font-weight: 700;
+      padding: 10px 0;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
       text-align: center;
       text-decoration: none;
       cursor: pointer;
-      transition: 0.3s;
+      transition: 0.2s;
       border: none;
       display: inline-flex;
       justify-content: center;
       align-items: center;
-      position: relative;
-      overflow: hidden;
+      gap: 6px;
     }
 
     .btn-soft {
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.3);
+      background: transparent;
+      border: 1px solid var(--glass-border);
+      color: var(--text-muted);
     }
     .btn-soft:hover {
-      background: rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.05);
+      color: var(--text-main);
+      border-color: var(--text-muted);
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, var(--xmas-red), #b91c1c);
+      background: linear-gradient(90deg, var(--primary-glow), var(--accent-glow));
       color: white;
-      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
     }
     .btn-primary:hover {
-      background: linear-gradient(135deg, #b91c1c, var(--xmas-red));
-      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
-      transform: translateY(-2px);
-    }
-    
-    /* 리본 장식 (일부 카드에 적용) */
-    .ribbon {
-      position: absolute;
-      top: -5px; right: -5px;
-      width: 70px; height: 70px;
-      overflow: hidden;
-    }
-    .ribbon::before {
-      content: 'New';
-      position: absolute;
-      top: 15px; right: -18px;
-      width: 100px;
-      background: var(--xmas-gold);
-      color: #000;
-      text-align: center;
-      font-size: 12px;
-      font-weight: bold;
-      transform: rotate(45deg);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      filter: brightness(1.1);
+      box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+      transform: translateY(-1px);
     }
 
     /* --- 푸터 --- */
     footer {
-      border-top: 1px solid rgba(255,255,255,0.1);
-      padding: 60px 20px;
+      border-top: 1px solid var(--glass-border);
+      padding: 40px 20px;
       text-align: center;
       color: var(--text-muted);
-      background: rgba(0,0,0,0.4);
-      position: relative;
+      font-size: 0.9rem;
+      background: rgba(0,0,0,0.2);
     }
     
-    /* 산타 썰매 애니메이션 컨테이너 */
-    .sleigh-container {
-      position: fixed;
-      top: 15%;
-      left: -200px;
-      z-index: 5;
-      pointer-events: none;
-      animation: sleighRide 25s linear infinite;
-      animation-delay: 5s;
-    }
-    
-    .sleigh-svg {
-      width: 150px;
-      filter: drop-shadow(0 10px 5px rgba(0,0,0,0.3));
-    }
-
-    @keyframes sleighRide {
-      0% { left: -200px; transform: translateY(0) rotate(5deg); }
-      20% { transform: translateY(20px) rotate(0deg); }
-      40% { transform: translateY(-20px) rotate(-5deg); }
-      60% { transform: translateY(10px) rotate(2deg); }
-      100% { left: 110vw; transform: translateY(-10px) rotate(5deg); }
-    }
+    footer a { color: var(--text-muted); text-decoration: none; border-bottom: 1px dotted var(--text-muted); }
+    footer a:hover { color: var(--text-main); border-bottom-style: solid; }
 
     /* 모바일 반응형 */
     @media (max-width: 768px) {
-      .hero h2 { font-size: 2.2rem; }
-      header { flex-direction: column; gap: 16px; margin-top: 50px; }
-      .controls { width: 100%; justify-content: space-between; }
-      .brand { margin-bottom: 5px; }
-      .card:hover { transform: none; }
+      .hero h2 { font-size: 2rem; }
+      header { flex-direction: column; gap: 16px; align-items: stretch; }
+      .controls { justify-content: space-between; }
+      .brand { justify-content: center; }
     }
   </style>
 </head>
 <body>
 
   <!-- 배경 레이어 -->
-  <div class="winter-background"></div>
-  <div id="snow-container"></div> <!-- 눈송이들이 여기에 생성됨 -->
-  
-  <!-- 크리스마스 썰매 -->
-  <div class="sleigh-container">
-    <svg class="sleigh-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M4 12C4 12 5.5 12 6.5 10.5C7.5 9 10 11.5 13 10C16 8.5 18 10 18 10V14H4V12Z" fill="#ef4444" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M4 14H18V15H4V14Z" fill="#15803d"/>
-      <path d="M2 17C2 17 3 18 6 18H18C20 18 21 17 21 16" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="M14 10L14.5 8M16 10L16.5 8" stroke="white" stroke-width="1.5"/>
-      <circle cx="15" cy="8" r="1.5" fill="#fca5a5"/> <!-- 산타 얼굴 -->
-    </svg>
+  <div class="background-layer">
+    <div class="aurora"></div>
+    <div class="starfield" id="starfield"></div>
   </div>
 
   <div class="container">
     
-    <!-- 전구 장식 -->
-    <ul class="light-rope">
-      <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
-      <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
-      <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
-      <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
-    </ul>
-
     <!-- 상단 헤더 -->
     <header>
       <a href="#" class="brand">
         <div class="brand-logo">🌙</div>
         <div class="brand-text">
-          <h1>Merry Moonlight</h1>
-          <span>Christmas Edition v3.0</span>
+          <h1>달빛의 웹사이트</h1>
+          <span>Moonlight Website v3.0</span>
         </div>
       </a>
 
       <div class="controls">
-        <!-- 구글 번역 기능 -->
-        <div id="google_translate_element" title="Change Language"></div>
+        <!-- 구글 번역 기능 (무료 데모) -->
+        <div id="google_translate_element" title="언어 변경 (Translate)"></div>
         
-        <!-- 테마 토글 버튼 (트리 모양) -->
+        <!-- 테마 토글 버튼 -->
         <button class="theme-btn" id="themeToggle" aria-label="테마 변경">
-          <span>🎄</span>
+          <span>🔆</span>
         </button>
       </div>
     </header>
@@ -596,93 +474,64 @@
     <main>
       <!-- 히어로 섹션 -->
       <section class="hero">
+        <div class="notice-badge">
+          ✨ <b>긴급공지:</b>업데이트 서비스 중단
+        </div>
         
-        <div class="hero-moon-wrapper">
-          <!-- SVG Moon with Santa Hat -->
+        <div class="hero-moon">
+          <!-- SVG Moon -->
           <svg class="moon-svg" viewBox="0 0 200 200">
             <defs>
               <radialGradient id="moonGradient" cx="30%" cy="30%">
                 <stop offset="0%" stop-color="#fff" />
-                <stop offset="50%" stop-color="#e2e8f0" />
-                <stop offset="100%" stop-color="#cbd5e1" />
+                <stop offset="50%" stop-color="#e0e7ff" />
+                <stop offset="100%" stop-color="#6366f1" />
               </radialGradient>
               <filter id="glow">
-                <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
                 <feMerge>
                   <feMergeNode in="coloredBlur"/>
                   <feMergeNode in="SourceGraphic"/>
                 </feMerge>
               </filter>
             </defs>
-            <!-- 달 -->
             <circle cx="100" cy="100" r="80" fill="url(#moonGradient)" filter="url(#glow)" />
-            <!-- 크레이터 -->
-            <circle cx="60" cy="70" r="10" fill="rgba(0,0,0,0.1)" />
-            <circle cx="110" cy="120" r="15" fill="rgba(0,0,0,0.1)" />
-            <circle cx="140" cy="60" r="8" fill="rgba(0,0,0,0.1)" />
-
-            <!-- 산타 모자 (SVG Path) -->
-            <g class="santa-hat-svg" transform="translate(60, 0)">
-              <path d="M10 50 Q 50 10 90 50 L 50 50 Z" fill="#ef4444" /> <!-- 모자 빨간 부분 -->
-              <circle cx="10" cy="50" r="12" fill="white" /> <!-- 폼폼 -->
-              <rect x="30" y="45" width="80" height="15" rx="8" fill="white" /> <!-- 모자 털 부분 -->
-            </g>
+            <circle cx="60" cy="70" r="10" fill="rgba(0,0,0,0.05)" />
+            <circle cx="110" cy="120" r="15" fill="rgba(0,0,0,0.05)" />
+            <circle cx="140" cy="60" r="8" fill="rgba(0,0,0,0.05)" />
           </svg>
         </div>
 
-        <h2>Merry Christmas & Happy New Year</h2>
-        
-        <!-- 카운트다운 박스 -->
-        <div class="countdown-box">
-          <span class="countdown-text">🎅 Santa comes in: </span>
-          <span id="countdown" class="countdown-timer">산타는 지금 집에 갔어요!</span>
-        </div>
-
+        <h2>달빛의 웹사이트</h2>
         <p>
-          달빛의 웹사이트가 겨울옷을 입었습니다.<br>
-          따뜻한 코코아 한 잔과 함께 게임과 도구들을 즐겨보세요!
+          일부 나라의 서비스를 중단하였습니다.<br>
+          미국,러시아,중국 은 아예 업데이트가 이제부터 지원되지 않습니다.
         </p>
       </section>
 
-      <!-- 카드 그리드 -->
+      <!-- 카드 그리드 (모든 아이템 포함) -->
       <section class="grid">
 
-
-        
+        <!-- 1. 캘린더 -->
         <article class="card">
-          <div class="ribbon"></div>
-          <div class="card-header">
-            <div class="card-icon">🎄</div>
-            <div class="card-title"><h3>Christmas Village Guardian</h3></div>
-          </div>
-          <p class="card-desc">크리스마스 산타마을을 구할수 있을까요?</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/make/santa.html" class="btn btn-soft"> 게임 시작!</a>
-            <a href="https://make-moonlight.pages.dev/make/santa.html" class="btn btn-primary">산타구하기</a>
-          </div>
-        </article>
-
-        
-        <article class="card">
-          <div class="ribbon"></div>
           <div class="card-header">
             <div class="card-icon">📅</div>
-            <div class="card-title"><h3>Holiday Calendar</h3></div>
+            <div class="card-title"><h3>캘린더</h3></div>
           </div>
-          <p class="card-desc">연말 약속과 새해 계획을 정리하세요. 크리스마스 파티 일정도 잊지 마세요!</p>
+          <p class="card-desc">월간/주간 보기, 일정 추가 및 간단한 메모 기능을 제공하여 스케줄을 관리합니다.</p>
           <div class="card-actions">
             <a href="https://make-moonlight.pages.dev/make/calendar.html" class="btn btn-soft">미리보기</a>
-            <a href="https://make-moonlight.pages.dev/make/calendar.html" class="btn btn-primary">일정 관리</a>
+            <a href="https://make-moonlight.pages.dev/make/calendar.html" class="btn btn-primary">사용하기</a>
           </div>
         </article>
 
         <!-- 2. 메트로놈 -->
         <article class="card">
           <div class="card-header">
-            <div class="card-icon">🔔</div>
-            <div class="card-title"><h3>Carol Metronome</h3></div>
+            <div class="card-icon">⏱</div>
+            <div class="card-title"><h3>메트로놈</h3></div>
           </div>
-          <p class="card-desc">징글벨 징글벨~ 캐롤 연습할 때 박자를 정확하게 맞춰보세요.</p>
+          <p class="card-desc">악기 연습을 위한 정확한 템포와 박자 설정, 시각적 비트 표시 기능을 제공합니다.</p>
           <div class="card-actions">
             <a href="https://make-moonlight.pages.dev/make/metronome.html" class="btn btn-soft">열기</a>
             <a href="https://make-moonlight.pages.dev/make/metronome.html" class="btn btn-primary">연습 시작</a>
@@ -692,10 +541,10 @@
         <!-- 3. 게임 모음 -->
         <article class="card">
           <div class="card-header">
-            <div class="card-icon">🎁</div>
-            <div class="card-title"><h3>Winter Games</h3></div>
+            <div class="card-icon">🧩</div>
+            <div class="card-title"><h3>게임 모음 (샘플)</h3></div>
           </div>
-          <p class="card-desc">추운 겨울, 이불 밖은 위험해요! 집에서 즐기는 다양한 미니게임 모음.</p>
+          <p class="card-desc">다양한 미니 게임 프로젝트 샘플과 템플릿 모음으로 빠르게 즐기세요.</p>
           <div class="card-actions">
             <a href="https://make-moonlight.pages.dev/make/sample.html" class="btn btn-soft">목록</a>
             <a href="https://make-moonlight.pages.dev/make/sample.html" class="btn btn-primary">플레이</a>
@@ -706,12 +555,12 @@
         <article class="card">
           <div class="card-header">
             <div class="card-icon">🗄</div>
-            <div class="card-title"><h3>Storage Master</h3></div>
+            <div class="card-title"><h3>저장공간 마스터</h3></div>
           </div>
-          <p class="card-desc">새해를 맞이하여 묵은 파일들을 정리하고 용량을 확보하세요.</p>
+          <p class="card-desc">로컬 파일 정리, 용량 시각화, 간단한 백업 도구를 제공합니다.</p>
           <div class="card-actions">
             <a href="https://make-moonlight.pages.dev/make/storage-space.html" class="btn btn-soft">확인</a>
-            <a href="https://make-moonlight.pages.dev/make/storage-space.html" class="btn btn-primary">청소하기</a>
+            <a href="https://make-moonlight.pages.dev/make/storage-space.html" class="btn btn-primary">관리하기</a>
           </div>
         </article>
 
@@ -719,9 +568,9 @@
         <article class="card">
           <div class="card-header">
             <div class="card-icon">🎮</div>
-            <div class="card-title"><h3>StarCraft Tips</h3></div>
+            <div class="card-title"><h3>스타 1 게임 팁</h3></div>
           </div>
-          <p class="card-desc">눈 덮인 로스트 템플에서의 승리를 위한 전략 가이드.</p>
+          <p class="card-desc">오프닝 빌드, 맵별 전략, 필수 키 바인딩 팁을 정리해 둔 공간입니다.</p>
           <div class="card-actions">
             <a href="https://make-moonlight.pages.dev/make/%EC%8A%A4%ED%83%80%ED%81%AC%EB%9E%98%ED%94%84%ED%8A%B8.html" class="btn btn-soft">팁 보기</a>
             <a href="https://make-moonlight.pages.dev/make/%EC%8A%A4%ED%83%80%ED%81%AC%EB%9E%98%ED%94%84%ED%8A%B8.html" class="btn btn-primary">공략</a>
@@ -731,10 +580,10 @@
         <!-- 6. 똑같은 카드 찾기 -->
         <article class="card">
           <div class="card-header">
-            <div class="card-icon">🃏</div>
-            <div class="card-title"><h3>Memory Match</h3></div>
+            <div class="card-icon">🧠</div>
+            <div class="card-title"><h3>똑같은 카드 찾기</h3></div>
           </div>
-          <p class="card-desc">똑같은 루돌프를 찾아라! 기억력을 테스트하는 카드 뒤집기 게임.</p>
+          <p class="card-desc">기억력을 테스트해보세요. 커피 한잔 하면서 즐기는 가벼운 퍼즐.</p>
           <div class="card-actions">
             <a href="https://make-moonlight.pages.dev/make/puzzle.html" class="btn btn-soft">열기</a>
             <a href="https://make-moonlight.pages.dev/make/puzzle.html" class="btn btn-primary">게임 시작</a>
@@ -744,10 +593,10 @@
         <!-- 7. 동물/곤충 도감 -->
         <article class="card">
           <div class="card-header">
-            <div class="card-icon">🦌</div>
-            <div class="card-title"><h3>Nature Book</h3></div>
+            <div class="card-icon">📚</div>
+            <div class="card-title"><h3>동물, 곤충 도감</h3></div>
           </div>
-          <p class="card-desc">순록과 겨울잠 자는 동물들에 대해 알아보세요.</p>
+          <p class="card-desc">자연의 친구들에 관심이 있나요? 다양한 정보를 자세히 알아보세요.</p>
           <div class="card-actions">
             <a href="https://make-moonlight.pages.dev/make/book.html" class="btn btn-soft">열기</a>
             <a href="https://make-moonlight.pages.dev/make/book.html" class="btn btn-primary">탐색</a>
@@ -756,12 +605,11 @@
 
         <!-- 8. 용돈 기입장 -->
         <article class="card">
-          <div class="ribbon"></div>
           <div class="card-header">
             <div class="card-icon">💰</div>
-            <div class="card-title"><h3>Money Planner</h3></div>
+            <div class="card-title"><h3>용돈 기입장</h3></div>
           </div>
-          <p class="card-desc">크리스마스 선물 비용과 세뱃돈 관리를 위한 필수 아이템.</p>
+          <p class="card-desc">용돈을 받거나 쓴 날을 기록하여 현명한 소비 습관을 기르세요.</p>
           <div class="card-actions">
             <a href="https://make-moonlight.pages.dev/make/money.html" class="btn btn-soft">보기</a>
             <a href="https://make-moonlight.pages.dev/make/money.html" class="btn btn-primary">기록하기</a>
@@ -771,10 +619,10 @@
         <!-- 9. 곤충 도감 (별도) -->
         <article class="card">
           <div class="card-header">
-            <div class="card-icon">🐞</div>
-            <div class="card-title"><h3>Insect Wiki</h3></div>
+            <div class="card-icon">🐛</div>
+            <div class="card-title"><h3>곤충 도감</h3></div>
           </div>
-          <p class="card-desc">겨울에는 보기 힘든 곤충들의 세계를 탐험해보세요.</p>
+          <p class="card-desc">작지만 신비로운 곤충들의 세계를 탐험해보세요.</p>
           <div class="card-actions">
             <a href="https://make-moonlight.pages.dev/make/%EA%B3%A4%EC%B6%A9%EB%8F%84%EA%B0%90.html" class="btn btn-soft">열기</a>
             <a href="https://make-moonlight.pages.dev/make/%EA%B3%A4%EC%B6%A9%EB%8F%84%EA%B0%90.html" class="btn btn-primary">방문</a>
@@ -785,9 +633,9 @@
         <article class="card">
           <div class="card-header">
             <div class="card-icon">😺</div>
-            <div class="card-title"><h3>Cat Tycoon</h3></div>
+            <div class="card-title"><h3>냥냥 타이쿤</h3></div>
           </div>
-          <p class="card-desc">산타 모자를 쓴 고양이들을 키우고 최고의 집사가 되어보세요!</p>
+          <p class="card-desc">고양이를 클릭해서 업그레이드하고 최고의 집사가 되어보세요!</p>
           <div class="card-actions">
             <a href="https://make-moonlight.pages.dev/make/%EB%83%A5%EB%83%A5%ED%83%80%EC%9D%B4%EC%BF%A4.html" class="btn btn-soft">보기</a>
             <a href="https://make-moonlight.pages.dev/make/%EB%83%A5%EB%83%A5%ED%83%80%EC%9D%B4%EC%BF%A4.html" class="btn btn-primary">키우기</a>
@@ -797,10 +645,10 @@
         <!-- 11. 미로 생성기 -->
         <article class="card">
           <div class="card-header">
-            <div class="card-icon">❄️</div>
-            <div class="card-title"><h3>Ice Maze</h3></div>
+            <div class="card-icon">🌀</div>
+            <div class="card-title"><h3>미로 생성기</h3></div>
           </div>
-          <p class="card-desc">복잡한 얼음 미로를 탈출하여 따뜻한 집으로 돌아가세요.</p>
+          <p class="card-desc">자동으로 생성되는 복잡한 미로를 탈출해보세요.</p>
           <div class="card-actions">
             <a href="https://make-moonlight.pages.dev/make/qr.html" class="btn btn-soft">보기</a>
             <a href="https://make-moonlight.pages.dev/make/qr.html" class="btn btn-primary">생성</a>
@@ -811,9 +659,9 @@
         <article class="card">
           <div class="card-header">
             <div class="card-icon">⚖️</div>
-            <div class="card-title"><h3>BMI Check</h3></div>
+            <div class="card-title"><h3>BMI 계산기</h3></div>
           </div>
-          <p class="card-desc">겨울철 늘어난 체중이 걱정되시나요? 건강 상태를 확인하세요.</p>
+          <p class="card-desc">신장과 체중을 입력하여 나의 건강 상태를 확인하세요.</p>
           <div class="card-actions">
             <a href="https://make-moonlight.pages.dev/make/bmi.html" class="btn btn-soft">열기</a>
             <a href="https://make-moonlight.pages.dev/make/bmi.html" class="btn btn-primary">계산하기</a>
@@ -823,10 +671,10 @@
         <!-- 13. 농장 키우기 -->
         <article class="card">
           <div class="card-header">
-            <div class="card-icon">🌲</div>
-            <div class="card-title"><h3>Winter Farm</h3></div>
+            <div class="card-icon">🌾</div>
+            <div class="card-title"><h3>농장 키우기</h3></div>
           </div>
-          <p class="card-desc">눈 덮인 농장에서 작물을 키우고 크리스마스 트리를 심으세요.</p>
+          <p class="card-desc">나만의 작은 농장을 가꾸며 힐링하세요.</p>
           <div class="card-actions">
             <a href="https://make-moonlight.pages.dev/make/%EB%86%8D%EC%9E%A5.html" class="btn btn-soft">보기</a>
             <a href="https://make-moonlight.pages.dev/make/%EB%86%8D%EC%9E%A5.html" class="btn btn-primary">경작</a>
@@ -837,9 +685,9 @@
         <article class="card">
           <div class="card-header">
             <div class="card-icon">📝</div>
-            <div class="card-title"><h3>Wish List</h3></div>
+            <div class="card-title"><h3>달빛 설문지</h3></div>
           </div>
-          <p class="card-desc">산타 할아버지(운영자)에게 바라는 점을 적어주세요.</p>
+          <p class="card-desc">서비스 개선을 위해 여러분의 의견을 들려주세요.</p>
           <div class="card-actions">
             <a href="https://make-moonlight.pages.dev/data/%EC%84%A4%EB%AC%B8.html" class="btn btn-soft">열기</a>
             <a href="https://make-moonlight.pages.dev/data/%EC%84%A4%EB%AC%B8.html" class="btn btn-primary">참여</a>
@@ -850,9 +698,9 @@
         <article class="card">
           <div class="card-header">
             <div class="card-icon">🔵</div>
-            <div class="card-title"><h3>Snow Shooter</h3></div>
+            <div class="card-title"><h3>Bubble Shooter</h3></div>
           </div>
-          <p class="card-desc">알록달록 오너먼트(버블)를 쏘아 터트리세요! 팡팡!</p>
+          <p class="card-desc">버블을 쏘아 터트리세요! (고사양 권장, 고해상도 그래픽)</p>
           <div class="card-actions">
             <a href="https://make-moonlight.pages.dev/data/%EB%B2%84%EB%B8%94.html" class="btn btn-soft">보기</a>
             <a href="https://make-moonlight.pages.dev/data/%EB%B2%84%EB%B8%94.html" class="btn btn-primary">슈팅</a>
@@ -863,9 +711,9 @@
         <article class="card">
           <div class="card-header">
             <div class="card-icon">⚡</div>
-            <div class="card-title"><h3>Speed Click</h3></div>
+            <div class="card-title"><h3>스피드 클릭</h3></div>
           </div>
-          <p class="card-desc">추위에 언 손을 녹이세요! 광속 클릭으로 신기록 달성!</p>
+          <p class="card-desc">제한 시간 내에 최대한 빠르게 클릭하여 기록을 세우세요!</p>
           <div class="card-actions">
             <a href="https://make-moonlight.pages.dev/make/%EB%B2%84%EB%B8%94.html" class="btn btn-soft">도전</a>
             <a href="https://make-moonlight.pages.dev/make/%EB%B2%84%EB%B8%94.html" class="btn btn-primary">플레이</a>
@@ -876,9 +724,9 @@
         <article class="card">
           <div class="card-header">
             <div class="card-icon">🐍</div>
-            <div class="card-title"><h3>Snake Game</h3></div>
+            <div class="card-title"><h3>스네이크 게임</h3></div>
           </div>
-          <p class="card-desc">지능형 뱀과의 대결. 뱀도 크리스마스 선물을 좋아할까요?</p>
+          <p class="card-desc">똑똑한 지능형 AI 뱀과 경쟁하여 생존하세요!</p>
           <div class="card-actions">
             <a href="https://make-moonlight.pages.dev/make/snake.html" class="btn btn-soft">보기</a>
             <a href="https://make-moonlight.pages.dev/make/snake.html" class="btn btn-primary">대결</a>
@@ -888,10 +736,10 @@
         <!-- 18. 브롤스타즈 -->
         <article class="card">
           <div class="card-header">
-            <div class="card-icon">💀</div>
-            <div class="card-title"><h3>Brawl Stars</h3></div>
+            <div class="card-icon">🎊</div>
+            <div class="card-title"><h3>브롤스타즈</h3></div>
           </div>
-          <p class="card-desc">브롤스타즈 팬 페이지. 겨울 업데이트 정보를 확인하세요.</p>
+          <p class="card-desc">인기 게임 브롤스타즈 팬 페이지 및 관련 정보.</p>
           <div class="card-actions">
             <a href="https://make-moonlight.pages.dev/make/%EB%B8%8C%EB%A1%A4%EC%8A%A4%ED%83%80%EC%A6%88.html" class="btn btn-soft">정보</a>
             <a href="https://make-moonlight.pages.dev/make/%EB%B8%8C%EB%A1%A4%EC%8A%A4%ED%83%80%EC%A6%88.html" class="btn btn-primary">전투</a>
@@ -900,150 +748,133 @@
 
         <!-- 19. 라부부 뽑기 -->
         <article class="card">
-          <div class="card-header"></div>
           <div class="card-header">
             <div class="card-icon">✨</div>
-            <div class="card-title"><h3>Lucky Draw</h3></div>
+            <div class="card-title"><h3>라부부 뽑기</h3></div>
           </div>
-          <p class="card-desc">크리스마스 특집 라부부 뽑기! 시크릿 에디션을 노려보세요.</p>
+          <p class="card-desc">시크릿 아이템이 나올까요? 오늘의 행운을 시험해보세요!</p>
           <div class="card-actions">
             <a href="https://make-moonlight.pages.dev/make/%EB%9D%BC%EB%B6%80%EB%B6%80.html" class="btn btn-soft">열기</a>
             <a href="https://make-moonlight.pages.dev/make/%EB%9D%BC%EB%B6%80%EB%B6%80.html" class="btn btn-primary">뽑기</a>
           </div>
         </article>
 
-        
-        
-
+        <!-- 20. 로컬 메신저 (지원 종료) -->
+        <article class="card" style="opacity: 0.7;">
+          <div class="card-header">
+            <div class="card-icon">💬</div>
+            <div class="card-title"><h3>로컬 메신저</h3></div>
+          </div>
+          <p class="card-desc">같은 네트워크 내에서 메시지를 주고받는 도구 (현재 지원 중단됨).</p>
+          <div class="card-actions">
+            <a href="https://make-moonlight.pages.dev/make/%EB%A9%94%EC%8B%A0%EC%A0%80.html" class="btn btn-soft">보기</a>
+            <button class="btn btn-soft" disabled>지원 종료</button>
+          </div>
+        </article>
 
       </section>
     </main>
 
     <!-- 푸터 -->
     <footer>
-      <p style="font-family:'Mountains of Christmas'; font-size:1.5rem; color:#fff;">May your days be merry and bright.</p>
-      <p>© 2025 Moonlight Website. All rights reserved.</p>
+      <p>© 2025 달빛의 웹사이트 (Moonlight Website). All rights reserved. (서비스 중단됨) </p>
       <div style="margin-top:10px;">
-        <a href="https://make-moonlight.pages.dev/data/new" target="_blank" style="color:var(--xmas-gold);">크리스마스 선물 코드</a>
+        <a href="https://help-moonlight.pages.dev/help/help=html5-error342@123" target="_blank">오류 신고 및 도움말</a>
       </div>
     </footer>
   </div>
 
   <!-- 자바스크립트 영역 -->
   
-  <!-- 1. 구글 번역 스크립트 -->
+  <!-- 1. 구글 번역 스크립트 (무료 데모) -->
   <script type="text/javascript">
     function googleTranslateElementInit() {
       new google.translate.TranslateElement({
         pageLanguage: 'ko',
         layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
         autoDisplay: false,
-        includedLanguages: 'ko,en,ja,zh-CN,es,fr,de'
+        includedLanguages: 'ko,en,ja,zh-CN,es,fr,de' // 주요 언어만 표시하여 깔끔하게
       }, 'google_translate_element');
     }
   </script>
   <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-  <!-- 2. 크리스마스 기능 로직 -->
+  <!-- 2. UI 및 애니메이션 로직 -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       
-      /* --- 1. 눈송이 생성 시스템 (Snowflake System) --- */
-      const snowContainer = document.getElementById('snow-container');
-      const snowSymbols = ['❄', '❅', '❆', '•'];
-      const maxSnowflakes = 100; // 성능을 위해 개수 제한
+      /* --- 별 배경 생성 로직 --- */
+      const starfield = document.getElementById('starfield');
+      const starCount = 80; // 별 개수 (성능 최적화)
 
-      function createSnowflake() {
-        if (snowContainer.childElementCount > maxSnowflakes) return;
+      function createStars() {
+        starfield.innerHTML = '';
+        for (let i = 0; i < starCount; i++) {
+          const star = document.createElement('div');
+          star.classList.add('star');
+          
+          // 랜덤 위치 및 크기
+          const size = Math.random() * 2 + 1; // 1~3px
+          const x = Math.random() * 100;
+          const y = Math.random() * 100;
+          const duration = Math.random() * 3 + 2; // 2~5초
+          const delay = Math.random() * 5;
 
-        const flake = document.createElement('div');
-        flake.classList.add('snowflake');
-        flake.innerText = snowSymbols[Math.floor(Math.random() * snowSymbols.length)];
-        
-        // 랜덤 속성 부여
-        const startLeft = Math.random() * 100;
-        const duration = Math.random() * 5 + 5; // 5~10초
-        const size = Math.random() * 1.5 + 0.5; // 크기
-        const delay = Math.random() * 5;
+          star.style.width = `${size}px`;
+          star.style.height = `${size}px`;
+          star.style.left = `${x}%`;
+          star.style.top = `${y}%`;
+          star.style.setProperty('--duration', `${duration}s`);
+          star.style.animationDelay = `${delay}s`;
 
-        flake.style.left = startLeft + 'vw';
-        flake.style.animationDuration = duration + 's, ' + (Math.random() * 3 + 2) + 's'; // 낙하, 흔들림 시간
-        flake.style.fontSize = size + 'em';
-        flake.style.animationDelay = delay + 's';
-        flake.style.opacity = Math.random() * 0.7 + 0.3;
-
-        snowContainer.appendChild(flake);
-
-        // 애니메이션 끝나면 제거 후 재생성
-        setTimeout(() => {
-          flake.remove();
-          createSnowflake();
-        }, (duration + delay) * 1000);
-      }
-
-      // 초기 눈송이 생성
-      for(let i=0; i<50; i++) {
-        setTimeout(createSnowflake, Math.random() * 3000);
-      }
-      setInterval(createSnowflake, 500);
-
- function updateCountdown() {
-        const now = new Date();
-        const currentYear = now.getFullYear();
-        let targetDate = new Date(` `);
-
-        // 만약 이미 지났다면 내년 크리스마스로
-        if (now > targetDate) {
-          targetDate = new Date(`,  `);
+          starfield.appendChild(star);
         }
-     
-
-        const diff = targetDate - now;
-
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-        document.getElementById('countdown').innerText = 
-          `${days}d ${hours.toString().padStart(2,'0')}h ${minutes.toString().padStart(2,'0')}m ${seconds.toString().padStart(2,'0')}s`;
       }
+
+      createStars();
       
-      setInterval(updateCountdown, 1000);
-      updateCountdown();
+      // 창 크기 변경 시 별 재배치 (디바운스 적용)
+      let resizeTimer;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(createStars, 200);
+      });
 
-
-      /* --- 3. 테마 토글 (크리스마스 트리 점등 효과) --- */
+      /* --- 테마 토글 로직 --- */
       const themeBtn = document.getElementById('themeToggle');
       const html = document.documentElement;
-      
-      themeBtn.addEventListener('click', () => {
-        // 간단한 시각적 피드백 (반짝임)
-        themeBtn.style.textShadow = "0 0 20px yellow";
-        setTimeout(() => { themeBtn.style.textShadow = "none"; }, 500);
+      const THEME_KEY = 'moonlight_theme_v3';
 
-        // 여기서는 다크모드/라이트모드 대신 '파티 모드' 느낌으로 전환 가능
-        // 현재 CSS는 Dark Theme 기반으로 고정되어 있어, 배경 색상만 살짝 변경
-        const currentBg = getComputedStyle(document.body).getPropertyValue('--bg-gradient');
-        
-        if (html.classList.contains('party-mode')) {
-          html.classList.remove('party-mode');
-          document.body.style.setProperty('--bg-gradient', 'linear-gradient(to bottom, #020617, #1e1b4b, #312e81)'); // 기본 겨울밤
+      // 저장된 테마 불러오기
+      const savedTheme = localStorage.getItem(THEME_KEY);
+      if (savedTheme === 'light') {
+        html.classList.add('light');
+        html.classList.remove('dark');
+        themeBtn.querySelector('span').textContent = '🌙';
+      }
+
+      themeBtn.addEventListener('click', () => {
+        if (html.classList.contains('light')) {
+          html.classList.remove('light');
+          html.classList.add('dark');
+          themeBtn.querySelector('span').textContent = '🔆';
+          localStorage.setItem(THEME_KEY, 'dark');
         } else {
-          html.classList.add('party-mode');
-          document.body.style.setProperty('--bg-gradient', 'linear-gradient(to bottom, #450a0a, #7f1d1d, #020617)'); // 레드 크리스마스
+          html.classList.add('light');
+          html.classList.remove('dark');
+          themeBtn.querySelector('span').textContent = '🌙';
+          localStorage.setItem(THEME_KEY, 'light');
         }
       });
 
-
-      /* --- 4. 링크 보안 설정 --- */
+      /* --- 링크 보안 (noopener) --- */
       const links = document.querySelectorAll('a[href^="http"]');
       links.forEach(link => {
         link.setAttribute('target', '_blank');
         link.setAttribute('rel', 'noopener noreferrer');
       });
 
-      console.log("%c 🎄 Merry Christmas from Moonlight Website! 🎅 ", "background: #165b33; color: #fff; padding: 8px; border-radius: 4px; font-size: 14px;");
+      console.log("%c 달빛의 웹사이트 v3.0 Loaded ", "background: #6366f1; color: #fff; padding: 4px; border-radius: 4px;");
     });
   </script>
 
