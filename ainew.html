@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Image Studio Ultra</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@100;400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #8b5cf6;
+            --accent-hover: #7c3aed;
+            --bg-main: #020617;
+            --bg-card: #0f172a;
+            --text-main: #f1f5f9;
+        }
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        .mono { font-family: 'JetBrains+Mono', monospace; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+
+        @keyframes gradient-bg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .animated-bg {
+            background: linear-gradient(-45deg, #1e1b4b, #312e81, #1e293b, #0f172a);
+            background-size: 400% 400%;
+            animation: gradient-bg 15s ease infinite;
+        }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .loader-ring {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+        .loader-ring div {
+            box-sizing: border-box;
+            display: block;
+            position: absolute;
+            width: 64px;
+            height: 64px;
+            margin: 8px;
+            border: 8px solid var(--accent);
+            border-radius: 50%;
+            animation: loader-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+            border-color: var(--accent) transparent transparent transparent;
+        }
+        .loader-ring div:nth-child(1) { animation-delay: -0.45s; }
+        .loader-ring div:nth-child(2) { animation-delay: -0.3s; }
+        .loader-ring div:nth-child(3) { animation-delay: -0.15s; }
+        @keyframes loader-ring {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .ratio-btn.active {
+            border-color: var(--accent);
+            background: rgba(139, 92, 246, 0.2);
+            color: white;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 80px;
+            background-color: #1e293b;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 10;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -40px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.7rem;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="animated-bg min-h-screen pb-12">
+
+    <!-- Top Navigation -->
+    <nav class="glass sticky top-0 z-50 px-6 py-4 border-b border-white/5">
+        <div class="max-w-[1600px] mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-500/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 22 4-10 4 10"/><path d="M9 18h6"/></svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white">Gemini Studio <span class="text-indigo-400">Ultra</span></h1>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-[0.2em] font-medium">Next-Gen Image Engine</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="hidden md:flex items-center gap-4 text-xs font-bold text-slate-400">
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500"></span> System Online</span>
+                </div>
+                <button class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2 shadow-lg shadow-indigo-500/10" onclick="toggleQuickGuide()">
+                    가이드
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-[1600px] mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Left Sidebar: Configuration -->
+        <aside class="lg:col-span-3 space-y-6">
+            <div class="glass rounded-3xl p-6 shadow-2xl">
+                <h2 class="text-sm font-bold mb-6 flex items-center gap-2 text-indigo-300 uppercase tracking-widest">
+                    워크스페이스 설정
+                </h2>
+
+                <div class="space-y-6">
+                    <!-- Ratio Selection -->
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase mb-3 block">화면 비율</label>
+                        <div class="grid grid-cols-2 gap-2" id="ratio-selector">
+                            <button data-ratio="1:1" class="ratio-btn py-3 text-[11px] bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition font-bold active">1:1 Square</button>
+                            <button data-ratio="16:9" class="ratio-btn py-3 text-[11px] bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition font-bold">16:9 Cinema</button>
+                            <button data-ratio="9:16" class="ratio-btn py-3 text-[11px] bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition font-bold">9:16 Portrait</button>
+                            <button data-ratio="4:3" class="ratio-btn py-3 text-[11px] bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition font-bold">4:3 Photo</button>
+                        </div>
+                    </div>
+
+                    <!-- Style Selection -->
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase mb-3 block">아트 스타일 프리셋</label>
+                        <div class="grid grid-cols-1 gap-2 h-64 overflow-y-auto pr-2" id="style-list">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Usage Info -->
+                    <div class="pt-6 border-t border-white/5">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] text-slate-500 font-bold uppercase">엔진 부하</span>
+                            <span class="text-[10px] text-indigo-400 font-mono" id="latency-val">Ready</span>
+                        </div>
+                        <div class="w-full bg-slate-900 h-1 rounded-full overflow-hidden">
+                            <div id="usage-bar" class="bg-indigo-500 h-full w-0 transition-all duration-700"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="lg:col-span-9 space-y-6">
+            
+            <!-- Prompt Input -->
+            <div class="glass rounded-[2.5rem] p-8 shadow-2xl">
+                <div class="flex flex-col gap-6">
+                    <div class="flex-grow">
+                        <label class="text-[11px] font-bold text-indigo-400 uppercase mb-3 block tracking-[0.2em]">이미지 비전 프롬프트</label>
+                        <textarea id="prompt-input" rows="2" 
+                            class="w-full bg-transparent border-none text-2xl md:text-3xl font-light placeholder:text-slate-800 outline-none resize-none focus:placeholder:text-slate-700 transition"
+                            placeholder="상상하는 이미지를 설명하세요..."></textarea>
+                    </div>
+                    <div class="flex items-center justify-between border-t border-white/5 pt-6">
+                        <div id="quick-tags" class="flex flex-wrap gap-2">
+                            <!-- Populated by JS -->
+                        </div>
+                        <button id="generate-btn" onclick="startGeneration()" class="bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-600 px-10 py-4 rounded-2xl font-bold text-sm shadow-xl shadow-indigo-600/20 transition-all active:scale-95 flex items-center gap-3">
+                            <span id="btn-text">생성 시작</span>
+                            <div id="btn-loader" class="hidden w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview & History Grid -->
+            <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+                
+                <!-- Large Preview Canvas -->
+                <div class="xl:col-span-8 space-y-4">
+                    <div id="image-canvas-container" class="glass rounded-[3rem] overflow-hidden min-h-[600px] flex items-center justify-center relative shadow-2xl group border border-white/10">
+                        
+                        <!-- Placeholder -->
+                        <div id="canvas-placeholder" class="text-center p-12">
+                            <div class="w-32 h-32 bg-indigo-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-indigo-500/20">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-400"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white mb-3">상상을 시각화할 준비가 되었습니다</h3>
+                            <p class="text-slate-500 max-w-sm mx-auto text-sm leading-relaxed">Gemini Imagen 4.0 엔진을 사용하여 압도적인 퀄리티의 이미지를 생성합니다.</p>
+                        </div>
+
+                        <!-- Loading State -->
+                        <div id="loading-ui" class="hidden absolute inset-0 bg-slate-950/90 backdrop-blur-xl flex flex-col items-center justify-center z-20">
+                            <div class="loader-ring"><div></div><div></div><div></div><div></div></div>
+                            <div class="mt-8 text-center">
+                                <p class="text-indigo-400 font-bold uppercase tracking-[0.3em] text-[10px] animate-pulse">Processing Vision Data</p>
+                                <p class="text-slate-500 text-[10px] mt-2 font-mono" id="loading-timer">Elapsed: 0.0s</p>
+                            </div>
+                        </div>
+
+                        <!-- Output Image -->
+                        <img id="main-output" src="" alt="" class="hidden w-full h-full object-contain z-10 select-none animate-in fade-in duration-1000">
+                        
+                        <!-- Overlay Tools -->
+                        <div id="canvas-controls" class="hidden absolute bottom-8 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-2xl border border-white/10 px-8 py-4 rounded-[2rem] flex items-center gap-8 z-30 shadow-2xl transition-all translate-y-4 group-hover:translate-y-0">
+                            <button onclick="downloadImage()" class="tooltip hover:text-indigo-400 text-white transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                                <span class="tooltiptext">다운로드</span>
+                            </button>
+                            <div class="w-px h-6 bg-white/20"></div>
+                            <button onclick="copyToClipboard()" class="tooltip hover:text-indigo-400 text-white transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                                <span class="tooltiptext">복사</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History Side -->
+                <div class="xl:col-span-4 flex flex-col gap-4">
+                    <div class="flex justify-between items-center px-2">
+                        <h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-widest">생성 기록</h3>
+                        <button onclick="clearHistory()" class="text-[10px] text-slate-600 hover:text-red-400 transition font-bold uppercase">전체 삭제</button>
+                    </div>
+                    <div id="history-list" class="space-y-4 overflow-y-auto max-h-[600px] pr-2 custom-scroll">
+                        <!-- History items pop up here -->
+                        <div class="p-12 border border-dashed border-white/5 rounded-[2rem] text-center opacity-40">
+                            <p class="text-xs">기록이 없습니다</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Quick Guide -->
+    <div id="guide-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-6">
+        <div class="absolute inset-0 bg-slate-950/95 backdrop-blur-md" onclick="toggleQuickGuide()"></div>
+        <div class="relative glass max-w-lg w-full rounded-[3rem] p-10 border border-white/10 shadow-3xl">
+            <h2 class="text-3xl font-bold mb-6 text-indigo-400">프롬프트 팁</h2>
+            <div class="space-y-6 text-sm text-slate-400 leading-relaxed">
+                <p>1. <strong class="text-white">구체적으로:</strong> '사과'보다는 '아침 햇살이 비치는 탁자 위의 빨간 사과'가 좋습니다.</p>
+                <p>2. <strong class="text-white">키워드 활용:</strong> 8k, photorealistic, cinematic lighting 등 품질 관련 어휘를 사용하세요.</p>
+                <p>3. <strong class="text-white">스타일 선택:</strong> 좌측 패널의 스타일 프리셋을 활용하면 결과물의 완성도가 높아집니다.</p>
+                <button onclick="toggleQuickGuide()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl transition shadow-xl shadow-indigo-600/20 mt-4">확인했습니다</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] transform translate-y-20 opacity-0 transition-all duration-500 bg-indigo-600 px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3">
+        <p id="toast-msg" class="text-sm font-bold text-white"></p>
+    </div>
+
+    <script>
+        // --- CONSTANTS & STATE ---
+        const apiKey = ""; // Canvas 환경에서는 비워두면 런타임에 주입됨
+        const Styles = [
+            { id: 'none', name: 'Original', prompt: '' },
+            { id: 'realism', name: 'Photorealism', prompt: 'photorealistic, 8k resolution, extreme details, raw photo' },
+            { id: 'digital', name: 'Digital Art', prompt: 'concept art, vibrant colors, clean lines, trending on artstation' },
+            { id: 'cyber', name: 'Cyberpunk', prompt: 'neon lights, dark futuristic city, rainy night, high contrast' },
+            { id: 'anime', name: 'Studio Ghibli', prompt: 'ghibli style, lush environment, hand-painted aesthetic, soft lighting' },
+            { id: 'vintage', name: 'Vintage 35mm', prompt: 'old film look, grainy, muted colors, nostalgic, 35mm lens' }
+        ];
+        const Tags = ['초현실적인', '사이버펑크', '아침 안개', '우주 정거장', '미래 도시'];
+
+        let AppState = {
+            isGenerating: false,
+            currentRatio: '1:1',
+            currentStyle: 'none',
+            history: JSON.parse(localStorage.getItem('gemini_history_v2') || '[]'),
+            startTime: 0,
+            timer: null
+        };
+
+        // --- INIT ---
+        window.onload = () => {
+            initStyles();
+            initTags();
+            initRatios();
+            renderHistory();
+        };
+
+        function initStyles() {
+            const container = document.getElementById('style-list');
+            Styles.forEach(style => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left px-5 py-4 rounded-2xl text-[11px] transition-all border border-white/5 ${style.id === 'none' ? 'bg-indigo-600 border-indigo-400 font-bold' : 'bg-white/5 hover:bg-white/10'}`;
+                btn.id = `style-${style.id}`;
+                btn.innerText = style.name;
+                btn.onclick = () => selectStyle(style.id);
+                container.appendChild(btn);
+            });
+        }
+
+        function initTags() {
+            const container = document.getElementById('quick-tags');
+            Tags.forEach(tag => {
+                const btn = document.createElement('button');
+                btn.className = "px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-[10px] text-slate-400 transition";
+                btn.innerText = tag;
+                btn.onclick = () => document.getElementById('prompt-input').value = tag;
+                container.appendChild(btn);
+            });
+        }
+
+        function initRatios() {
+            const btns = document.querySelectorAll('.ratio-btn');
+            btns.forEach(btn => {
+                btn.onclick = () => {
+                    btns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    AppState.currentRatio = btn.dataset.ratio;
+                };
+            });
+        }
+
+        function selectStyle(id) {
+            Styles.forEach(s => {
+                const el = document.getElementById(`style-${s.id}`);
+                el.classList.remove('bg-indigo-600', 'border-indigo-400', 'font-bold');
+                el.classList.add('bg-white/5', 'hover:bg-white/10');
+            });
+            const active = document.getElementById(`style-${id}`);
+            active.classList.add('bg-indigo-600', 'border-indigo-400', 'font-bold');
+            AppState.currentStyle = id;
+        }
+
+        // --- CORE LOGIC ---
+        async function startGeneration() {
+            const prompt = document.getElementById('prompt-input').value.trim();
+            if (!prompt) return showToast("프롬프트를 입력하세요.");
+            if (AppState.isGenerating) return;
+
+            // UI State
+            AppState.isGenerating = true;
+            toggleUI(true);
+            AppState.startTime = Date.now();
+            AppState.timer = setInterval(updateTimer, 100);
+
+            // Build Prompt
+            const style = Styles.find(s => s.id === AppState.currentStyle);
+            const finalPrompt = `${prompt}${style.prompt ? ', ' + style.prompt : ''}`;
+
+            try {
+                const imageUrl = await callImagenAPI(finalPrompt);
+                displayResult(imageUrl, prompt);
+                showToast("이미지 생성 성공!");
+            } catch (err) {
+                console.error(err);
+                showToast("생성 중 오류 발생: " + err.message);
+            } finally {
+                AppState.isGenerating = false;
+                toggleUI(false);
+                clearInterval(AppState.timer);
+            }
+        }
+
+        async function callImagenAPI(promptText) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+            const payload = {
+                instances: [{ prompt: promptText }],
+                parameters: { 
+                    sampleCount: 1,
+                    aspectRatio: AppState.currentRatio 
+                }
+            };
+
+            let retryCount = 0;
+            const maxRetries = 5;
+
+            while (retryCount <= maxRetries) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.status === 429) { // Backoff
+                        const delay = Math.pow(2, retryCount) * 1000;
+                        await new Promise(r => setTimeout(r, delay));
+                        retryCount++;
+                        continue;
+                    }
+
+                    if (!response.ok) {
+                        const err = await response.json();
+                        throw new Error(err.error?.message || "Unknown error");
+                    }
+
+                    const data = await response.json();
+                    return `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
+                } catch (e) {
+                    if (retryCount === maxRetries) throw e;
+                    retryCount++;
+                    await new Promise(r => setTimeout(r, 1000 * retryCount));
+                }
+            }
+        }
+
+        function displayResult(url, prompt) {
+            document.getElementById('canvas-placeholder').classList.add('hidden');
+            document.getElementById('loading-ui').classList.add('hidden');
+            
+            const img = document.getElementById('main-output');
+            img.src = url;
+            img.classList.remove('hidden');
+            
+            document.getElementById('canvas-controls').classList.remove('hidden');
+            
+            saveToHistory(url, prompt);
+        }
+
+        function saveToHistory(url, prompt) {
+            const item = { id: Date.now(), url, prompt, date: new Date().toISOString() };
+            AppState.history.unshift(item);
+            if (AppState.history.length > 20) AppState.history.pop();
+            localStorage.setItem('gemini_history_v2', JSON.stringify(AppState.history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('history-list');
+            if (AppState.history.length === 0) return;
+
+            container.innerHTML = AppState.history.map(item => `
+                <div class="glass p-3 rounded-2xl group cursor-pointer hover:border-indigo-500/30 transition flex gap-3" onclick="loadHistory(${item.id})">
+                    <img src="${item.url}" class="w-16 h-16 rounded-xl object-cover bg-slate-900">
+                    <div class="flex-grow min-w-0 flex flex-col justify-center">
+                        <p class="text-[11px] font-medium truncate text-slate-300">${item.prompt}</p>
+                        <p class="text-[9px] text-slate-600 mt-1">${new Date(item.date).toLocaleDateString()}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadHistory(id) {
+            const item = AppState.history.find(i => i.id === id);
+            if (item) displayResult(item.url, item.prompt);
+        }
+
+        function clearHistory() {
+            if (confirm("기록을 모두 삭제할까요?")) {
+                AppState.history = [];
+                localStorage.removeItem('gemini_history_v2');
+                renderHistory();
+                location.reload();
+            }
+        }
+
+        // --- UI HELPERS ---
+        function toggleUI(isLoading) {
+            document.getElementById('loading-ui').classList.toggle('hidden', !isLoading);
+            document.getElementById('generate-btn').disabled = isLoading;
+            document.getElementById('btn-text').innerText = isLoading ? "생성 중..." : "생성 시작";
+            document.getElementById('btn-loader').classList.toggle('hidden', !isLoading);
+            document.getElementById('usage-bar').style.width = isLoading ? '100%' : '0%';
+        }
+
+        function updateTimer() {
+            const elapsed = ((Date.now() - AppState.startTime) / 1000).toFixed(1);
+            document.getElementById('loading-timer').innerText = `Elapsed: ${elapsed}s`;
+            document.getElementById('latency-val').innerText = `${elapsed}s`;
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            t.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 3000);
+        }
+
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.href = document.getElementById('main-output').src;
+            link.download = `GeminiArt_${Date.now()}.png`;
+            link.click();
+        }
+
+        function copyToClipboard() {
+            const url = document.getElementById('main-output').src;
+            const textarea = document.createElement('textarea');
+            textarea.value = url;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast("이미지 데이터가 복사되었습니다.");
+        }
+
+        function toggleQuickGuide() {
+            const modal = document.getElementById('guide-modal');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+        }
+    </script>
+</body>
+</html>
