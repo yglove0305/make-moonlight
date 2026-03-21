@@ -1,882 +1,921 @@
-
 <!DOCTYPE html>
-<html lang="ko" class="dark">
+<html lang="ko" class="light">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- SEO 메타 데이터 -->
-  <meta name="description" content="달빛의 웹사이트 - 당신의 밤을 밝혀주는 유용한 도구들과 게임 모음집입니다. (구: 달빛도구)">
-  <meta name="keywords" content="달빛의 웹사이트, 달빛도구, 툴 모음, 게임, 번역,  메트로놈, 캘린더">
-  <meta name="author" content="Moonlight Team">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Moonlight - The Ultimate Spring Edition</title>
 
-  <meta property="og:title" content="🌙 달빛의 웹사이트">
-  <meta property="og:description" content="유용한 도구와 게임 을 모아 봤습니다. made by Yg , gemini ai">
-  <meta property="og:type" content="website">
+  <!-- SEO 및 메타 태그 -->
+  <meta name="description" content="달빛의 웹사이트 - 고품격 도구와 게임의 집합체. 봄의 감성을 담은 프리미엄 웹 서비스입니다.">
+  <meta property="og:title" content="🌸 달빛의 웹사이트: 하이엔드 봄 에디션">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=1200&q=80">
 
-  <title>달빛의 웹사이트</title>
-
-  <!-- Google Fonts: 가독성 좋은 폰트 조합 -->
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <!-- 고급 폰트 시스템 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Montserrat:wght@300;600;900&family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
 
   <style>
-    /* [디자인 시스템: Mystic Aurora v3.0] 
-      - 배경: 깊은 밤하늘 + 오로라 그라디언트 애니메이션
-      - 질감: 유리(Glassmorphism) 효과
-      - 인터랙션: 부드러운 호버 및 클릭 효과
+    /* ==========================================================================
+       [DESIGN SYSTEM: AURORA BLOSSOM V5.0]
+       - Architecture: Atomic CSS variables
+       - Aesthetics: Neomorphism + Glassmorphism + Luxury Pastel
+       ==========================================================================
     */
 
     :root {
-      /* 다크 모드 (기본) */
-      --bg-deep: #05070a;
-      --text-main: #eef2ff;
-      --text-muted: #94a3b8;
-      --glass-bg: rgba(20, 25, 40, 0.4);
-      --glass-border: rgba(255, 255, 255, 0.08);
-      --card-bg: rgba(30, 35, 50, 0.4);
-      --primary-glow: #6366f1; /* Indigo */
-      --accent-glow: #d946ef;  /* Magenta */
-      --secondary-glow: #06b6d4; /* Cyan */
-      --shadow-soft: 0 10px 30px -10px rgba(0,0,0,0.5);
-      --radius-lg: 24px;
-      --radius-md: 16px;
+      /* [LIGHT THEME] */
+      --p-primary: #ffb7c5;    /* Cherry Blossom Pink */
+      --p-secondary: #fce7f3;  /* Soft Petal */
+      --p-accent: #fb7185;     /* Deep Rose */
+      --p-sky: #e0f2fe;        /* Spring Sky */
+      --p-leaf: #dcfce7;       /* Fresh Mint */
+      --p-gold: #fef3c7;       /* Spring Sunshine */
+      
+      --bg-base: #fffcfd;
+      --bg-glass: rgba(255, 255, 255, 0.65);
+      --bg-glass-thick: rgba(255, 255, 255, 0.9);
+      --border-glass: rgba(255, 182, 193, 0.4);
+      
+      --txt-main: #2d2424;
+      --txt-muted: #6b5a5a;
+      --txt-white: #ffffff;
+
+      --shd-premium: 0 25px 50px -12px rgba(255, 182, 193, 0.25);
+      --shd-inner: inset 0 2px 4px 0 rgba(255, 255, 255, 0.5);
+      
+      --rad-full: 9999px;
+      --rad-xl: 40px;
+      --rad-lg: 24px;
+      --rad-md: 16px;
+
+      --anim-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
     }
 
-    /* 라이트 모드 오버라이드 */
-    :root.light {
-      --bg-deep: #f8fafc;
-      --text-main: #1e293b;
-      --text-muted: #64748b;
-      --glass-bg: rgba(255, 255, 255, 0.65);
-      --glass-border: rgba(0, 0, 0, 0.06);
-      --card-bg: rgba(255, 255, 255, 0.7);
-      --primary-glow: #4f46e5;
-      --accent-glow: #c026d3;
-      --secondary-glow: #0891b2;
-      --shadow-soft: 0 10px 30px -10px rgba(0,0,0,0.1);
+    /* [DARK THEME - Midnight Blossom] */
+    :root.dark {
+      --bg-base: #120d11;
+      --bg-glass: rgba(30, 20, 25, 0.75);
+      --bg-glass-thick: rgba(20, 15, 18, 0.95);
+      --border-glass: rgba(244, 114, 182, 0.2);
+      
+      --txt-main: #fce7f3;
+      --txt-muted: #9ca3af;
+      
+      --shd-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+      --p-primary: #f472b6;
+      --p-sky: #0c4a6e;
     }
 
-    /* 기본 설정 */
-    *, *::before, *::after { box-sizing: border-box; }
+    /* ==========================================================================
+       RESET & BASE STYLES
+       ==========================================================================
+    */
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     
     body {
-      margin: 0;
-      font-family: 'Poppins', 'Noto Sans KR', sans-serif;
-      background-color: var(--bg-deep);
-      color: var(--text-main);
-      min-height: 100vh;
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: var(--bg-base);
+      color: var(--txt-main);
       overflow-x: hidden;
-      transition: background-color 0.5s ease, color 0.3s ease;
-      line-height: 1.6;
+      min-height: 100vh;
+      transition: background-color 0.8s ease;
     }
 
-    /* --- 배경 애니메이션 (오로라 & 별) --- */
-    .background-layer {
+    h1, h2, h3 { font-family: 'Montserrat', 'Gowun Batang', serif; word-break: keep-all; }
+
+    /* ==========================================================================
+       ULTRA GRAPHICS: PARTICLE ENGINE (CANVAS)
+       ==========================================================================
+    */
+
+    #blossomCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: -1;
+      pointer-events: none;
+      filter: blur(0.5px);
+    }
+
+    .bg-gradient-mesh {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
       z-index: -2;
-      background: var(--bg-deep);
-      overflow: hidden;
-    }
-
-    .aurora {
-      position: absolute;
-      width: 100%; height: 100%;
       background: 
-        radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-        radial-gradient(circle at 90% 80%, rgba(217, 70, 239, 0.15) 0%, transparent 50%),
-        radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 60%);
-      filter: blur(80px);
-      animation: auroraMove 20s infinite alternate;
+        radial-gradient(at 0% 0%, var(--p-secondary) 0%, transparent 50%),
+        radial-gradient(at 100% 0%, var(--p-sky) 0%, transparent 50%),
+        radial-gradient(at 100% 100%, var(--p-leaf) 0%, transparent 50%),
+        radial-gradient(at 0% 100%, var(--p-gold) 0%, transparent 50%);
+      opacity: 0.6;
     }
 
-    @keyframes auroraMove {
-      0% { transform: scale(1); }
-      100% { transform: scale(1.1); }
+    /* ==========================================================================
+       HEADER & NAVIGATION
+       ==========================================================================
+    */
+
+    .header-wrapper {
+      position: sticky;
+      top: 20px;
+      z-index: 1000;
+      padding: 0 20px;
     }
 
-    .starfield {
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      pointer-events: none;
-    }
-    
-    .star {
-      position: absolute;
-      background: white;
-      border-radius: 50%;
-      opacity: 0;
-      animation: twinkle var(--duration, 3s) infinite ease-in-out;
-    }
-
-    @keyframes twinkle {
-      0%, 100% { opacity: 0.1; transform: scale(0.8); }
-      50% { opacity: 0.8; transform: scale(1.2); box-shadow: 0 0 8px white; }
-    }
-
-    /* --- 레이아웃 컨테이너 --- */
-    .container {
+    header {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 0 20px;
-      position: relative;
-      z-index: 10;
-    }
-
-    /* --- 헤더 스타일 --- */
-    header {
-      margin-top: 20px;
-      padding: 16px 24px;
-      border-radius: var(--radius-lg);
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border: 1px solid var(--glass-border);
+      background: var(--bg-glass);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--rad-xl);
+      padding: 15px 35px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: var(--shadow-soft);
-      position: sticky;
-      top: 20px;
-      z-index: 100;
-      transition: all 0.3s ease;
+      box-shadow: var(--shd-premium);
+      transition: var(--anim-smooth);
     }
 
-    .brand {
+    header.scrolled {
+      padding: 10px 30px;
+      transform: translateY(-5px) scale(0.98);
+      background: var(--bg-glass-thick);
+    }
+
+    .logo {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 15px;
       text-decoration: none;
-      color: var(--text-main);
+      color: inherit;
     }
 
-    .brand-logo {
-      width: 48px; height: 48px;
-      background: linear-gradient(135deg, #e0e7ff, #818cf8);
-      border-radius: 50%;
+    .logo-icon {
+      width: 50px; height: 50px;
+      background: linear-gradient(135deg, var(--p-primary), var(--p-accent));
+      border-radius: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
-      box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
-      border: 2px solid rgba(255,255,255,0.2);
+      font-size: 26px;
+      color: white;
+      box-shadow: 0 10px 20px -5px rgba(251, 113, 133, 0.4);
+      transform: rotate(-5deg);
+      transition: 0.5s;
     }
 
-    .brand-text h1 {
-      font-size: 1.15rem;
-      font-weight: 800;
-      margin: 0;
-      letter-spacing: -0.5px;
-    }
-    .brand-text span {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      display: block;
-      font-weight: 500;
-    }
+    .logo:hover .logo-icon { transform: rotate(0deg) scale(1.1); }
 
-    /* 컨트롤 영역 (번역기 + 테마) */
-    .controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+    .logo-text b { font-size: 1.4rem; font-weight: 900; letter-spacing: -1px; display: block; }
+    .logo-text span { font-size: 0.8rem; color: var(--txt-muted); font-weight: 500; }
 
-    /* 구글 번역기 커스텀 스타일링 (숨김 처리 후 예쁘게) */
-    #google_translate_element {
-      display: inline-block;
-      overflow: hidden;
-      border-radius: 12px;
-    }
-    
-    .goog-te-gadget-simple {
-      background-color: rgba(255,255,255,0.08) !important;
-      border: 1px solid var(--glass-border) !important;
-      padding: 6px 10px !important;
-      border-radius: 12px !important;
-      font-size: 13px !important;
-      line-height: 20px !important;
-      display: flex !important;
-      align-items: center;
-      color: var(--text-main) !important;
-      transition: 0.2s;
-    }
-    
-    .goog-te-gadget-simple:hover {
-      background-color: rgba(255,255,255,0.15) !important;
-    }
+    .nav-actions { display: flex; align-items: center; gap: 15px; }
 
-    .goog-te-gadget-simple span {
-      color: var(--text-main) !important;
-      font-weight: 600 !important;
-    }
-    
-    .goog-te-gadget-simple img {
-      display: none !important; /* 구글 아이콘 숨김 */
-    }
-
-    /* 구글 탑 배너 강제 제거 */
-    body { top: 0 !important; }
-    .goog-te-banner-frame { display: none !important; }
-
-    /* 테마 버튼 */
-    .theme-btn {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--glass-border);
-      color: var(--text-main);
-      width: 40px; height: 40px;
+    .btn-circle {
+      width: 45px; height: 45px;
       border-radius: 50%;
+      border: 1px solid var(--border-glass);
+      background: var(--bg-glass);
+      color: var(--txt-main);
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       font-size: 1.2rem;
       transition: 0.3s;
     }
-    .theme-btn:hover {
-      background: rgba(255,255,255,0.2);
-      transform: rotate(15deg);
-    }
 
-    /* --- 히어로 섹션 --- */
+    .btn-circle:hover { background: var(--p-primary); color: white; transform: translateY(-3px); }
+
+    /* ==========================================================================
+       HERO SECTION: PREMIUM EXPERIENCE
+       ==========================================================================
+    */
+
     .hero {
+      padding: 120px 20px 60px;
       text-align: center;
-      padding: 80px 20px 60px;
+      max-width: 900px;
+      margin: 0 auto;
     }
 
-    .hero-moon {
-      width: 140px; height: 140px;
-      margin: 0 auto 30px;
-      position: relative;
+    .badge-premium {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--rad-full);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--p-accent);
+      margin-bottom: 30px;
+      box-shadow: 0 5px 15px rgba(251, 113, 133, 0.1);
     }
 
-    /* SVG Moon Animation */
-    .moon-svg {
-      width: 100%; height: 100%;
-      filter: drop-shadow(0 0 20px var(--primary-glow));
-      animation: float 6s ease-in-out infinite;
-    }
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-
-    .hero h2 {
-      font-size: 2.8rem;
+    .hero h1 {
+      font-size: clamp(2.5rem, 8vw, 4.5rem);
       font-weight: 900;
-      margin: 0 0 16px;
-      background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    
-    :root.light .hero h2 {
-      background: linear-gradient(135deg, #1e293b 0%, #4f46e5 100%);
+      line-height: 1.1;
+      margin-bottom: 25px;
+      background: linear-gradient(to right, var(--txt-main), var(--p-accent));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
     .hero p {
-      color: var(--text-muted);
-      font-size: 1.1rem;
-      max-width: 600px;
-      margin: 0 auto 32px;
-      word-break: keep-all;
+      font-size: 1.2rem;
+      color: var(--txt-muted);
+      margin-bottom: 45px;
+      line-height: 1.6;
     }
 
-    /* 알림 배지 */
-    .notice-badge {
-      display: inline-flex;
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 50px;
+    }
+
+    .stat-item b { font-size: 2rem; display: block; color: var(--p-accent); }
+    .stat-item span { font-size: 0.9rem; color: var(--txt-muted); }
+
+    /* ==========================================================================
+       GRID SYSTEM & PREMIUM CARDS
+       ==========================================================================
+    */
+
+    .container { max-width: 1400px; margin: 0 auto; padding: 40px 20px 100px; }
+
+    .section-title {
+      display: flex;
       align-items: center;
-      gap: 8px;
-      background: rgba(99, 102, 241, 0.15);
-      border: 1px solid rgba(99, 102, 241, 0.3);
-      padding: 6px 16px;
-      border-radius: 99px;
-      font-size: 0.9rem;
-      color: #a5b4fc;
-      margin-bottom: 24px;
+      gap: 15px;
+      margin-bottom: 40px;
+      padding-left: 10px;
     }
-    :root.light .notice-badge {
-      color: #4f46e5;
-      background: rgba(99, 102, 241, 0.1);
-    }
+    .section-title h2 { font-size: 2rem; font-weight: 800; }
+    .section-title .line { flex: 1; height: 1px; background: var(--border-glass); }
 
-    /* --- 그리드 레이아웃 --- */
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 24px;
-      padding-bottom: 80px;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 30px;
     }
 
-    /* --- 카드 스타일 --- */
     .card {
-      background: var(--card-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius-md);
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
+      background: var(--bg-glass);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--rad-lg);
+      padding: 35px;
       position: relative;
       overflow: hidden;
-      backdrop-filter: blur(12px);
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      transition: var(--anim-smooth);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
 
     .card::before {
       content: '';
       position: absolute;
-      top: 0; left: 0; width: 100%; height: 4px;
-      background: linear-gradient(90deg, var(--primary-glow), var(--accent-glow));
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle, var(--p-primary) 0%, transparent 70%);
       opacity: 0;
-      transition: 0.3s;
+      transition: 0.6s;
+      z-index: 0;
+      pointer-events: none;
     }
 
     .card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
-      border-color: rgba(255,255,255,0.2);
-    }
-    .card:hover::before { opacity: 1; }
-
-    .card-header {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 16px;
+      transform: translateY(-15px) scale(1.02);
+      box-shadow: var(--shd-premium);
+      background: var(--bg-glass-thick);
+      border-color: var(--p-primary);
     }
 
-    .card-icon {
-      width: 56px; height: 56px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 14px;
+    .card:hover::before { opacity: 0.1; top: -20%; left: -20%; }
+
+    .card-content { position: relative; z-index: 1; }
+
+    .card-icon-box {
+      width: 70px; height: 70px;
+      background: var(--p-secondary);
+      border-radius: 22px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
-      flex-shrink: 0;
+      font-size: 34px;
+      margin-bottom: 25px;
+      transition: 0.4s;
     }
 
-    .card-title h3 {
-      margin: 0;
-      font-size: 1.1rem;
-      font-weight: 700;
+    .card:hover .card-icon-box {
+      transform: rotate(10deg) scale(1.1);
+      background: var(--p-primary);
+      color: white;
     }
 
-    .card-desc {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      margin-bottom: 24px;
-      flex-grow: 1;
-      line-height: 1.5;
-      word-break: keep-all;
-    }
+    .card-info h3 { font-size: 1.4rem; font-weight: 800; margin-bottom: 12px; }
+    .card-info p { color: var(--txt-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 30px; }
 
-    .card-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: auto;
-    }
+    .card-footer { margin-top: auto; display: flex; gap: 12px; }
 
-    .btn {
+    .btn-main {
       flex: 1;
-      padding: 10px 0;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      font-weight: 600;
+      padding: 14px;
+      border-radius: var(--rad-md);
+      border: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: 0.3s;
       text-align: center;
       text-decoration: none;
-      cursor: pointer;
-      transition: 0.2s;
-      border: none;
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      gap: 6px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
     }
 
-    .btn-soft {
-      background: transparent;
-      border: 1px solid var(--glass-border);
-      color: var(--text-muted);
-    }
-    .btn-soft:hover {
-      background: rgba(255,255,255,0.05);
-      color: var(--text-main);
-      border-color: var(--text-muted);
+    .btn-primary { background: var(--p-accent); color: white; }
+    .btn-primary:hover { filter: brightness(1.1); box-shadow: 0 10px 20px rgba(251, 113, 133, 0.3); }
+
+    .btn-secondary { background: var(--p-secondary); color: var(--p-accent); }
+    .btn-secondary:hover { background: var(--p-primary); color: white; }
+
+    .status-tag {
+      position: absolute;
+      top: 20px; right: 20px;
+      padding: 4px 12px;
+      background: var(--p-leaf);
+      color: #166534;
+      font-size: 0.75rem;
+      font-weight: 800;
+      border-radius: var(--rad-full);
     }
 
-    .btn-primary {
-      background: linear-gradient(90deg, var(--primary-glow), var(--accent-glow));
-      color: white;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-    }
-    .btn-primary:hover {
-      filter: brightness(1.1);
-      box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
-      transform: translateY(-1px);
-    }
+    .status-tag.disabled { background: #fee2e2; color: #991b1b; }
 
-    /* --- 푸터 --- */
+    /* ==========================================================================
+       FOOTER: ELEGANT FINISH
+       ==========================================================================
+    */
+
     footer {
-      border-top: 1px solid var(--glass-border);
-      padding: 40px 20px;
+      background: var(--bg-glass-thick);
+      padding: 80px 20px 40px;
+      border-top: 1px solid var(--border-glass);
       text-align: center;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      background: rgba(0,0,0,0.2);
     }
-    
-    footer a { color: var(--text-muted); text-decoration: none; border-bottom: 1px dotted var(--text-muted); }
-    footer a:hover { color: var(--text-main); border-bottom-style: solid; }
 
-    /* 모바일 반응형 */
-    @media (max-width: 768px) {
-      .hero h2 { font-size: 2rem; }
-      header { flex-direction: column; gap: 16px; align-items: stretch; }
-      .controls { justify-content: space-between; }
-      .brand { justify-content: center; }
+    .footer-brand { margin-bottom: 40px; }
+    .footer-brand h2 { font-size: 2rem; font-weight: 900; margin-bottom: 10px; }
+    .footer-brand p { color: var(--txt-muted); max-width: 500px; margin: 0 auto; }
+
+    .footer-grid {
+      max-width: 1000px;
+      margin: 0 auto 60px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
     }
+
+    .footer-col h4 { margin-bottom: 20px; font-weight: 800; }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 10px; }
+    .footer-col ul li a { color: var(--txt-muted); text-decoration: none; transition: 0.2s; }
+    .footer-col ul li a:hover { color: var(--p-accent); }
+
+    .copyright {
+      padding-top: 40px;
+      border-top: 1px solid var(--border-glass);
+      font-size: 0.9rem;
+      color: var(--txt-muted);
+    }
+
+    /* ==========================================================================
+       INTERACTIVE MODALS & OVERLAYS
+       ==========================================================================
+    */
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal {
+      background: var(--bg-base);
+      max-width: 500px;
+      width: 100%;
+      border-radius: var(--rad-xl);
+      padding: 40px;
+      position: relative;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+      animation: modalSlide 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+
+    @keyframes modalSlide {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* ==========================================================================
+       RESPONSIVE ADJUSTMENTS
+       ==========================================================================
+    */
+
+    @media (max-width: 768px) {
+      header { padding: 10px 20px; }
+      .logo-text { display: none; }
+      .hero { padding-top: 80px; }
+      .hero h1 { font-size: 3rem; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .hero-stats { flex-direction: column; gap: 20px; }
+    }
+
   </style>
 </head>
 <body>
 
-  <!-- 배경 레이어 -->
-  <div class="background-layer">
-    <div class="aurora"></div>
-    <div class="starfield" id="starfield"></div>
-  </div>
+  <!-- 최상급 그래픽 배경 시스템 -->
+  <div class="bg-gradient-mesh"></div>
+  <canvas id="blossomCanvas"></canvas>
 
-  <div class="container">
-    
-    <!-- 상단 헤더 -->
-    <header>
-      <a href="#" class="brand">
-        <div class="brand-logo">🌙</div>
-        <div class="brand-text">
-          <h1>달빛의 웹사이트</h1>
-          <span>Moonlight Website v3.0</span>
+  <div class="header-wrapper">
+    <header id="topHeader">
+      <a href="#" class="logo">
+        <div class="logo-icon">🌙</div>
+        <div class="logo-text">
+          <b>달빛의 웹사이트</b>
+          <span>Spring Breeze Ultra Edition</span>
         </div>
       </a>
 
-      <div class="controls">
-        <!-- 구글 번역 기능 (무료 데모) -->
-        <div id="google_translate_element" title="언어 변경 (Translate)"></div>
+      <div class="nav-actions">
+        <!-- 구글 번역기 인터페이스 -->
+        <div id="google_translate_element"></div>
         
-        <!-- 테마 토글 버튼 -->
-        <button class="theme-btn" id="themeToggle" aria-label="테마 변경">
-          <span>🔆</span>
+        <button class="btn-circle" id="themeBtn" title="테마 변경">
+          <i id="themeIcon">🔆</i>
         </button>
       </div>
     </header>
-
-    <main>
-      <!-- 히어로 섹션 -->
-      <section class="hero">
-        <div class="notice-badge">
-          ✨ <b>긴급공지:</b>업데이트 서비스 중단
-        </div>
-        
-        <div class="hero-moon">
-          <!-- SVG Moon -->
-          <svg class="moon-svg" viewBox="0 0 200 200">
-            <defs>
-              <radialGradient id="moonGradient" cx="30%" cy="30%">
-                <stop offset="0%" stop-color="#fff" />
-                <stop offset="50%" stop-color="#e0e7ff" />
-                <stop offset="100%" stop-color="#6366f1" />
-              </radialGradient>
-              <filter id="glow">
-                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-                <feMerge>
-                  <feMergeNode in="coloredBlur"/>
-                  <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-              </filter>
-            </defs>
-            <circle cx="100" cy="100" r="80" fill="url(#moonGradient)" filter="url(#glow)" />
-            <circle cx="60" cy="70" r="10" fill="rgba(0,0,0,0.05)" />
-            <circle cx="110" cy="120" r="15" fill="rgba(0,0,0,0.05)" />
-            <circle cx="140" cy="60" r="8" fill="rgba(0,0,0,0.05)" />
-          </svg>
-        </div>
-
-        <h2>달빛의 웹사이트</h2>
-        <p>
-          일부 나라의 서비스를 중단하였습니다.<br>
-          미국,러시아,중국 은 아예 업데이트가 이제부터 지원되지 않습니다.
-        </p>
-      </section>
-
-      <!-- 카드 그리드 (모든 아이템 포함) -->
-      <section class="grid">
-
-        <!-- 1. 캘린더 -->
-        <article class="card">
-          <div class="card-header">
-            <div class="card-icon">📅</div>
-            <div class="card-title"><h3>캘린더</h3></div>
-          </div>
-          <p class="card-desc">월간/주간 보기, 일정 추가 및 간단한 메모 기능을 제공하여 스케줄을 관리합니다.</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/make/calendar.html" class="btn btn-soft">미리보기</a>
-            <a href="https://make-moonlight.pages.dev/make/calendar.html" class="btn btn-primary">사용하기</a>
-          </div>
-        </article>
-
-        <!-- 2. 메트로놈 -->
-        <article class="card">
-          <div class="card-header">
-            <div class="card-icon">⏱</div>
-            <div class="card-title"><h3>메트로놈</h3></div>
-          </div>
-          <p class="card-desc">악기 연습을 위한 정확한 템포와 박자 설정, 시각적 비트 표시 기능을 제공합니다.</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/make/metronome.html" class="btn btn-soft">열기</a>
-            <a href="https://make-moonlight.pages.dev/make/metronome.html" class="btn btn-primary">연습 시작</a>
-          </div>
-        </article>
-
-        <!-- 3. 게임 모음 -->
-        <article class="card">
-          <div class="card-header">
-            <div class="card-icon">🧩</div>
-            <div class="card-title"><h3>게임 모음 (샘플)</h3></div>
-          </div>
-          <p class="card-desc">다양한 미니 게임 프로젝트 샘플과 템플릿 모음으로 빠르게 즐기세요.</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/make/sample.html" class="btn btn-soft">목록</a>
-            <a href="https://make-moonlight.pages.dev/make/sample.html" class="btn btn-primary">플레이</a>
-          </div>
-        </article>
-
-        <!-- 4. 저장공간 마스터 -->
-        <article class="card">
-          <div class="card-header">
-            <div class="card-icon">🗄</div>
-            <div class="card-title"><h3>저장공간 마스터</h3></div>
-          </div>
-          <p class="card-desc">로컬 파일 정리, 용량 시각화, 간단한 백업 도구를 제공합니다.</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/make/storage-space.html" class="btn btn-soft">확인</a>
-            <a href="https://make-moonlight.pages.dev/make/storage-space.html" class="btn btn-primary">관리하기</a>
-          </div>
-        </article>
-
-        <!-- 5. 스타크래프트 팁 -->
-        <article class="card">
-          <div class="card-header">
-            <div class="card-icon">🎮</div>
-            <div class="card-title"><h3>스타 1 게임 팁</h3></div>
-          </div>
-          <p class="card-desc">오프닝 빌드, 맵별 전략, 필수 키 바인딩 팁을 정리해 둔 공간입니다.</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/make/%EC%8A%A4%ED%83%80%ED%81%AC%EB%9E%98%ED%94%84%ED%8A%B8.html" class="btn btn-soft">팁 보기</a>
-            <a href="https://make-moonlight.pages.dev/make/%EC%8A%A4%ED%83%80%ED%81%AC%EB%9E%98%ED%94%84%ED%8A%B8.html" class="btn btn-primary">공략</a>
-          </div>
-        </article>
-
-        <!-- 6. 똑같은 카드 찾기 -->
-        <article class="card">
-          <div class="card-header">
-            <div class="card-icon">🧠</div>
-            <div class="card-title"><h3>똑같은 카드 찾기</h3></div>
-          </div>
-          <p class="card-desc">기억력을 테스트해보세요. 커피 한잔 하면서 즐기는 가벼운 퍼즐.</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/make/puzzle.html" class="btn btn-soft">열기</a>
-            <a href="https://make-moonlight.pages.dev/make/puzzle.html" class="btn btn-primary">게임 시작</a>
-          </div>
-        </article>
-
-        <!-- 7. 동물/곤충 도감 -->
-        <article class="card">
-          <div class="card-header">
-            <div class="card-icon">📚</div>
-            <div class="card-title"><h3>동물, 곤충 도감</h3></div>
-          </div>
-          <p class="card-desc">자연의 친구들에 관심이 있나요? 다양한 정보를 자세히 알아보세요.</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/make/book.html" class="btn btn-soft">열기</a>
-            <a href="https://make-moonlight.pages.dev/make/book.html" class="btn btn-primary">탐색</a>
-          </div>
-        </article>
-
-        <!-- 8. 용돈 기입장 -->
-        <article class="card">
-          <div class="card-header">
-            <div class="card-icon">💰</div>
-            <div class="card-title"><h3>용돈 기입장</h3></div>
-          </div>
-          <p class="card-desc">용돈을 받거나 쓴 날을 기록하여 현명한 소비 습관을 기르세요.</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/make/money.html" class="btn btn-soft">보기</a>
-            <a href="https://make-moonlight.pages.dev/make/money.html" class="btn btn-primary">기록하기</a>
-          </div>
-        </article>
-
-        <!-- 9. 곤충 도감 (별도) -->
-        <article class="card">
-          <div class="card-header">
-            <div class="card-icon">🐛</div>
-            <div class="card-title"><h3>곤충 도감</h3></div>
-          </div>
-          <p class="card-desc">작지만 신비로운 곤충들의 세계를 탐험해보세요.</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/make/%EA%B3%A4%EC%B6%A9%EB%8F%84%EA%B0%90.html" class="btn btn-soft">열기</a>
-            <a href="https://make-moonlight.pages.dev/make/%EA%B3%A4%EC%B6%A9%EB%8F%84%EA%B0%90.html" class="btn btn-primary">방문</a>
-          </div>
-        </article>
-
-        <!-- 10. 냥냥 타이쿤 -->
-        <article class="card">
-          <div class="card-header">
-            <div class="card-icon">😺</div>
-            <div class="card-title"><h3>냥냥 타이쿤</h3></div>
-          </div>
-          <p class="card-desc">고양이를 클릭해서 업그레이드하고 최고의 집사가 되어보세요!</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/make/%EB%83%A5%EB%83%A5%ED%83%80%EC%9D%B4%EC%BF%A4.html" class="btn btn-soft">보기</a>
-            <a href="https://make-moonlight.pages.dev/make/%EB%83%A5%EB%83%A5%ED%83%80%EC%9D%B4%EC%BF%A4.html" class="btn btn-primary">키우기</a>
-          </div>
-        </article>
-
-        <!-- 11. 미로 생성기 -->
-        <article class="card">
-          <div class="card-header">
-            <div class="card-icon">🌀</div>
-            <div class="card-title"><h3>미로 생성기</h3></div>
-          </div>
-          <p class="card-desc">자동으로 생성되는 복잡한 미로를 탈출해보세요.</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/make/qr.html" class="btn btn-soft">보기</a>
-            <a href="https://make-moonlight.pages.dev/make/qr.html" class="btn btn-primary">생성</a>
-          </div>
-        </article>
-
-        <!-- 12. BMI 계산기 -->
-        <article class="card">
-          <div class="card-header">
-            <div class="card-icon">⚖️</div>
-            <div class="card-title"><h3>BMI 계산기</h3></div>
-          </div>
-          <p class="card-desc">신장과 체중을 입력하여 나의 건강 상태를 확인하세요.</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/make/bmi.html" class="btn btn-soft">열기</a>
-            <a href="https://make-moonlight.pages.dev/make/bmi.html" class="btn btn-primary">계산하기</a>
-          </div>
-        </article>
-
-        <!-- 13. 농장 키우기 -->
-        <article class="card">
-          <div class="card-header">
-            <div class="card-icon">🌾</div>
-            <div class="card-title"><h3>농장 키우기</h3></div>
-          </div>
-          <p class="card-desc">나만의 작은 농장을 가꾸며 힐링하세요.</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/make/%EB%86%8D%EC%9E%A5.html" class="btn btn-soft">보기</a>
-            <a href="https://make-moonlight.pages.dev/make/%EB%86%8D%EC%9E%A5.html" class="btn btn-primary">경작</a>
-          </div>
-        </article>
-
-        <!-- 14. 설문지 -->
-        <article class="card">
-          <div class="card-header">
-            <div class="card-icon">📝</div>
-            <div class="card-title"><h3>달빛 설문지</h3></div>
-          </div>
-          <p class="card-desc">서비스 개선을 위해 여러분의 의견을 들려주세요.</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/data/%EC%84%A4%EB%AC%B8.html" class="btn btn-soft">열기</a>
-            <a href="https://make-moonlight.pages.dev/data/%EC%84%A4%EB%AC%B8.html" class="btn btn-primary">참여</a>
-          </div>
-        </article>
-
-        <!-- 15. 버블 슈터 -->
-        <article class="card">
-          <div class="card-header">
-            <div class="card-icon">🔵</div>
-            <div class="card-title"><h3>Bubble Shooter</h3></div>
-          </div>
-          <p class="card-desc">버블을 쏘아 터트리세요! (고사양 권장, 고해상도 그래픽)</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/data/%EB%B2%84%EB%B8%94.html" class="btn btn-soft">보기</a>
-            <a href="https://make-moonlight.pages.dev/data/%EB%B2%84%EB%B8%94.html" class="btn btn-primary">슈팅</a>
-          </div>
-        </article>
-
-        <!-- 16. 스피드 클릭 -->
-        <article class="card">
-          <div class="card-header">
-            <div class="card-icon">⚡</div>
-            <div class="card-title"><h3>스피드 클릭</h3></div>
-          </div>
-          <p class="card-desc">제한 시간 내에 최대한 빠르게 클릭하여 기록을 세우세요!</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/make/%EB%B2%84%EB%B8%94.html" class="btn btn-soft">도전</a>
-            <a href="https://make-moonlight.pages.dev/make/%EB%B2%84%EB%B8%94.html" class="btn btn-primary">플레이</a>
-          </div>
-        </article>
-
-        <!-- 17. 스네이크 게임 -->
-        <article class="card">
-          <div class="card-header">
-            <div class="card-icon">🐍</div>
-            <div class="card-title"><h3>스네이크 게임</h3></div>
-          </div>
-          <p class="card-desc">똑똑한 지능형 AI 뱀과 경쟁하여 생존하세요!</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/make/snake.html" class="btn btn-soft">보기</a>
-            <a href="https://make-moonlight.pages.dev/make/snake.html" class="btn btn-primary">대결</a>
-          </div>
-        </article>
-
-        <!-- 18. 브롤스타즈 -->
-        <article class="card">
-          <div class="card-header">
-            <div class="card-icon">🎊</div>
-            <div class="card-title"><h3>브롤스타즈</h3></div>
-          </div>
-          <p class="card-desc">인기 게임 브롤스타즈 팬 페이지 및 관련 정보.</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/make/%EB%B8%8C%EB%A1%A4%EC%8A%A4%ED%83%80%EC%A6%88.html" class="btn btn-soft">정보</a>
-            <a href="https://make-moonlight.pages.dev/make/%EB%B8%8C%EB%A1%A4%EC%8A%A4%ED%83%80%EC%A6%88.html" class="btn btn-primary">전투</a>
-          </div>
-        </article>
-
-        <!-- 19. 라부부 뽑기 -->
-        <article class="card">
-          <div class="card-header">
-            <div class="card-icon">✨</div>
-            <div class="card-title"><h3>라부부 뽑기</h3></div>
-          </div>
-          <p class="card-desc">시크릿 아이템이 나올까요? 오늘의 행운을 시험해보세요!</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/make/%EB%9D%BC%EB%B6%80%EB%B6%80.html" class="btn btn-soft">열기</a>
-            <a href="https://make-moonlight.pages.dev/make/%EB%9D%BC%EB%B6%80%EB%B6%80.html" class="btn btn-primary">뽑기</a>
-          </div>
-        </article>
-
-        <!-- 20. 로컬 메신저 (지원 종료) -->
-        <article class="card" style="opacity: 0.7;">
-          <div class="card-header">
-            <div class="card-icon">💬</div>
-            <div class="card-title"><h3>로컬 메신저</h3></div>
-          </div>
-          <p class="card-desc">같은 네트워크 내에서 메시지를 주고받는 도구 (현재 지원 중단됨).</p>
-          <div class="card-actions">
-            <a href="https://make-moonlight.pages.dev/make/%EB%A9%94%EC%8B%A0%EC%A0%80.html" class="btn btn-soft">보기</a>
-            <button class="btn btn-soft" disabled>지원 종료</button>
-          </div>
-        </article>
-
-      </section>
-    </main>
-
-    <!-- 푸터 -->
-    <footer>
-      <p>© 2025 달빛의 웹사이트 (Moonlight Website). All rights reserved. (서비스 중단됨) </p>
-      <div style="margin-top:10px;">
-        <a href="https://help-moonlight.pages.dev/help/help=html5-error342@123" target="_blank">오류 신고 및 도움말</a>
-      </div>
-    </footer>
   </div>
 
-  <!-- 자바스크립트 영역 -->
-  
-  <!-- 1. 구글 번역 스크립트 (무료 데모) -->
+  <main>
+    <!-- 프리미엄 히어로 섹션 -->
+    <section class="hero">
+      <div class="badge-premium">
+        ✨ 2026 Spring New Version v5.0
+      </div>
+      <h1>가장 아름다운 봄을<br>당신의 브라우저에</h1>
+      <p>
+        달빛의 웹사이트가 하이엔드 그래픽과 함께 재탄생했습니다.<br>
+        일상에 필요한 모든 도구와 즐거운 게임을 최상급 디자인으로 경험해보세요.
+      </p>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <b>20+</b>
+          <span>Active Apps</span>
+        </div>
+        <div class="stat-item">
+          <b>Premium</b>
+          <span>Visual Quality</span>
+        </div>
+        <div class="stat-item">
+          <b>Global</b>
+          <span>Multi-language</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="container">
+      
+      <!-- 도구 섹션 -->
+      <div class="section-title">
+        <h2>Smart Tools</h2>
+        <div class="line"></div>
+      </div>
+
+      <div class="grid">
+        <!-- 캘린더 -->
+        <article class="card">
+          <span class="status-tag">Active</span>
+          <div class="card-content">
+            <div class="card-icon-box">📅</div>
+            <div class="card-info">
+              <h3>봄날의 캘린더</h3>
+              <p>벚꽃 개화 시기부터 소중한 개인 일정까지, 감성적인 UI로 관리하는 월간 플래너입니다.</p>
+            </div>
+            <div class="card-footer">
+              <a href="https://make-moonlight.pages.dev/make/calendar.html" class="btn-main btn-primary" target="_blank">사용하기</a>
+              <button class="btn-main btn-secondary" onclick="showPreview('캘린더')">미리보기</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- 메트로놈 -->
+        <article class="card">
+          <span class="status-tag">Active</span>
+          <div class="card-content">
+            <div class="card-icon-box">🎵</div>
+            <div class="card-info">
+              <h3>하이엔드 메트로놈</h3>
+              <p>악기 연주자를 위한 정밀한 비트 메이커. 다양한 사운드와 시각적 큐를 제공합니다.</p>
+            </div>
+            <div class="card-footer">
+              <a href="https://make-moonlight.pages.dev/make/metronome.html" class="btn-main btn-primary" target="_blank">연습 시작</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- 저장공간 -->
+        <article class="card">
+          <span class="status-tag">Active</span>
+          <div class="card-content">
+            <div class="card-icon-box">🗄️</div>
+            <div class="card-info">
+              <h3>저장공간 마스터</h3>
+              <p>내 기기의 남은 공간을 시각화하고 불필요한 데이터를 정리하는 강력한 관리 도구입니다.</p>
+            </div>
+            <div class="card-footer">
+              <a href="https://make-moonlight.pages.dev/make/storage-space.html" class="btn-main btn-primary" target="_blank">관리하기</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- BMI -->
+        <article class="card">
+          <span class="status-tag">Active</span>
+          <div class="card-content">
+            <div class="card-icon-box">⚖️</div>
+            <div class="card-info">
+              <h3>건강 체크 BMI</h3>
+              <p>간단한 입력으로 나의 체질량 지수를 확인하고 건강한 봄을 맞이하세요.</p>
+            </div>
+            <div class="card-footer">
+              <a href="https://make-moonlight.pages.dev/make/bmi.html" class="btn-main btn-primary" target="_blank">체크하기</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- 기입장 -->
+        <article class="card">
+          <span class="status-tag">Active</span>
+          <div class="card-content">
+            <div class="card-icon-box">💰</div>
+            <div class="card-info">
+              <h3>봄꽃 용돈기입장</h3>
+              <p>지출과 수입을 꼼꼼하게 기록하여 현명한 경제 습관을 길러주는 도구입니다.</p>
+            </div>
+            <div class="card-footer">
+              <a href="https://make-moonlight.pages.dev/make/money.html" class="btn-main btn-primary" target="_blank">기록하기</a>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- 게임 섹션 -->
+      <div class="section-title" style="margin-top: 80px;">
+        <h2>Game Universe</h2>
+        <div class="line"></div>
+      </div>
+
+      <div class="grid">
+        <!-- 냥냥 타이쿤 -->
+        <article class="card">
+          <span class="status-tag">Popular</span>
+          <div class="card-content">
+            <div class="card-icon-box">😺</div>
+            <div class="card-info">
+              <h3>냥냥 타이쿤 Premium</h3>
+              <p>최고의 고양이 집사가 되어보세요. 업그레이드된 그래픽과 중독성 있는 성장 시스템!</p>
+            </div>
+            <div class="card-footer">
+              <a href="https://make-moonlight.pages.dev/make/%EB%83%A5%EB%83%A5%ED%83%80%EC%9D%B4%EC%BF%A4.html" class="btn-main btn-primary" target="_blank">게임 시작</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- 농장 키우기 -->
+        <article class="card">
+          <span class="status-tag">New</span>
+          <div class="card-content">
+            <div class="card-icon-box">🌻</div>
+            <div class="card-info">
+              <h3>힐링 농장 시뮬레이터</h3>
+              <p>나만의 정원에서 예쁜 꽃을 가꾸고 수확하는 평화로운 힐링 게임입니다.</p>
+            </div>
+            <div class="card-footer">
+              <a href="https://make-moonlight.pages.dev/make/%EB%86%8D%EC%9E%A5.html" class="btn-main btn-primary" target="_blank">경작하기</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- 라부부 뽑기 -->
+        <article class="card">
+          <span class="status-tag">Trending</span>
+          <div class="card-content">
+            <div class="card-icon-box">🎁</div>
+            <div class="card-info">
+              <h3>라부부 랜덤 가챠</h3>
+              <p>전설적인 라부부 캐릭터들을 수집하세요. 오늘 당신의 운은 어떨까요?</p>
+            </div>
+            <div class="card-footer">
+              <a href="https://make-moonlight.pages.dev/make/%EB%9D%BC%EB%B6%80%EB%B6%80.html" class="btn-main btn-primary" target="_blank">뽑기 시작</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- 스네이크 -->
+        <article class="card">
+          <span class="status-tag">Classic</span>
+          <div class="card-content">
+            <div class="card-icon-box">🐍</div>
+            <div class="card-info">
+              <h3>AI 스네이크 아레나</h3>
+              <p>인공지능 뱀들과의 치열한 생존 경쟁. 가장 길게 살아남는 자가 승리합니다.</p>
+            </div>
+            <div class="card-footer">
+              <a href="https://make-moonlight.pages.dev/make/snake.html" class="btn-main btn-primary" target="_blank">도전하기</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- 카드 매칭 -->
+        <article class="card">
+          <div class="card-content">
+            <div class="card-icon-box">🧠</div>
+            <div class="card-info">
+              <h3>기억력 퍼즐 매칭</h3>
+              <p>똑같은 카드를 찾아 뒤집으세요. 당신의 뇌를 자극하는 똑똑한 두뇌 게임.</p>
+            </div>
+            <div class="card-footer">
+              <a href="https://make-moonlight.pages.dev/make/puzzle.html" class="btn-main btn-primary" target="_blank">플레이</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- 브롤스타즈 팁 -->
+        <article class="card">
+          <div class="card-content">
+            <div class="card-icon-box">💥</div>
+            <div class="card-info">
+              <h3>브롤 마스터 가이드</h3>
+              <p>브롤스타즈 캐릭터 분석부터 승률을 높여주는 전술까지 모두 담았습니다.</p>
+            </div>
+            <div class="card-footer">
+              <a href="https://make-moonlight.pages.dev/make/%EB%B8%8C%EB%A1%A4%EC%8A%A4%ED%83%80%EC%A6%88.html" class="btn-main btn-primary" target="_blank">공략 보기</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- 스타1 팁 -->
+        <article class="card">
+          <div class="card-content">
+            <div class="card-icon-box">🚀</div>
+            <div class="card-info">
+              <h3>스타 1 전술 사전</h3>
+              <p>추억의 명작 스타크래프트의 필승 빌드와 유용한 팁 모음집입니다.</p>
+            </div>
+            <div class="card-footer">
+              <a href="https://make-moonlight.pages.dev/make/%EC%8A%A4%ED%83%80%ED%81%AC%EB%9E%98%ED%94%84%ED%8A%B8.html" class="btn-main btn-primary" target="_blank">빌드 확인</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- 미로 생성기 -->
+        <article class="card">
+          <div class="card-content">
+            <div class="card-icon-box">🌀</div>
+            <div class="card-info">
+              <h3>인피니티 미로 탈출</h3>
+              <p>무작위로 생성되는 미로를 헤치고 나가세요. 매번 새로운 재미를 보장합니다.</p>
+            </div>
+            <div class="card-footer">
+              <a href="https://make-moonlight.pages.dev/make/qr.html" class="btn-main btn-primary" target="_blank">탈출 시작</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- 곤충 도감 -->
+        <article class="card">
+          <div class="card-content">
+            <div class="card-icon-box">🐛</div>
+            <div class="card-info">
+              <h3>곤충 대도감</h3>
+              <p>우리가 몰랐던 곤충들의 신비로운 세계를 고화질 정보와 함께 탐험하세요.</p>
+            </div>
+            <div class="card-footer">
+              <a href="https://make-moonlight.pages.dev/make/%EA%B3%A4%EC%B6%A9%EB%8F%84%EA%B0%90.html" class="btn-main btn-primary" target="_blank">도감 보기</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- 메신저 (지원종료) -->
+        <article class="card" style="opacity: 0.6;">
+          <span class="status-tag disabled">Offline</span>
+          <div class="card-content">
+            <div class="card-icon-box">💬</div>
+            <div class="card-info">
+              <h3>로컬 메신저</h3>
+              <p>내부 네트워크 전용 대화 도구. 현재 서비스 정비 중으로 이용이 제한됩니다.</p>
+            </div>
+            <div class="card-footer">
+              <button class="btn-main btn-secondary" style="cursor: not-allowed;" disabled>지원 종료</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <!-- 푸터 영역 -->
+  <footer>
+    <div class="footer-brand">
+      <h2>달빛의 웹사이트</h2>
+      <p>최고급 그래픽과 혁신적인 사용자 경험을 선사하는 Moonlight Team의 플래그십 서비스입니다.</p>
+    </div>
+    
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="#">Home</a></li>
+          <li><a href="#">Smart Tools</a></li>
+          <li><a href="#">Game Universe</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="https://make-moonlight.pages.dev/make/sample.html">Code Samples</a></li>
+          <li><a href="https://make-moonlight.pages.dev/data/%EC%84%A4%EB%AC%B8.html">Feedback</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="https://help-moonlight.pages.dev/help/help=html5-error342@123">Help Center</a></li>
+          <li><a href="#">Report Bug</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="copyright">
+      &copy; 2026 Moonlight Website Ultra. All Rights Reserved. <br>
+      <small>Made with ❤️ by Moonlight Team & Gemini AI Engine</small>
+    </div>
+  </footer>
+
+  <!-- 미리보기 모달 -->
+  <div class="overlay" id="modalOverlay">
+    <div class="modal">
+      <h2 id="modalTitle" style="margin-bottom: 20px;"></h2>
+      <p id="modalDesc" style="color: var(--txt-muted); margin-bottom: 30px;"></p>
+      <button class="btn-main btn-primary" style="width: 100%;" onclick="closePreview()">닫기</button>
+    </div>
+  </div>
+
+  <!-- 
+       ==========================================================================
+       JAVASCRIPT: PREMIUM ENGINE & INTERACTION
+       ==========================================================================
+  -->
+
+  <!-- 구글 번역 스크립트 -->
   <script type="text/javascript">
     function googleTranslateElementInit() {
       new google.translate.TranslateElement({
         pageLanguage: 'ko',
         layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-        autoDisplay: false,
-        includedLanguages: 'ko,en,ja,zh-CN,es,fr,de' // 주요 언어만 표시하여 깔끔하게
+        autoDisplay: false
       }, 'google_translate_element');
     }
   </script>
   <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-  <!-- 2. UI 및 애니메이션 로직 -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      
-      /* --- 별 배경 생성 로직 --- */
-      const starfield = document.getElementById('starfield');
-      const starCount = 80; // 별 개수 (성능 최적화)
+    /* [1] 실시간 벚꽃 입자 물리 엔진 */
+    const canvas = document.getElementById('blossomCanvas');
+    const ctx = canvas.getContext('2d');
+    let petals = [];
 
-      function createStars() {
-        starfield.innerHTML = '';
-        for (let i = 0; i < starCount; i++) {
-          const star = document.createElement('div');
-          star.classList.add('star');
-          
-          // 랜덤 위치 및 크기
-          const size = Math.random() * 2 + 1; // 1~3px
-          const x = Math.random() * 100;
-          const y = Math.random() * 100;
-          const duration = Math.random() * 3 + 2; // 2~5초
-          const delay = Math.random() * 5;
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
-          star.style.width = `${size}px`;
-          star.style.height = `${size}px`;
-          star.style.left = `${x}%`;
-          star.style.top = `${y}%`;
-          star.style.setProperty('--duration', `${duration}s`);
-          star.style.animationDelay = `${delay}s`;
-
-          starfield.appendChild(star);
-        }
+    class Petal {
+      constructor() {
+        this.reset();
       }
-
-      createStars();
-      
-      // 창 크기 변경 시 별 재배치 (디바운스 적용)
-      let resizeTimer;
-      window.addEventListener('resize', () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(createStars, 200);
-      });
-
-      /* --- 테마 토글 로직 --- */
-      const themeBtn = document.getElementById('themeToggle');
-      const html = document.documentElement;
-      const THEME_KEY = 'moonlight_theme_v3';
-
-      // 저장된 테마 불러오기
-      const savedTheme = localStorage.getItem(THEME_KEY);
-      if (savedTheme === 'light') {
-        html.classList.add('light');
-        html.classList.remove('dark');
-        themeBtn.querySelector('span').textContent = '🌙';
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * -canvas.height;
+        this.size = Math.random() * 8 + 5;
+        this.speedX = Math.random() * 2 - 1;
+        this.speedY = Math.random() * 1.5 + 1;
+        this.angle = Math.random() * Math.PI * 2;
+        this.angleSpeed = Math.random() * 0.05;
+        this.opacity = Math.random() * 0.6 + 0.2;
       }
+      update() {
+        this.y += this.speedY;
+        this.x += this.speedX + Math.sin(this.y / 50);
+        this.angle += this.angleSpeed;
+        if (this.y > canvas.height) this.reset();
+      }
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, this.size, this.size / 1.5, 0, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 183, 197, ${this.opacity})`;
+        ctx.fill();
+        ctx.restore();
+      }
+    }
 
-      themeBtn.addEventListener('click', () => {
-        if (html.classList.contains('light')) {
-          html.classList.remove('light');
-          html.classList.add('dark');
-          themeBtn.querySelector('span').textContent = '🔆';
-          localStorage.setItem(THEME_KEY, 'dark');
-        } else {
-          html.classList.add('light');
-          html.classList.remove('dark');
-          themeBtn.querySelector('span').textContent = '🌙';
-          localStorage.setItem(THEME_KEY, 'light');
-        }
-      });
+    function initPetals() {
+      petals = Array.from({ length: 50 }, () => new Petal());
+    }
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      petals.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(animate);
+    }
+    initPetals();
+    animate();
 
-      /* --- 링크 보안 (noopener) --- */
-      const links = document.querySelectorAll('a[href^="http"]');
-      links.forEach(link => {
-        link.setAttribute('target', '_blank');
-        link.setAttribute('rel', 'noopener noreferrer');
-      });
+    /* [2] 다크모드 & 테마 시스템 */
+    const themeBtn = document.getElementById('themeBtn');
+    const themeIcon = document.getElementById('themeIcon');
+    const html = document.documentElement;
 
-      console.log("%c 달빛의 웹사이트 v3.0 Loaded ", "background: #6366f1; color: #fff; padding: 4px; border-radius: 4px;");
+    themeBtn.addEventListener('click', () => {
+      html.classList.toggle('dark');
+      const isDark = html.classList.contains('dark');
+      themeIcon.textContent = isDark ? '🌙' : '🔆';
+      localStorage.setItem('moonlight_theme', isDark ? 'dark' : 'light');
     });
-  </script>
 
+    // 로컬 스토리지 테마 복원
+    if (localStorage.getItem('moonlight_theme') === 'dark') {
+      html.classList.add('dark');
+      themeIcon.textContent = '🌙';
+    }
+
+    /* [3] 스크롤 애니메이션 및 헤더 효과 */
+    const header = document.getElementById('topHeader');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
+    });
+
+    /* [4] 모달 프리뷰 시스템 */
+    const modal = document.getElementById('modalOverlay');
+    const mTitle = document.getElementById('modalTitle');
+    const mDesc = document.getElementById('modalDesc');
+
+    function showPreview(type) {
+      mTitle.textContent = `${type} 앱 정보`;
+      mDesc.textContent = `현재 보시는 '${type}' 앱은 달빛의 웹사이트 공식 라이브러리에서 제공하는 프리미엄 도구입니다. 상세 기능은 [사용하기] 버튼을 통해 경험하실 수 있습니다.`;
+      modal.style.display = 'flex';
+    }
+
+    function closePreview() {
+      modal.style.display = 'none';
+    }
+
+    /* [5] 카드 인터랙티브 사운드 (선택 사항 - 여기서는 시각 효과로 대체) */
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        // 호버 시 추가 시각 효과나 피드백을 넣을 수 있습니다.
+      });
+    });
+
+    console.log("%c MOONLIGHT ULTRA READY %c Version 5.0 Spring ", "background:#fb7185; color:white; padding:5px; border-radius:3px;", "color:#fb7185; font-weight:bold;");
+
+  </script>
 </body>
 </html>
