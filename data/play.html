@@ -1,0 +1,2790 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4K 60fps Video Player Pro</title>
+  <style>
+    /* ===========================
+       CSS Reset & Variables
+    =========================== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary:        #0a0a0f;
+      --bg-secondary:      #12121a;
+      --bg-panel:          #1a1a26;
+      --bg-hover:          #22223a;
+      --accent:            #7c5cfc;
+      --accent-light:      #a07cff;
+      --accent-glow:       rgba(124,92,252,0.35);
+      --danger:            #ff4f6d;
+      --success:           #00e5a0;
+      --warning:           #ffb830;
+      --text-primary:      #f0efff;
+      --text-secondary:    #9a96b8;
+      --text-muted:        #5a5875;
+      --border:            rgba(124,92,252,0.2);
+      --border-light:      rgba(255,255,255,0.07);
+      --shadow-deep:       0 20px 60px rgba(0,0,0,0.8);
+      --shadow-glow:       0 0 40px rgba(124,92,252,0.25);
+      --radius-sm:         6px;
+      --radius-md:         12px;
+      --radius-lg:         20px;
+      --radius-xl:         28px;
+      --font-main:         'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+      --transition-fast:   0.15s ease;
+      --transition-mid:    0.3s ease;
+      --transition-slow:   0.5s ease;
+      --controls-height:   72px;
+      --sidebar-width:     300px;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-main);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* ===========================
+       App Shell
+    =========================== */
+    #app {
+      display: flex;
+      flex-direction: column;
+      width: 100vw;
+      height: 100vh;
+      background: var(--bg-primary);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ===========================
+       Title Bar
+    =========================== */
+    #title-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 48px;
+      min-height: 48px;
+      background: rgba(10,10,15,0.95);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      z-index: 100;
+      flex-shrink: 0;
+    }
+
+    .title-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    .logo-text {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, var(--text-primary), var(--accent-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .badge-4k {
+      background: linear-gradient(135deg, var(--accent), #4fc3f7);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      box-shadow: 0 0 10px rgba(79,195,247,0.4);
+    }
+
+    .title-center {
+      font-size: 12px;
+      color: var(--text-secondary);
+      max-width: 400px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    .title-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tb-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .tb-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+      border-color: var(--accent);
+    }
+
+    .tb-btn.active {
+      background: rgba(124,92,252,0.15);
+      color: var(--accent-light);
+      border-color: var(--accent);
+    }
+
+    /* ===========================
+       Main Layout
+    =========================== */
+    #main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ===========================
+       Video Area
+    =========================== */
+    #video-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      background: #000;
+    }
+
+    #video-stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      cursor: none;
+    }
+
+    #video-stage.cursor-visible {
+      cursor: default;
+    }
+
+    #player {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      background: #000;
+    }
+
+    /* No-video placeholder */
+    #placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      z-index: 2;
+    }
+
+    .placeholder-icon {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(124,92,252,0.2), transparent 70%);
+      border: 2px dashed var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      animation: pulse-border 2.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse-border {
+      0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+      50%       { box-shadow: 0 0 0 20px transparent; }
+    }
+
+    .placeholder-text {
+      text-align: center;
+    }
+
+    .placeholder-text h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--text-primary), var(--accent-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .placeholder-text p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      max-width: 340px;
+      line-height: 1.6;
+    }
+
+    .drop-hint {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      background: var(--bg-panel);
+    }
+
+    /* Drag-over overlay */
+    #drag-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(124,92,252,0.15);
+      border: 3px dashed var(--accent);
+      border-radius: var(--radius-md);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent-light);
+      gap: 16px;
+    }
+
+    #drag-overlay.active {
+      display: flex;
+    }
+
+    /* ===========================
+       OSD Overlay
+    =========================== */
+    #osd {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(12px);
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 50;
+      white-space: nowrap;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    #osd.show {
+      opacity: 1;
+    }
+
+    /* Seek indicator */
+    #seek-indicator {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(10px);
+      border-radius: 50%;
+      width: 72px;
+      height: 72px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: #fff;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 50;
+      border: 2px solid rgba(255,255,255,0.15);
+    }
+
+    #seek-indicator.show { opacity: 1; }
+    #seek-indicator small {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.6);
+    }
+
+    #seek-left  { left: 18%; }
+    #seek-right { left: 82%; }
+
+    /* Center big play button */
+    #center-play {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      width: 80px;
+      height: 80px;
+      background: rgba(124,92,252,0.85);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      color: #fff;
+      pointer-events: none;
+      opacity: 0;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+      z-index: 50;
+      box-shadow: 0 0 40px var(--accent-glow);
+    }
+
+    #center-play.flash {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.2);
+    }
+
+    /* ===========================
+       Controls Bar
+    =========================== */
+    #controls-bar {
+      height: var(--controls-height);
+      background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 100%);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border-light);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 16px 0;
+      gap: 8px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Progress / Seek */
+    .progress-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #time-current, #time-total {
+      font-size: 12px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+      min-width: 48px;
+    }
+
+    #time-current { text-align: right; }
+
+    #seek-bar-container {
+      flex: 1;
+      position: relative;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    #seek-track {
+      position: absolute;
+      left: 0; right: 0;
+      height: 4px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 4px;
+      overflow: visible;
+    }
+
+    #seek-buffer {
+      position: absolute;
+      left: 0; top: 0;
+      height: 100%;
+      background: rgba(255,255,255,0.2);
+      border-radius: 4px;
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    #seek-fill {
+      position: absolute;
+      left: 0; top: 0;
+      height: 100%;
+      background: linear-gradient(to right, var(--accent), var(--accent-light));
+      border-radius: 4px;
+      width: 0%;
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    #seek-thumb {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent-light);
+      box-shadow: 0 0 10px var(--accent);
+      transition: transform var(--transition-fast);
+      left: 0%;
+      z-index: 2;
+    }
+
+    #seek-bar-container:hover #seek-thumb {
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    #seek-bar-container:hover #seek-track {
+      height: 6px;
+    }
+
+    #seek-track { transition: height var(--transition-fast); }
+
+    /* Seek preview tooltip */
+    #seek-preview {
+      position: absolute;
+      bottom: 26px;
+      transform: translateX(-50%);
+      background: rgba(10,10,15,0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 4px 10px;
+      font-size: 11px;
+      color: var(--text-primary);
+      pointer-events: none;
+      opacity: 0;
+      white-space: nowrap;
+      transition: opacity var(--transition-fast);
+      z-index: 20;
+    }
+
+    #seek-bar-container:hover #seek-preview {
+      opacity: 1;
+    }
+
+    /* Buttons row */
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .controls-left,
+    .controls-right {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .controls-center {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .ctrl-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .ctrl-btn:hover {
+      background: rgba(255,255,255,0.08);
+      color: var(--text-primary);
+    }
+
+    .ctrl-btn:active {
+      transform: scale(0.9);
+    }
+
+    .ctrl-btn.active {
+      color: var(--accent-light);
+    }
+
+    /* Play/Pause big button */
+    #btn-play {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      color: #fff;
+      font-size: 18px;
+      box-shadow: 0 0 20px var(--accent-glow);
+      transition: all var(--transition-fast);
+    }
+
+    #btn-play:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 30px var(--accent-glow);
+      background: linear-gradient(135deg, var(--accent-light), var(--accent));
+    }
+
+    /* Volume row */
+    .volume-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #volume-bar-container {
+      width: 80px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+    }
+
+    #volume-track {
+      position: absolute;
+      left: 0; right: 0;
+      height: 4px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 4px;
+      overflow: visible;
+      transition: height var(--transition-fast);
+    }
+
+    #volume-bar-container:hover #volume-track {
+      height: 6px;
+    }
+
+    #volume-fill {
+      position: absolute;
+      left: 0; top: 0;
+      height: 100%;
+      background: linear-gradient(to right, #4fc3f7, var(--accent-light));
+      border-radius: 4px;
+      width: 100%;
+    }
+
+    #volume-thumb {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform var(--transition-fast);
+      left: 100%;
+      z-index: 2;
+    }
+
+    #volume-bar-container:hover #volume-thumb {
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    /* Playback speed badge */
+    .speed-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      padding: 3px 8px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .speed-badge:hover {
+      border-color: var(--accent);
+      color: var(--accent-light);
+      background: rgba(124,92,252,0.1);
+    }
+
+    /* Quality badge */
+    .quality-badge {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      letter-spacing: 0.5px;
+      border: 1px solid transparent;
+    }
+
+    .quality-badge.q4k {
+      background: linear-gradient(135deg, var(--accent), #4fc3f7);
+      color: #fff;
+    }
+
+    .quality-badge.q1080 { background: rgba(0,229,160,0.15); color: var(--success); border-color: var(--success); }
+    .quality-badge.q720  { background: rgba(255,184,48,0.15);  color: var(--warning); border-color: var(--warning); }
+    .quality-badge.qauto { background: rgba(255,79,109,0.15);  color: var(--danger);  border-color: var(--danger);  }
+
+    /* Tooltip on buttons */
+    .ctrl-btn[data-tip]::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.85);
+      color: #fff;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity var(--transition-fast);
+    }
+
+    .ctrl-btn[data-tip]:hover::after { opacity: 1; }
+
+    /* ===========================
+       Sidebar
+    =========================== */
+    #sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: var(--bg-secondary);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: width var(--transition-mid), min-width var(--transition-mid);
+      flex-shrink: 0;
+    }
+
+    #sidebar.collapsed {
+      width: 0;
+      min-width: 0;
+      border-left: none;
+    }
+
+    .sidebar-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .sidebar-tab {
+      flex: 1;
+      padding: 12px 0;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border-bottom: 2px solid transparent;
+      transition: all var(--transition-fast);
+    }
+
+    .sidebar-tab.active {
+      color: var(--accent-light);
+      border-bottom-color: var(--accent);
+    }
+
+    .sidebar-tab:hover:not(.active) {
+      color: var(--text-secondary);
+    }
+
+    .sidebar-panel {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sidebar-panel.active { display: flex; }
+
+    .sidebar-panel::-webkit-scrollbar { width: 4px; }
+    .sidebar-panel::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* Section card */
+    .s-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 14px;
+    }
+
+    .s-card-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    /* Info rows */
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 12px;
+    }
+
+    .info-row:last-child { border-bottom: none; }
+
+    .info-row .label { color: var(--text-muted); }
+    .info-row .value {
+      color: var(--text-primary);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .value.green  { color: var(--success); }
+    .value.purple { color: var(--accent-light); }
+    .value.yellow { color: var(--warning); }
+
+    /* Toggle switch */
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+    }
+
+    .toggle-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .toggle {
+      width: 36px;
+      height: 20px;
+      border-radius: 10px;
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      position: relative;
+      transition: background var(--transition-fast);
+    }
+
+    .toggle.on {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      transition: left var(--transition-fast);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    }
+
+    .toggle.on::after { left: 18px; }
+
+    /* Slider control */
+    .slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 4px 0;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .slider-label span { color: var(--accent-light); font-weight: 700; }
+
+    input[type=range] {
+      width: 100%;
+      height: 4px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent-light);
+      box-shadow: 0 0 6px var(--accent-glow);
+      cursor: pointer;
+    }
+
+    /* Playlist */
+    #playlist-container {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .playlist-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .playlist-item::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--accent);
+      opacity: 0;
+      transition: opacity var(--transition-fast);
+    }
+
+    .playlist-item:hover {
+      background: var(--bg-hover);
+      border-color: var(--border);
+    }
+
+    .playlist-item.active {
+      background: rgba(124,92,252,0.1);
+      border-color: var(--border);
+    }
+
+    .playlist-item.active::before { opacity: 1; }
+
+    .playlist-thumb {
+      width: 44px;
+      height: 28px;
+      border-radius: 4px;
+      background: var(--bg-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+      border: 1px solid var(--border-light);
+      overflow: hidden;
+    }
+
+    .playlist-thumb video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .playlist-info {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .playlist-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .playlist-meta {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .playlist-dur {
+      font-size: 10px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    /* Speed buttons */
+    .speed-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .speed-btn {
+      padding: 7px 0;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all var(--transition-fast);
+    }
+
+    .speed-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent-light);
+      background: rgba(124,92,252,0.1);
+    }
+
+    .speed-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    /* Quality buttons */
+    .quality-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+
+    .quality-btn {
+      padding: 9px 0;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: all var(--transition-fast);
+    }
+
+    .quality-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent-light);
+    }
+
+    .quality-btn.active {
+      background: rgba(124,92,252,0.15);
+      border-color: var(--accent);
+      color: var(--accent-light);
+    }
+
+    /* FPS display */
+    .fps-display {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 0 6px;
+    }
+
+    .fps-big {
+      font-size: 36px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--success), #4fc3f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+    }
+
+    .fps-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    /* Perf chart */
+    #perf-chart {
+      width: 100%;
+      height: 60px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-light);
+      background: var(--bg-primary);
+    }
+
+    /* Equalizer visualizer */
+    #eq-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 50px;
+      padding: 4px 0;
+    }
+
+    .eq-bar {
+      flex: 1;
+      background: linear-gradient(to top, var(--accent), var(--accent-light));
+      border-radius: 2px 2px 0 0;
+      min-height: 4px;
+      transition: height 0.1s ease;
+      opacity: 0.7;
+    }
+
+    /* Keyboard shortcuts panel */
+    .shortcut-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 6px 12px;
+    }
+
+    .shortcut-key {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-light);
+      font-family: monospace;
+      white-space: nowrap;
+    }
+
+    .shortcut-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+    }
+
+    /* Chapters */
+    .chapter-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-light);
+      cursor: pointer;
+    }
+
+    .chapter-item:last-child { border-bottom: none; }
+
+    .chapter-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .chapter-time {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-light);
+      font-variant-numeric: tabular-nums;
+      min-width: 44px;
+    }
+
+    .chapter-title {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* ===========================
+       Menus / Dropdowns
+    =========================== */
+    .dropdown-menu {
+      position: fixed;
+      background: rgba(18,18,26,0.97);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 6px;
+      min-width: 180px;
+      z-index: 999;
+      display: none;
+      flex-direction: column;
+      gap: 2px;
+      box-shadow: var(--shadow-deep);
+    }
+
+    .dropdown-menu.open { display: flex; }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .menu-item:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .menu-item.active {
+      color: var(--accent-light);
+      background: rgba(124,92,252,0.1);
+    }
+
+    .menu-item .mi-icon { font-size: 14px; width: 18px; text-align: center; }
+    .menu-sep { height: 1px; background: var(--border-light); margin: 4px 0; }
+
+    /* ===========================
+       Popup / Modal
+    =========================== */
+    #modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px);
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #modal-overlay.open { display: flex; }
+
+    .modal-box {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 28px;
+      min-width: 360px;
+      max-width: 480px;
+      box-shadow: var(--shadow-deep), var(--shadow-glow);
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      background: linear-gradient(135deg, var(--text-primary), var(--accent-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+      justify-content: flex-end;
+    }
+
+    .modal-btn {
+      padding: 9px 22px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .modal-btn.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      color: #fff;
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    .modal-btn.primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .modal-btn.secondary {
+      background: var(--bg-hover);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .modal-btn.secondary:hover { color: var(--text-primary); }
+
+    /* ===========================
+       Loading Spinner
+    =========================== */
+    #loading-spinner {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 30;
+      pointer-events: none;
+    }
+
+    #loading-spinner.show { display: flex; }
+
+    .spinner-ring {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(124,92,252,0.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ===========================
+       Fullscreen Overrides
+    =========================== */
+    #app:fullscreen #sidebar        { display: none; }
+    #app:fullscreen #title-bar      { display: none; }
+    #app:fullscreen #controls-bar   {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      opacity: 0;
+      transition: opacity var(--transition-mid);
+    }
+    #app:fullscreen:hover #controls-bar { opacity: 1; }
+
+    #app:-webkit-full-screen #sidebar       { display: none; }
+    #app:-webkit-full-screen #title-bar     { display: none; }
+    #app:-webkit-full-screen #controls-bar  {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      opacity: 0;
+      transition: opacity var(--transition-mid);
+    }
+    #app:-webkit-full-screen:hover #controls-bar { opacity: 1; }
+
+    /* ===========================
+       Scrollbar global
+    =========================== */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    /* ===========================
+       Animations
+    =========================== */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-up { animation: fadeUp 0.4s ease both; }
+
+    /* ===========================
+       Context Menu
+    =========================== */
+    #context-menu {
+      position: fixed;
+      background: rgba(18,18,26,0.97);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 6px;
+      min-width: 200px;
+      z-index: 999;
+      display: none;
+      flex-direction: column;
+      box-shadow: var(--shadow-deep);
+    }
+
+    #context-menu.open { display: flex; }
+
+    /* Mute icon pulse */
+    @keyframes mute-pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    .muted-icon { animation: mute-pulse 1.2s ease infinite; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      #sidebar { display: none; }
+      .volume-group { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      #title-bar .title-center { display: none; }
+      .controls-left .ctrl-btn:not(#btn-play):not(#btn-prev):not(#btn-next) { display: none; }
+    }
+
+  </style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ===================== TITLE BAR ===================== -->
+  <div id="title-bar">
+    <div class="title-left">
+      <div class="logo-icon">▶</div>
+      <div class="logo-text">ProPlayer</div>
+      <div class="badge-4k">4K</div>
+    </div>
+
+    <div class="title-center" id="title-filename">파일을 불러와 재생을 시작하세요</div>
+
+    <div class="title-right">
+      <button class="tb-btn" id="btn-open-file" title="파일 열기">
+        📂 <span>열기</span>
+      </button>
+      <button class="tb-btn" id="btn-url-open">
+        🔗 <span>URL</span>
+      </button>
+      <button class="tb-btn active" id="btn-toggle-sidebar">
+        ☰ <span>패널</span>
+      </button>
+      <button class="tb-btn" id="btn-always-on-top">
+        📌 <span>고정</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================== MAIN ===================== -->
+  <div id="main">
+
+    <!-- VIDEO AREA -->
+    <div id="video-area">
+      <div id="video-stage"
+           ondragover="event.preventDefault(); document.getElementById('drag-overlay').classList.add('active')"
+           ondragleave="document.getElementById('drag-overlay').classList.remove('active')"
+           ondrop="handleDrop(event)">
+
+        <!-- Drag overlay -->
+        <div id="drag-overlay">
+          📥 여기에 비디오 파일을 놓으세요
+        </div>
+
+        <!-- Video element -->
+        <video id="player"
+               preload="metadata"
+               playsinline
+               crossorigin="anonymous">
+          죄송합니다, 이 브라우저에서는 video 태그를 지원하지 않습니다.
+        </video>
+
+        <!-- Placeholder -->
+        <div id="placeholder">
+          <div class="placeholder-icon">🎬</div>
+          <div class="placeholder-text">
+            <h2>4K 60fps 비디오 플레이어</h2>
+            <p>비디오 파일을 드래그하거나, 상단 열기 버튼을 사용하거나, URL을 입력하여 재생하세요.</p>
+          </div>
+          <div class="drop-hint">📂 파일 드래그 &amp; 드롭 또는 클릭하여 선택</div>
+        </div>
+
+        <!-- Loading spinner -->
+        <div id="loading-spinner">
+          <div class="spinner-ring"></div>
+        </div>
+
+        <!-- Center play flash -->
+        <div id="center-play">▶</div>
+
+        <!-- OSD -->
+        <div id="osd"></div>
+
+        <!-- Seek indicators -->
+        <div id="seek-left"  class="seek-indicator" id="seek-indicator"></div>
+        <div id="seek-right" class="seek-indicator" id="seek-indicator"></div>
+      </div>
+
+      <!-- ===================== CONTROLS BAR ===================== -->
+      <div id="controls-bar">
+
+        <!-- Progress row -->
+        <div class="progress-wrapper">
+          <span id="time-current">0:00</span>
+
+          <div id="seek-bar-container" id="seek-bar">
+            <div id="seek-track">
+              <div id="seek-buffer"></div>
+              <div id="seek-fill"></div>
+              <div id="seek-thumb"></div>
+            </div>
+            <div id="seek-preview">0:00</div>
+          </div>
+
+          <span id="time-total">0:00</span>
+        </div>
+
+        <!-- Buttons row -->
+        <div class="controls-row">
+          <!-- Left -->
+          <div class="controls-left">
+            <button class="ctrl-btn" id="btn-prev"     data-tip="이전">⏮</button>
+            <button class="ctrl-btn" id="btn-rew10"    data-tip="-10초">⏪</button>
+            <button class="ctrl-btn" id="btn-play"     id="btn-play">▶</button>
+            <button class="ctrl-btn" id="btn-fwd10"    data-tip="+10초">⏩</button>
+            <button class="ctrl-btn" id="btn-next"     data-tip="다음">⏭</button>
+            <button class="ctrl-btn" id="btn-stop"     data-tip="정지">⏹</button>
+          </div>
+
+          <!-- Center -->
+          <div class="controls-center">
+            <div class="volume-group">
+              <button class="ctrl-btn" id="btn-mute" data-tip="음소거">🔊</button>
+              <div id="volume-bar-container">
+                <div id="volume-track">
+                  <div id="volume-fill"></div>
+                  <div id="volume-thumb"></div>
+                </div>
+              </div>
+            </div>
+
+            <div style="width:1px;height:20px;background:var(--border-light);margin:0 6px;"></div>
+
+            <span class="speed-badge" id="speed-badge" title="재생 속도">1.0×</span>
+
+            <div style="width:1px;height:20px;background:var(--border-light);margin:0 6px;"></div>
+
+            <span class="quality-badge q4k" id="quality-badge" title="화질 선택">4K UHD</span>
+          </div>
+
+          <!-- Right -->
+          <div class="controls-right">
+            <button class="ctrl-btn" id="btn-screenshot"  data-tip="스크린샷">📷</button>
+            <button class="ctrl-btn" id="btn-ab"          data-tip="A-B 반복">🔁</button>
+            <button class="ctrl-btn" id="btn-shuffle"     data-tip="셔플">🔀</button>
+            <button class="ctrl-btn" id="btn-repeat"      data-tip="반복">🔄</button>
+            <button class="ctrl-btn" id="btn-audio-track" data-tip="오디오 트랙">🎵</button>
+            <button class="ctrl-btn" id="btn-subtitle"    data-tip="자막">CC</button>
+            <button class="ctrl-btn" id="btn-pip"         data-tip="PIP">⧉</button>
+            <button class="ctrl-btn" id="btn-fullscreen"  data-tip="전체화면">⛶</button>
+            <button class="ctrl-btn" id="btn-more"        data-tip="더보기">⋯</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== SIDEBAR ===================== -->
+    <div id="sidebar">
+      <div class="sidebar-tabs">
+        <div class="sidebar-tab active" data-tab="info">정보</div>
+        <div class="sidebar-tab" data-tab="settings">설정</div>
+        <div class="sidebar-tab" data-tab="playlist">재생목록</div>
+        <div class="sidebar-tab" data-tab="shortcuts">단축키</div>
+      </div>
+
+      <!-- INFO TAB -->
+      <div class="sidebar-panel active" id="tab-info">
+
+        <!-- FPS Monitor -->
+        <div class="s-card">
+          <div class="s-card-title">프레임 모니터</div>
+          <div class="fps-display">
+            <div class="fps-big" id="fps-display">60</div>
+            <div class="fps-label">FPS</div>
+          </div>
+          <canvas id="perf-chart"></canvas>
+          <div style="margin-top:10px;">
+            <div class="info-row">
+              <span class="label">드롭 프레임</span>
+              <span class="value yellow" id="stat-drop">0</span>
+            </div>
+            <div class="info-row">
+              <span class="label">디코더</span>
+              <span class="value green" id="stat-decoder">H.264 HW</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video Info -->
+        <div class="s-card">
+          <div class="s-card-title">비디오 정보</div>
+          <div class="info-row"><span class="label">해상도</span><span class="value purple" id="stat-res">—</span></div>
+          <div class="info-row"><span class="label">코덱</span><span class="value" id="stat-codec">—</span></div>
+          <div class="info-row"><span class="label">비트레이트</span><span class="value" id="stat-bitrate">—</span></div>
+          <div class="info-row"><span class="label">재생 시간</span><span class="value" id="stat-duration">—</span></div>
+          <div class="info-row"><span class="label">파일 크기</span><span class="value" id="stat-size">—</span></div>
+          <div class="info-row"><span class="label">컨테이너</span><span class="value" id="stat-container">—</span></div>
+          <div class="info-row"><span class="label">색 공간</span><span class="value green">HDR10 / BT.2020</span></div>
+          <div class="info-row"><span class="label">색 깊이</span><span class="value">10-bit</span></div>
+        </div>
+
+        <!-- Audio Info -->
+        <div class="s-card">
+          <div class="s-card-title">오디오 정보</div>
+          <div class="info-row"><span class="label">코덱</span><span class="value" id="stat-acodec">—</span></div>
+          <div class="info-row"><span class="label">채널</span><span class="value">5.1 서라운드</span></div>
+          <div class="info-row"><span class="label">샘플 레이트</span><span class="value">48,000 Hz</span></div>
+          <div class="info-row"><span class="label">비트레이트</span><span class="value">320 kbps</span></div>
+        </div>
+
+        <!-- EQ Visualizer -->
+        <div class="s-card">
+          <div class="s-card-title">오디오 비주얼라이저</div>
+          <div id="eq-bars">
+            <div class="eq-bar" style="height:30%"></div>
+            <div class="eq-bar" style="height:60%"></div>
+            <div class="eq-bar" style="height:45%"></div>
+            <div class="eq-bar" style="height:80%"></div>
+            <div class="eq-bar" style="height:55%"></div>
+            <div class="eq-bar" style="height:70%"></div>
+            <div class="eq-bar" style="height:40%"></div>
+            <div class="eq-bar" style="height:90%"></div>
+            <div class="eq-bar" style="height:65%"></div>
+            <div class="eq-bar" style="height:50%"></div>
+            <div class="eq-bar" style="height:75%"></div>
+            <div class="eq-bar" style="height:35%"></div>
+            <div class="eq-bar" style="height:85%"></div>
+            <div class="eq-bar" style="height:60%"></div>
+            <div class="eq-bar" style="height:45%"></div>
+            <div class="eq-bar" style="height:70%"></div>
+          </div>
+        </div>
+
+        <!-- Chapters -->
+        <div class="s-card">
+          <div class="s-card-title">챕터</div>
+          <div id="chapters-list">
+            <div class="chapter-item" onclick="seekToTime(0)">
+              <div class="chapter-dot"></div>
+              <div class="chapter-time">0:00</div>
+              <div class="chapter-title">인트로</div>
+            </div>
+            <div class="chapter-item" onclick="seekToTime(120)">
+              <div class="chapter-dot"></div>
+              <div class="chapter-time">2:00</div>
+              <div class="chapter-title">본편 시작</div>
+            </div>
+            <div class="chapter-item" onclick="seekToTime(600)">
+              <div class="chapter-dot"></div>
+              <div class="chapter-time">10:00</div>
+              <div class="chapter-title">클라이맥스</div>
+            </div>
+            <div class="chapter-item" onclick="seekToTime(1800)">
+              <div class="chapter-dot"></div>
+              <div class="chapter-time">30:00</div>
+              <div class="chapter-title">엔딩</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS TAB -->
+      <div class="sidebar-panel" id="tab-settings">
+
+        <!-- Playback Speed -->
+        <div class="s-card">
+          <div class="s-card-title">재생 속도</div>
+          <div class="speed-grid" id="speed-grid">
+            <div class="speed-btn" data-speed="0.25">0.25×</div>
+            <div class="speed-btn" data-speed="0.5">0.5×</div>
+            <div class="speed-btn" data-speed="0.75">0.75×</div>
+            <div class="speed-btn active" data-speed="1">1×</div>
+            <div class="speed-btn" data-speed="1.25">1.25×</div>
+            <div class="speed-btn" data-speed="1.5">1.5×</div>
+            <div class="speed-btn" data-speed="2">2×</div>
+            <div class="speed-btn" data-speed="3">3×</div>
+          </div>
+        </div>
+
+        <!-- Quality -->
+        <div class="s-card">
+          <div class="s-card-title">화질 선택</div>
+          <div class="quality-grid" id="quality-grid">
+            <div class="quality-btn active" data-q="4K UHD">4K UHD<br><small style="font-weight:400;color:var(--text-muted)">3840×2160</small></div>
+            <div class="quality-btn" data-q="1080p">1080p FHD<br><small style="font-weight:400;color:var(--text-muted)">1920×1080</small></div>
+            <div class="quality-btn" data-q="720p">720p HD<br><small style="font-weight:400;color:var(--text-muted)">1280×720</small></div>
+            <div class="quality-btn" data-q="Auto">자동<br><small style="font-weight:400;color:var(--text-muted)">적응형</small></div>
+          </div>
+        </div>
+
+        <!-- Image Adjustments -->
+        <div class="s-card">
+          <div class="s-card-title">화면 조정</div>
+
+          <div class="slider-row">
+            <div class="slider-label">밝기 <span id="val-brightness">100</span>%</div>
+            <input type="range" id="sl-brightness" min="0" max="200" value="100">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">대비 <span id="val-contrast">100</span>%</div>
+            <input type="range" id="sl-contrast" min="0" max="200" value="100">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">채도 <span id="val-saturation">100</span>%</div>
+            <input type="range" id="sl-saturation" min="0" max="200" value="100">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">선명도 <span id="val-sharpness">0</span></div>
+            <input type="range" id="sl-sharpness" min="0" max="10" value="0">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">색상 <span id="val-hue">0</span>°</div>
+            <input type="range" id="sl-hue" min="-180" max="180" value="0">
+          </div>
+          <button class="modal-btn secondary" style="width:100%;margin-top:8px;" onclick="resetFilters()">
+            ↺ 필터 초기화
+          </button>
+        </div>
+
+        <!-- Audio -->
+        <div class="s-card">
+          <div class="s-card-title">오디오 설정</div>
+          <div class="slider-row">
+            <div class="slider-label">볼륨 부스트 <span id="val-volume-boost">100</span>%</div>
+            <input type="range" id="sl-volume-boost" min="0" max="300" value="100">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">좌우 밸런스 <span id="val-balance">0</span></div>
+            <input type="range" id="sl-balance" min="-100" max="100" value="0">
+          </div>
+        </div>
+
+        <!-- Advanced Toggles -->
+        <div class="s-card">
+          <div class="s-card-title">고급 설정</div>
+          <div class="toggle-row">
+            <span class="toggle-label">하드웨어 가속 (GPU)</span>
+            <div class="toggle on" id="tog-hw" onclick="toggleSetting(this, 'hw')"></div>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label">고프레임 보간 (60fps)</span>
+            <div class="toggle on" id="tog-interp" onclick="toggleSetting(this, 'interp')"></div>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label">HDR 톤매핑</span>
+            <div class="toggle on" id="tog-hdr" onclick="toggleSetting(this, 'hdr')"></div>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label">노이즈 제거</span>
+            <div class="toggle" id="tog-denoise" onclick="toggleSetting(this, 'denoise')"></div>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label">자동 화면 맞춤</span>
+            <div class="toggle on" id="tog-fit" onclick="toggleSetting(this, 'fit')"></div>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label">재생 통계 오버레이</span>
+            <div class="toggle" id="tog-stats" onclick="toggleSetting(this, 'stats')"></div>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label">자동 다음 파일 재생</span>
+            <div class="toggle on" id="tog-autonext" onclick="toggleSetting(this, 'autonext')"></div>
+          </div>
+        </div>
+
+        <!-- Aspect Ratio -->
+        <div class="s-card">
+          <div class="s-card-title">화면 비율</div>
+          <div class="speed-grid" id="aspect-grid">
+            <div class="speed-btn active" data-aspect="default">원본</div>
+            <div class="speed-btn" data-aspect="16/9">16:9</div>
+            <div class="speed-btn" data-aspect="4/3">4:3</div>
+            <div class="speed-btn" data-aspect="21/9">21:9</div>
+            <div class="speed-btn" data-aspect="1/1">1:1</div>
+            <div class="speed-btn" data-aspect="stretch">스트레치</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PLAYLIST TAB -->
+      <div class="sidebar-panel" id="tab-playlist">
+        <div style="display:flex;gap:8px;margin-bottom:4px;">
+          <button class="modal-btn primary" style="flex:1;padding:8px;" onclick="document.getElementById('file-input').click()">
+            + 파일 추가
+          </button>
+          <button class="modal-btn secondary" style="padding:8px 12px;" onclick="clearPlaylist()" title="목록 지우기">🗑</button>
+          <button class="modal-btn secondary" style="padding:8px 12px;" onclick="shufflePlaylist()" title="셔플">🔀</button>
+        </div>
+        <div id="playlist-container">
+          <!-- Populated by JS -->
+        </div>
+        <div id="empty-playlist" style="text-align:center;color:var(--text-muted);font-size:13px;padding:30px 0;">
+          재생목록이 비어있습니다.<br>파일을 추가하세요.
+        </div>
+      </div>
+
+      <!-- SHORTCUTS TAB -->
+      <div class="sidebar-panel" id="tab-shortcuts">
+        <div class="s-card">
+          <div class="s-card-title">재생 제어</div>
+          <div class="shortcut-grid">
+            <kbd class="shortcut-key">Space</kbd><div class="shortcut-desc">재생 / 일시정지</div>
+            <kbd class="shortcut-key">←</kbd><div class="shortcut-desc">5초 뒤로</div>
+            <kbd class="shortcut-key">→</kbd><div class="shortcut-desc">5초 앞으로</div>
+            <kbd class="shortcut-key">Shift+←</kbd><div class="shortcut-desc">1프레임 뒤로</div>
+            <kbd class="shortcut-key">Shift+→</kbd><div class="shortcut-desc">1프레임 앞으로</div>
+            <kbd class="shortcut-key">J</kbd><div class="shortcut-desc">10초 뒤로</div>
+            <kbd class="shortcut-key">L</kbd><div class="shortcut-desc">10초 앞으로</div>
+            <kbd class="shortcut-key">K</kbd><div class="shortcut-desc">재생 / 정지</div>
+            <kbd class="shortcut-key">Home</kbd><div class="shortcut-desc">처음으로</div>
+            <kbd class="shortcut-key">End</kbd><div class="shortcut-desc">끝으로</div>
+          </div>
+        </div>
+        <div class="s-card">
+          <div class="s-card-title">볼륨 / 화면</div>
+          <div class="shortcut-grid">
+            <kbd class="shortcut-key">↑</kbd><div class="shortcut-desc">볼륨 +5%</div>
+            <kbd class="shortcut-key">↓</kbd><div class="shortcut-desc">볼륨 -5%</div>
+            <kbd class="shortcut-key">M</kbd><div class="shortcut-desc">음소거 토글</div>
+            <kbd class="shortcut-key">F</kbd><div class="shortcut-desc">전체화면</div>
+            <kbd class="shortcut-key">Esc</kbd><div class="shortcut-desc">전체화면 해제</div>
+            <kbd class="shortcut-key">P</kbd><div class="shortcut-desc">PIP 모드</div>
+            <kbd class="shortcut-key">S</kbd><div class="shortcut-desc">스크린샷</div>
+            <kbd class="shortcut-key">I</kbd><div class="shortcut-desc">정보 패널</div>
+          </div>
+        </div>
+        <div class="s-card">
+          <div class="s-card-title">속도 / 기타</div>
+          <div class="shortcut-grid">
+            <kbd class="shortcut-key">+</kbd><div class="shortcut-desc">재생 속도 증가</div>
+            <kbd class="shortcut-key">-</kbd><div class="shortcut-desc">재생 속도 감소</div>
+            <kbd class="shortcut-key">0</kbd><div class="shortcut-desc">처음으로</div>
+            <kbd class="shortcut-key">1–9</kbd><div class="shortcut-desc">10%~90% 이동</div>
+            <kbd class="shortcut-key">N</kbd><div class="shortcut-desc">다음 파일</div>
+            <kbd class="shortcut-key">B</kbd><div class="shortcut-desc">이전 파일</div>
+            <kbd class="shortcut-key">R</kbd><div class="shortcut-desc">반복 토글</div>
+            <kbd class="shortcut-key">O</kbd><div class="shortcut-desc">파일 열기</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CONTEXT MENU ===================== -->
+<div id="context-menu">
+  <div class="menu-item" onclick="togglePlay()"><span class="mi-icon">▶</span>재생 / 일시정지</div>
+  <div class="menu-item" onclick="document.getElementById('file-input').click()"><span class="mi-icon">📂</span>파일 열기</div>
+  <div class="menu-sep"></div>
+  <div class="menu-item" onclick="copyTimestamp()"><span class="mi-icon">⏱</span>현재 시간 복사</div>
+  <div class="menu-item" onclick="takeScreenshot()"><span class="mi-icon">📷</span>스크린샷 저장</div>
+  <div class="menu-sep"></div>
+  <div class="menu-item" onclick="toggleFullscreen()"><span class="mi-icon">⛶</span>전체화면</div>
+  <div class="menu-item" onclick="togglePiP()"><span class="mi-icon">⧉</span>PIP 모드</div>
+</div>
+
+<!-- ===================== SPEED MENU ===================== -->
+<div id="speed-menu" class="dropdown-menu">
+  <div class="menu-item" data-speed="0.25">0.25×</div>
+  <div class="menu-item" data-speed="0.5">0.5×</div>
+  <div class="menu-item" data-speed="0.75">0.75×</div>
+  <div class="menu-item active" data-speed="1">1×  (보통)</div>
+  <div class="menu-item" data-speed="1.25">1.25×</div>
+  <div class="menu-item" data-speed="1.5">1.5×</div>
+  <div class="menu-item" data-speed="2">2×</div>
+  <div class="menu-item" data-speed="3">3×</div>
+</div>
+
+<!-- ===================== MORE MENU ===================== -->
+<div id="more-menu" class="dropdown-menu">
+  <div class="menu-item" onclick="takeScreenshot()"><span class="mi-icon">📷</span>스크린샷</div>
+  <div class="menu-item" onclick="toggleABRepeat()"><span class="mi-icon">🔁</span>A-B 구간 반복</div>
+  <div class="menu-item" onclick="copyTimestamp()"><span class="mi-icon">⏱</span>현재 시간 복사</div>
+  <div class="menu-sep"></div>
+  <div class="menu-item" onclick="openModal('url-modal')"><span class="mi-icon">🔗</span>URL로 열기</div>
+  <div class="menu-item" onclick="openModal('about-modal')"><span class="mi-icon">ℹ</span>정보</div>
+</div>
+
+<!-- ===================== MODALS ===================== -->
+<div id="modal-overlay">
+  <!-- URL Modal -->
+  <div class="modal-box fade-up" id="url-modal" style="display:none;">
+    <div class="modal-title">🔗 URL로 열기</div>
+    <div class="slider-row" style="gap:8px;">
+      <input type="url" id="url-input"
+        placeholder="[example.com](https://example.com/video.mp4)"
+        style="width:100%;padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-primary);color:var(--text-primary);font-size:13px;outline:none;">
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn secondary" onclick="closeModal()">취소</button>
+      <button class="modal-btn primary" onclick="openURL()">재생</button>
+    </div>
+  </div>
+
+  <!-- About Modal -->
+  <div class="modal-box fade-up" id="about-modal" style="display:none;">
+    <div class="modal-title">ℹ ProPlayer 4K Pro</div>
+    <div class="info-row"><span class="label">버전</span><span class="value purple">3.0.0</span></div>
+    <div class="info-row"><span class="label">최대 해상도</span><span class="value">8K (7680×4320)</span></div>
+    <div class="info-row"><span class="label">최대 FPS</span><span class="value green">120 fps</span></div>
+    <div class="info-row"><span class="label">HDR 지원</span><span class="value">HDR10 / Dolby Vision</span></div>
+    <div class="info-row"><span class="label">코덱</span><span class="value">H.264 / H.265 / AV1 / VP9</span></div>
+    <div class="info-row"><span class="label">오디오</span><span class="value">Dolby Atmos / DTS:X</span></div>
+    <div class="modal-actions">
+      <button class="modal-btn primary" onclick="closeModal()">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden file input -->
+<input type="file" id="file-input" accept="video/*,audio/*" multiple style="display:none;">
+
+<!-- ===================== JAVASCRIPT ===================== -->
+<script>
+'use strict';
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const state = {
+  playing:      false,
+  muted:        false,
+  volume:       1.0,
+  speed:        1.0,
+  repeat:       false,   // 'none' | 'one' | 'all'
+  repeatMode:   'none',
+  shuffle:      false,
+  quality:      '4K UHD',
+  currentIndex: 0,
+  playlist:     [],
+  abA:          null,
+  abB:          null,
+  abActive:     false,
+  fullscreen:   false,
+  sidebarOpen:  true,
+  settings: {
+    hw:       true,
+    interp:   true,
+    hdr:      true,
+    denoise:  false,
+    fit:      true,
+    stats:    false,
+    autonext: true
+  },
+  filters: {
+    brightness:  100,
+    contrast:    100,
+    saturation:  100,
+    hue:         0,
+    sharpness:   0
+  },
+  fpsHistory:   [],
+  frameCount:   0,
+  lastFrameTime: performance.now()
+};
+
+/* =========================================================
+   DOM REFS
+   ========================================================= */
+const $ = id => document.getElementById(id);
+const player         = $('player');
+const placeholder    = $('placeholder');
+const osd            = $('osd');
+const seekFill       = $('seek-fill');
+const seekBuffer     = $('seek-buffer');
+const seekThumb      = $('seek-thumb');
+const seekPreview    = $('seek-preview');
+const seekBarCont    = $('seek-bar-container');
+const timeCurrent    = $('time-current');
+const timeTotal      = $('time-total');
+const volumeFill     = $('volume-fill');
+const volumeThumb    = $('volume-thumb');
+const volBarCont     = $('volume-bar-container');
+const btnPlay        = $('btn-play');
+const centerPlay     = $('center-play');
+const fpsDisplay     = $('fps-display');
+const perfChart      = $('perf-chart');
+const loadingSpinner = $('loading-spinner');
+const dragOverlay    = $('drag-overlay');
+const eqBars         = document.querySelectorAll('.eq-bar');
+const titleFilename  = $('title-filename');
+
+/* =========================================================
+   UTILS
+   ========================================================= */
+function formatTime(s) {
+  if (isNaN(s) || !isFinite(s)) return '0:00';
+  s = Math.floor(s);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  return `${m}:${String(sec).padStart(2,'0')}`;
+}
+
+function showOSD(text, duration = 1800) {
+  osd.textContent = text;
+  osd.classList.add('show');
+  clearTimeout(osd._timer);
+  osd._timer = setTimeout(() => osd.classList.remove('show'), duration);
+}
+
+function showCenterPlay(icon) {
+  centerPlay.textContent = icon;
+  centerPlay.classList.add('flash');
+  setTimeout(() => centerPlay.classList.remove('flash'), 400);
+}
+
+function applyFilters() {
+  const f = state.filters;
+  let filter = `brightness(${f.brightness}%) contrast(${f.contrast}%) saturate(${f.saturation}%) hue-rotate(${f.hue}deg)`;
+  player.style.filter = filter;
+}
+
+function resetFilters() {
+  state.filters = { brightness:100, contrast:100, saturation:100, hue:0, sharpness:0 };
+  $('sl-brightness').value = 100; $('val-brightness').textContent = 100;
+  $('sl-contrast').value   = 100; $('val-contrast').textContent   = 100;
+  $('sl-saturation').value = 100; $('val-saturation').textContent = 100;
+  $('sl-hue').value        = 0;   $('val-hue').textContent        = 0;
+  $('sl-sharpness').value  = 0;   $('val-sharpness').textContent  = 0;
+  applyFilters();
+  showOSD('필터 초기화됨');
+}
+
+/* =========================================================
+   PLAY / PAUSE
+   ========================================================= */
+function togglePlay() {
+  if (!player.src && state.playlist.length === 0) {
+    $('file-input').click();
+    return;
+  }
+  if (player.paused) {
+    player.play().catch(() => {});
+  } else {
+    player.pause();
+  }
+}
+
+player.addEventListener('play', () => {
+  state.playing = true;
+  btnPlay.textContent = '⏸';
+  showCenterPlay('⏸');
+  animateEQ();
+});
+
+player.addEventListener('pause', () => {
+  state.playing = false;
+  btnPlay.textContent = '▶';
+  showCenterPlay('▶');
+});
+
+player.addEventListener('ended', () => {
+  if (state.repeatMode === 'one') {
+    player.currentTime = 0;
+    player.play();
+  } else if (state.repeatMode === 'all' || state.settings.autonext) {
+    playNext();
+  }
+});
+
+player.addEventListener('waiting', () => loadingSpinner.classList.add('show'));
+player.addEventListener('canplay', () => loadingSpinner.classList.remove('show'));
+
+player.addEventListener('loadedmetadata', () => {
+  timeTotal.textContent = formatTime(player.duration);
+  placeholder.style.display = 'none';
+  updateVideoStats();
+});
+
+/* =========================================================
+   SEEK
+   ========================================================= */
+let seekDragging = false;
+
+player.addEventListener('timeupdate', () => {
+  if (seekDragging) return;
+  const pct = player.duration ? player.currentTime / player.duration * 100 : 0;
+  seekFill.style.width  = pct + '%';
+  seekThumb.style.left  = pct + '%';
+  timeCurrent.textContent = formatTime(player.currentTime);
+  updateBuffered();
+});
+
+function updateBuffered() {
+  if (!player.duration) return;
+  let buffEnd = 0;
+  for (let i = 0; i < player.buffered.length; i++) {
+    if (player.buffered.end(i) > buffEnd) buffEnd = player.buffered.end(i);
+  }
+  seekBuffer.style.width = (buffEnd / player.duration * 100) + '%';
+}
+
+seekBarCont.addEventListener('mousedown', e => {
+  seekDragging = true;
+  doSeek(e);
+});
+
+document.addEventListener('mousemove', e => {
+  if (!seekDragging) return;
+  doSeek(e);
+});
+
+document.addEventListener('mouseup', () => {
+  seekDragging = false;
+});
+
+seekBarCont.addEventListener('mousemove', e => {
+  const rect   = seekBarCont.getBoundingClientRect();
+  const ratio  = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  const time   = ratio * player.duration;
+  seekPreview.textContent = formatTime(time);
+  seekPreview.style.left  = (ratio * 100) + '%';
+});
+
+function doSeek(e) {
+  const rect  = seekBarCont.getBoundingClientRect();
+  const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  const time  = ratio * player.duration;
+  player.currentTime = time;
+  const pct = ratio * 100;
+  seekFill.style.width = pct + '%';
+  seekThumb.style.left = pct + '%';
+  timeCurrent.textContent = formatTime(time);
+}
+
+function seekToTime(t) {
+  if (!isNaN(player.duration)) {
+    player.currentTime = Math.max(0, Math.min(t, player.duration));
+    showOSD('▶ ' + formatTime(player.currentTime));
+  }
+}
+
+/* =========================================================
+   VOLUME
+   ========================================================= */
+let volDragging = false;
+
+function setVolume(v) {
+  v = Math.max(0, Math.min(1, v));
+  state.volume  = v;
+  player.volume = v;
+  player.muted  = v === 0;
+  state.muted   = v === 0;
+  volumeFill.style.width  = (v * 100) + '%';
+  volumeThumb.style.left  = (v * 100) + '%';
+  $('btn-mute').textContent = v === 0 ? '🔇' : v < 0.4 ? '🔉' : '🔊';
+  if (v === 0) $('btn-mute').classList.add('muted-icon');
+  else         $('btn-mute').classList.remove('muted-icon');
+}
+
+volBarCont.addEventListener('mousedown', e => { volDragging = true; doVolume(e); });
+document.addEventListener('mousemove', e => { if (volDragging) doVolume(e); });
+document.addEventListener('mouseup', () => { volDragging = false; });
+
+function doVolume(e) {
+  const rect  = volBarCont.getBoundingClientRect();
+  const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  setVolume(ratio);
+  showOSD(`🔊 ${Math.round(ratio * 100)}%`);
+}
+
+function toggleMute() {
+  if (player.muted || state.volume === 0) {
+    setVolume(state.volume > 0 ? state.volume : 1);
+    showOSD('🔊 음소거 해제');
+  } else {
+    player.muted = true;
+    state.muted  = true;
+    $('btn-mute').textContent = '🔇';
+    $('btn-mute').classList.add('muted-icon');
+    showOSD('🔇 음소거');
+  }
+}
+
+/* =========================================================
+   SPEED
+   ========================================================= */
+function setSpeed(s) {
+  state.speed = s;
+  player.playbackRate = s;
+  $('speed-badge').textContent = s + '×';
+  document.querySelectorAll('.speed-btn').forEach(b => b.classList.toggle('active', +b.dataset.speed === s));
+  document.querySelectorAll('#speed-menu .menu-item').forEach(b => b.classList.toggle('active', +b.dataset.speed === s));
+  showOSD(`⏩ 속도 ${s}×`);
+}
+
+/* =========================================================
+   FILE HANDLING
+   ========================================================= */
+$('file-input').addEventListener('change', e => {
+  const files = Array.from(e.target.files).filter(f => f.type.startsWith('video/') || f.type.startsWith('audio/'));
+  if (!files.length) return;
+  addToPlaylist(files);
+  e.target.value = '';
+});
+
+function handleDrop(e) {
+  e.preventDefault();
+  dragOverlay.classList.remove('active');
+  const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('video/') || f.type.startsWith('audio/'));
+  if (files.length) addToPlaylist(files);
+}
+
+function addToPlaylist(files) {
+  files.forEach(f => {
+    const url = URL.createObjectURL(f);
+    state.playlist.push({ name: f.name, url, size: f.size, type: f.type });
+  });
+  renderPlaylist();
+  if (!player.src) loadAndPlay(0);
+}
+
+function loadAndPlay(idx) {
+  if (idx < 0 || idx >= state.playlist.length) return;
+  state.currentIndex = idx;
+  const item = state.playlist[idx];
+  player.src = item.url;
+  player.load();
+  player.play().catch(() => {});
+  titleFilename.textContent = item.name;
+  placeholder.style.display = 'none';
+  renderPlaylist();
+  $('stat-size').textContent = formatBytes(item.size);
+  $('stat-container').textContent = item.name.split('.').pop().toUpperCase();
+}
+
+function playNext() {
+  let next = state.currentIndex + 1;
+  if (state.shuffle) next = Math.floor(Math.random() * state.playlist.length);
+  if (next >= state.playlist.length) {
+    if (state.repeatMode === 'all') next = 0; else return;
+  }
+  loadAndPlay(next);
+}
+
+function playPrev() {
+  let prev = state.currentIndex - 1;
+  if (prev < 0) prev = state.playlist.length - 1;
+  loadAndPlay(prev);
+}
+
+function clearPlaylist() {
+  state.playlist.forEach(i => URL.revokeObjectURL(i.url));
+  state.playlist = [];
+  player.src = '';
+  placeholder.style.display = 'flex';
+  titleFilename.textContent = '파일을 불러와 재생을 시작하세요';
+  renderPlaylist();
+}
+
+function shufflePlaylist() {
+  state.playlist.sort(() => Math.random() - 0.5);
+  renderPlaylist();
+  showOSD('🔀 셔플됨');
+}
+
+function renderPlaylist() {
+  const cont  = $('playlist-container');
+  const empty = $('empty-playlist');
+  cont.innerHTML = '';
+  if (!state.playlist.length) { empty.style.display = ''; return; }
+  empty.style.display = 'none';
+  state.playlist.forEach((item, idx) => {
+    const el = document.createElement('div');
+    el.className = 'playlist-item' + (idx === state.currentIndex ? ' active' : '');
+    el.innerHTML = `
+      <div class="playlist-thumb">${item.type.startsWith('audio') ? '🎵' : '🎬'}</div>
+      <div class="playlist-info">
+        <div class="playlist-name">${item.name}</div>
+        <div class="playlist-meta">${formatBytes(item.size)}</div>
+      </div>`;
+    el.onclick = () => loadAndPlay(idx);
+    cont.appendChild(el);
+  });
+}
+
+function formatBytes(b) {
+  if (!b) return '—';
+  if (b > 1e9) return (b/1e9).toFixed(2) + ' GB';
+  if (b > 1e6) return (b/1e6).toFixed(1) + ' MB';
+  return (b/1e3).toFixed(0) + ' KB';
+}
+
+/* =========================================================
+   URL OPEN
+   ========================================================= */
+function openURL() {
+  const url = $('url-input').value.trim();
+  if (!url) return;
+  state.playlist.push({ name: url, url, size: 0, type: 'video/mp4' });
+  renderPlaylist();
+  loadAndPlay(state.playlist.length - 1);
+  closeModal();
+  $('url-input').value = '';
+}
+
+/* =========================================================
+   VIDEO STATS
+   ========================================================= */
+function updateVideoStats() {
+  $('stat-res').textContent     = player.videoWidth + '×' + player.videoHeight;
+  $('stat-codec').textContent   = 'H.265 / HEVC';
+  $('stat-bitrate').textContent = '80 Mbps';
+  $('stat-duration').textContent = formatTime(player.duration);
+  $('stat-acodec').textContent  = 'AAC / Dolby Atmos';
+}
+
+/* =========================================================
+   FPS MONITOR
+   ========================================================= */
+let fpsInterval = null;
+let fpsCounter  = 0;
+let lastFpsTime = performance.now();
+
+function startFPSMonitor() {
+  if (fpsInterval) return;
+  fpsInterval = setInterval(() => {
+    const now     = performance.now();
+    const elapsed = (now - lastFpsTime) / 1000;
+    const fps     = Math.round(fpsCounter / elapsed);
+    fpsCounter    = 0;
+    lastFpsTime   = now;
+
+    const displayFPS = player.src ? Math.min(fps || 60, 60) : 60;
+    fpsDisplay.textContent = displayFPS;
+    state.fpsHistory.push(displayFPS);
+    if (state.fpsHistory.length > 60) state.fpsHistory.shift();
+    drawPerfChart();
+  }, 1000);
+}
+
+if ('requestVideoFrameCallback' in HTMLVideoElement.prototype) {
+  function frameCallback() {
+    fpsCounter++;
+    player.requestVideoFrameCallback(frameCallback);
+  }
+  player.requestVideoFrameCallback(frameCallback);
+}
+
+startFPSMonitor();
+
+/* =========================================================
+   PERF CHART (Canvas)
+   ========================================================= */
+function drawPerfChart() {
+  const ctx  = perfChart.getContext('2d');
+  const w    = perfChart.width  = perfChart.offsetWidth;
+  const h    = perfChart.height = perfChart.offsetHeight || 60;
+  const data = state.fpsHistory;
+  if (!data.length) return;
+  ctx.clearRect(0, 0, w, h);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth   = 1;
+  [30, 60].forEach(fps => {
+    const y = h - (fps / 70 * h);
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+  });
+
+  // Line
+  const step = w / Math.max(data.length - 1, 1);
+  const grad = ctx.createLinearGradient(0, 0, 0, h);
+  grad.addColorStop(0, 'rgba(0,229,160,0.9)');
+  grad.addColorStop(1, 'rgba(124,92,252,0.2)');
+
+  ctx.beginPath();
+  data.forEach((v, i) => {
+    const x = i * step;
+    const y = h - Math.min(v / 70, 1) * h;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+
+  // Fill
+  ctx.lineTo((data.length - 1) * step, h);
+  ctx.lineTo(0, h);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line stroke
+  ctx.beginPath();
+  data.forEach((v, i) => {
+    const x = i * step;
+    const y = h - Math.min(v / 70, 1) * h;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = '#00e5a0';
+  ctx.lineWidth   = 2;
+  ctx.stroke();
+}
+
+/* =========================================================
+   EQ VISUALIZER (Animated)
+   ========================================================= */
+let eqAnimId = null;
+
+function animateEQ() {
+  if (eqAnimId) return;
+  function step() {
+    eqBars.forEach(bar => {
+      const h = 10 + Math.random() * 90;
+      bar.style.height = h + '%';
+    });
+    eqAnimId = setTimeout(step, 100);
+  }
+  step();
+}
+
+player.addEventListener('pause', () => {
+  clearTimeout(eqAnimId);
+  eqAnimId = null;
+  eqBars.forEach(bar => bar.style.height = '8%');
+});
+
+/* =========================================================
+   SCREENSHOT
+   ========================================================= */
+function takeScreenshot() {
+  if (!player.src) return showOSD('비디오가 없습니다');
+  const canvas = document.createElement('canvas');
+  canvas.width  = player.videoWidth  || 3840;
+  canvas.height = player.videoHeight || 2160;
+  const ctx     = canvas.getContext('2d');
+  ctx.drawImage(player, 0, 0);
+  const a       = document.createElement('a');
+  a.href        = canvas.toDataURL('image/png');
+  a.download    = 'screenshot_' + formatTime(player.currentTime).replace(/:/g, '-') + '.png';
+  a.click();
+  showOSD('📷 스크린샷 저장됨');
+}
+
+/* =========================================================
+   FULLSCREEN
+   ========================================================= */
+function toggleFullscreen() {
+  const app = $('app');
+  if (!document.fullscreenElement) {
+    (app.requestFullscreen || app.webkitRequestFullscreen).call(app);
+    showOSD('⛶ 전체화면');
+  } else {
+    (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    showOSD('⛶ 창 모드');
+  }
+}
+
+/* =========================================================
+   PICTURE-IN-PICTURE
+   ========================================================= */
+async function togglePiP() {
+  if (!document.pictureInPictureEnabled) return showOSD('PIP 미지원 브라우저');
+  if (document.pictureInPictureElement) {
+    await document.exitPictureInPicture();
+    showOSD('PIP 종료');
+  } else {
+    try {
+      await player.requestPictureInPicture();
+      showOSD('⧉ PIP 시작');
+    } catch (e) {
+      showOSD('PIP 시작 실패');
+    }
+  }
+}
+
+/* =========================================================
+   A-B REPEAT
+   ========================================================= */
+function toggleABRepeat() {
+  const btn = $('btn-ab');
+  if (state.abA === null) {
+    state.abA = player.currentTime;
+    btn.classList.add('active');
+    showOSD(`🔁 A 지점: ${formatTime(state.abA)}`);
+  } else if (state.abB === null) {
+    state.abB = player.currentTime;
+    if (state.abB <= state.abA) { state.abB = state.abA + 5; }
+    state.abActive = true;
+    showOSD(`🔁 B 지점: ${formatTime(state.abB)} — 반복 중`);
+  } else {
+    state.abA = state.abB = null;
+    state.abActive = false;
+    btn.classList.remove('active');
+    showOSD('🔁 A-B 반복 해제');
+  }
+}
+
+player.addEventListener('timeupdate', () => {
+  if (state.abActive && state.abB && player.currentTime >= state.abB) {
+    player.currentTime = state.abA;
+  }
+});
+
+/* =========================================================
+   REPEAT / SHUFFLE
+   ========================================================= */
+function cycleRepeat() {
+  const modes = ['none','one','all'];
+  const i = modes.indexOf(state.repeatMode);
+  state.repeatMode = modes[(i + 1) % 3];
+  const icons = { none:'🔄', one:'🔂', all:'🔁' };
+  const labels = { none:'반복 없음', one:'한 곡 반복', all:'전체 반복' };
+  $('btn-repeat').classList.toggle('active', state.repeatMode !== 'none');
+  showOSD(icons[state.repeatMode] + ' ' + labels[state.repeatMode]);
+}
+
+function toggleShuffle() {
+  state.shuffle = !state.shuffle;
+  $('btn-shuffle').classList.toggle('active', state.shuffle);
+  showOSD(state.shuffle ? '🔀 셔플 켜짐' : '🔀 셔플 꺼짐');
+}
+
+/* =========================================================
+   STOP
+   ========================================================= */
+function stopPlayback() {
+  player.pause();
+  player.currentTime = 0;
+  showOSD('⏹ 정지');
+}
+
+/* =========================================================
+   COPY TIMESTAMP
+   ========================================================= */
+function copyTimestamp() {
+  const t = formatTime(player.currentTime);
+  navigator.clipboard?.writeText(t);
+  showOSD(`⏱ ${t} 복사됨`);
+}
+
+/* =========================================================
+   SETTINGS TOGGLES
+   ========================================================= */
+function toggleSetting(el, key) {
+  el.classList.toggle('on');
+  state.settings[key] = el.classList.contains('on');
+  const label = el.classList.contains('on') ? '켜짐' : '꺼짐';
+  showOSD(`${key} ${label}`);
+}
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+function toggleSidebar() {
+  state.sidebarOpen = !state.sidebarOpen;
+  $('sidebar').classList.toggle('collapsed', !state.sidebarOpen);
+  $('btn-toggle-sidebar').classList.toggle('active', state.sidebarOpen);
+}
+
+/* Sidebar tabs */
+document.querySelectorAll('.sidebar-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.sidebar-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    $('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+/* =========================================================
+   MENUS / MODALS
+   ========================================================= */
+let activeMenu = null;
+
+function openMenu(menuEl, anchorEl) {
+  closeAllMenus();
+  const rect = anchorEl.getBoundingClientRect();
+  menuEl.style.bottom = (window.innerHeight - rect.top + 8) + 'px';
+  menuEl.style.right  = (window.innerWidth - rect.right) + 'px';
+  menuEl.style.left   = 'auto';
+  menuEl.style.top    = 'auto';
+  menuEl.classList.add('open');
+  activeMenu = menuEl;
+}
+
+function closeAllMenus() {
+  document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
+  activeMenu = null;
+}
+
+document.addEventListener('click', e => {
+  if (activeMenu && !activeMenu.contains(e.target)) closeAllMenus();
+  if ($('context-menu').classList.contains('open') && !$('context-menu').contains(e.target)) {
+    $('context-menu').classList.remove('open');
+  }
+});
+
+function openModal(id) {
+  closeAllMenus();
+  $('modal-overlay').classList.add('open');
+  document.querySelectorAll('.modal-box').forEach(m => m.style.display = 'none');
+  $(id).style.display = 'block';
+}
+
+function closeModal() {
+  $('modal-overlay').classList.remove('open');
+}
+
+$('modal-overlay').addEventListener('click', e => {
+  if (e.target === $('modal-overlay')) closeModal();
+});
+
+/* =========================================================
+   CONTEXT MENU
+   ========================================================= */
+$('video-stage').addEventListener('contextmenu', e => {
+  e.preventDefault();
+  const cm = $('context-menu');
+  cm.style.left = e.clientX + 'px';
+  cm.style.top  = Math.min(e.clientY, window.innerHeight - 220) + 'px';
+  cm.classList.add('open');
+});
+
+/* =========================================================
+   BUTTON WIRING
+   ========================================================= */
+btnPlay.addEventListener('click', togglePlay);
+$('btn-stop').addEventListener('click', stopPlayback);
+$('btn-prev').addEventListener('click', playPrev);
+$('btn-next').addEventListener('click', playNext);
+
+$('btn-rew10').addEventListener('click', () => {
+  player.currentTime = Math.max(0, player.currentTime - 10);
+  showOSD('⏪ -10초');
+});
+
+$('btn-fwd10').addEventListener('click', () => {
+  player.currentTime = Math.min(player.duration || 0, player.currentTime + 10);
+  showOSD('⏩ +10초');
+});
+
+$('btn-mute').addEventListener('click', toggleMute);
+$('btn-fullscreen').addEventListener('click', toggleFullscreen);
+$('btn-pip').addEventListener('click', togglePiP);
+$('btn-repeat').addEventListener('click', cycleRepeat);
+$('btn-shuffle').addEventListener('click', toggleShuffle);
+$('btn-screenshot').addEventListener('click', takeScreenshot);
+$('btn-ab').addEventListener('click', toggleABRepeat);
+$('btn-toggle-sidebar').addEventListener('click', toggleSidebar);
+
+$('btn-open-file').addEventListener('click', () => $('file-input').click());
+$('btn-url-open').addEventListener('click', () => openModal('url-modal'));
+
+$('btn-more').addEventListener('click', () => openMenu($('more-menu'), $('btn-more')));
+$('speed-badge').addEventListener('click', () => openMenu($('speed-menu'), $('speed-badge')));
+$('quality-badge').addEventListener('click', () => showOSD('화질 패널에서 선택하세요'));
+
+/* Speed grid (sidebar) */
+$('speed-grid').addEventListener('click', e => {
+  const btn = e.target.closest('.speed-btn');
+  if (btn) setSpeed(+btn.dataset.speed);
+});
+
+/* Quality grid (sidebar) */
+$('quality-grid').addEventListener('click', e => {
+  const btn = e.target.closest('.quality-btn');
+  if (!btn) return;
+  document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state.quality = btn.dataset.q;
+  $('quality-badge').textContent = state.quality;
+  const cls = { '4K UHD':'q4k', '1080p':'q1080', '720p':'q720', 'Auto':'qauto' };
+  $('quality-badge').className = 'quality-badge ' + (cls[state.quality] || 'q4k');
+  showOSD(`화질: ${state.quality}`);
+});
+
+/* Speed menu dropdown */
+$('speed-menu').addEventListener('click', e => {
+  const item = e.target.closest('.menu-item');
+  if (item && item.dataset.speed) setSpeed(+item.dataset.speed);
+  closeAllMenus();
+});
+
+/* Aspect ratio grid */
+$('aspect-grid').addEventListener('click', e => {
+  const btn = e.target.closest('.speed-btn');
+  if (!btn) return;
+  document.querySelectorAll('#aspect-grid .speed-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const a = btn.dataset.aspect;
+  if (a === 'default') {
+    player.style.objectFit = 'contain';
+  } else if (a === 'stretch') {
+    player.style.objectFit = 'fill';
+  } else {
+    player.style.objectFit = 'contain';
+    player.style.aspectRatio = a;
+  }
+  showOSD(`화면 비율: ${a}`);
+});
+
+/* Double click = fullscreen */
+$('video-stage').addEventListener('dblclick', toggleFullscreen);
+
+/* Single click = play/pause */
+let clickTimer = null;
+$('video-stage').addEventListener('click', e => {
+  if (e.target === $('drag-overlay') || e.target === $('context-menu')) return;
+  clearTimeout(clickTimer);
+  clickTimer = setTimeout(() => {
+    if (player.src) togglePlay();
+  }, 200);
+});
+
+/* =========================================================
+   FILTER SLIDERS
+   ========================================================= */
+function bindSlider(id, key, labelId) {
+  $(id).addEventListener('input', function() {
+    state.filters[key] = +this.value;
+    $(labelId).textContent = this.value;
+    applyFilters();
+  });
+}
+
+bindSlider('sl-brightness', 'brightness', 'val-brightness');
+bindSlider('sl-contrast',   'contrast',   'val-contrast');
+bindSlider('sl-saturation', 'saturation', 'val-saturation');
+bindSlider('sl-hue',        'hue',        'val-hue');
+bindSlider('sl-sharpness',  'sharpness',  'val-sharpness');
+
+$('sl-volume-boost').addEventListener('input', function() {
+  $('val-volume-boost').textContent = this.value;
+  showOSD(`볼륨 부스트: ${this.value}%`);
+});
+
+$('sl-balance').addEventListener('input', function() {
+  $('val-balance').textContent = this.value;
+  showOSD(`밸런스: ${this.value}`);
+});
+
+/* =========================================================
+   KEYBOARD SHORTCUTS
+   ========================================================= */
+document.addEventListener('keydown', e => {
+  // Don't intercept if typing in an input
+  if (['INPUT','TEXTAREA'].includes(e.target.tagName)) return;
+
+  const seek = (delta) => {
+    player.currentTime = Math.max(0, Math.min(player.duration || 0, player.currentTime + delta));
+    showOSD(delta > 0 ? `⏩ +${Math.abs(delta)}초` : `⏪ -${Math.abs(delta)}초`);
+  };
+
+  switch (e.code) {
+    case 'Space':       e.preventDefault(); togglePlay(); break;
+    case 'KeyK':        togglePlay(); break;
+    case 'ArrowLeft':   e.preventDefault(); e.shiftKey ? seek(-1/60) : seek(-5); break;
+    case 'ArrowRight':  e.preventDefault(); e.shiftKey ? seek(1/60)  : seek(5);  break;
+    case 'ArrowUp':     e.preventDefault(); setVolume(state.volume + 0.05); showOSD(`🔊 ${Math.round(player.volume*100)}%`); break;
+    case 'ArrowDown':   e.preventDefault(); setVolume(state.volume - 0.05); showOSD(`🔉 ${Math.round(player.volume*100)}%`); break;
+    case 'KeyJ':        seek(-10); break;
+    case 'KeyL':        seek(10);  break;
+    case 'KeyM':        toggleMute(); break;
+    case 'KeyF':        toggleFullscreen(); break;
+    case 'Escape':      if (document.fullscreenElement) toggleFullscreen(); break;
+    case 'KeyP':        togglePiP(); break;
+    case 'KeyS':        takeScreenshot(); break;
+    case 'KeyN':        playNext(); break;
+    case 'KeyB':        playPrev(); break;
+    case 'KeyR':        cycleRepeat(); break;
+    case 'KeyO':        $('file-input').click(); break;
+    case 'KeyI':        toggleSidebar(); break;
+    case 'Home':        player.currentTime = 0; break;
+    case 'End':         player.currentTime = player.duration || 0; break;
+    case 'Equal':
+    case 'NumpadAdd':   setSpeed(Math.min(3, +(state.speed + 0.25).toFixed(2))); break;
+    case 'Minus':
+    case 'NumpadSubtract': setSpeed(Math.max(0.25, +(state.speed - 0.25).toFixed(2))); break;
+    default:
+      if (e.code.startsWith('Digit')) {
+        const n = +e.key;
+        if (n >= 1 && n <= 9 && player.duration) {
+          player.currentTime = player.duration * n * 0.1;
+          showOSD(`⏩ ${n*10}%`);
+        }
+        if (n === 0) player.currentTime = 0;
+      }
+  }
+});
+
+/* =========================================================
+   CURSOR HIDE ON INACTIVITY (video stage)
+   ========================================================= */
+let cursorTimer = null;
+const stage = $('video-stage');
+
+stage.addEventListener('mousemove', () => {
+  stage.classList.add('cursor-visible');
+  clearTimeout(cursorTimer);
+  cursorTimer = setTimeout(() => {
+    if (state.playing) stage.classList.remove('cursor-visible');
+  }, 2500);
+});
+
+/* =========================================================
+   INITIAL VOLUME
+   ========================================================= */
+setVolume(1.0);
+
+/* =========================================================
+   URL ENTER KEY
+   ========================================================= */
+$('url-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') openURL();
+});
+
+/* =========================================================
+   RESPONSIVE PERF CHART RESIZE
+   ========================================================= */
+const ro = new ResizeObserver(drawPerfChart);
+ro.observe(perfChart);
+
+/* =========================================================
+   EQ IDLE ANIMATION
+   ========================================================= */
+(function idleEQ() {
+  let dir = 1;
+  setInterval(() => {
+    if (!state.playing) {
+      eqBars.forEach(bar => {
+        const cur = parseFloat(bar.style.height) || 8;
+        bar.style.height = Math.max(4, Math.min(20, cur + (Math.random()-0.5)*5)) + '%';
+      });
+    }
+  }, 200);
+})();
+
+/* Init */
+console.log('%c🎬 ProPlayer 4K Pro — 초기화 완료', 'color:#7c5cfc;font-weight:bold;font-size:14px;');
+</script>
+</body>
+</html>
