@@ -1,0 +1,2881 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LocalClassroom – 실시간 로컬 수업</title>
+  <style>
+    /* =============================================
+       RESET & BASE
+    ============================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:       #4f46e5;
+      --primary-dark:  #3730a3;
+      --primary-light: #818cf8;
+      --accent:        #06b6d4;
+      --accent-dark:   #0e7490;
+      --success:       #22c55e;
+      --warning:       #f59e0b;
+      --danger:        #ef4444;
+      --bg:            #0f172a;
+      --bg2:           #1e293b;
+      --bg3:           #334155;
+      --surface:       #1e293b;
+      --surface2:      #273549;
+      --border:        #334155;
+      --text:          #f1f5f9;
+      --text-muted:    #94a3b8;
+      --text-dim:      #64748b;
+      --radius:        12px;
+      --radius-sm:     8px;
+      --shadow:        0 4px 24px rgba(0,0,0,.4);
+      --shadow-lg:     0 8px 40px rgba(0,0,0,.6);
+      --font:          'Pretendard', 'Noto Sans KR', system-ui, sans-serif;
+      --mono:          'JetBrains Mono', 'Fira Code', monospace;
+      --transition:    .2s ease;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow: hidden;
+    }
+
+    /* =============================================
+       SCROLLBAR
+    ============================================= */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 99px; }
+
+    /* =============================================
+       UTILITY
+    ============================================= */
+    .hidden   { display: none !important; }
+    .flex     { display: flex; }
+    .items-center { align-items: center; }
+    .gap-2    { gap: 8px; }
+    .gap-3    { gap: 12px; }
+    .gap-4    { gap: 16px; }
+    .mt-2     { margin-top: 8px; }
+    .mt-3     { margin-top: 12px; }
+    .w-full   { width: 100%; }
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* =============================================
+       BUTTONS
+    ============================================= */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      font-size: .875rem;
+      font-weight: 600;
+      font-family: var(--font);
+      transition: all var(--transition);
+      user-select: none;
+      white-space: nowrap;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-primary   { background: var(--primary); color: #fff; }
+    .btn-primary:hover   { background: var(--primary-dark); }
+    .btn-accent    { background: var(--accent); color: #fff; }
+    .btn-accent:hover    { background: var(--accent-dark); }
+    .btn-success   { background: var(--success); color: #fff; }
+    .btn-success:hover   { background: #16a34a; }
+    .btn-danger    { background: var(--danger); color: #fff; }
+    .btn-danger:hover    { background: #dc2626; }
+    .btn-ghost     { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+    .btn-ghost:hover     { background: var(--bg3); color: var(--text); }
+    .btn-warning   { background: var(--warning); color: #000; }
+    .btn-warning:hover   { background: #d97706; }
+    .btn-sm { padding: 5px 10px; font-size: .8rem; }
+    .btn-lg { padding: 12px 28px; font-size: 1rem; border-radius: var(--radius); }
+    .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+    /* =============================================
+       INPUTS
+    ============================================= */
+    .input, .textarea, .select {
+      width: 100%;
+      padding: 9px 13px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: .875rem;
+      font-family: var(--font);
+      outline: none;
+      transition: border-color var(--transition);
+    }
+    .input:focus, .textarea:focus, .select:focus { border-color: var(--primary-light); }
+    .textarea { resize: vertical; min-height: 80px; }
+    .select option { background: var(--bg2); }
+
+    /* =============================================
+       BADGE
+    ============================================= */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+    .badge-primary { background: rgba(79,70,229,.25); color: var(--primary-light); }
+    .badge-success { background: rgba(34,197,94,.2);  color: #86efac; }
+    .badge-warning { background: rgba(245,158,11,.2); color: #fcd34d; }
+    .badge-danger  { background: rgba(239,68,68,.2);  color: #fca5a5; }
+    .badge-accent  { background: rgba(6,182,212,.2);  color: #67e8f9; }
+    .badge-muted   { background: var(--bg3); color: var(--text-muted); }
+
+    /* =============================================
+       AVATAR
+    ============================================= */
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .9rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    /* =============================================
+       TOOLTIP
+    ============================================= */
+    [data-tip] { position: relative; }
+    [data-tip]::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a2e;
+      color: var(--text);
+      font-size: .75rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity var(--transition);
+      z-index: 999;
+    }
+    [data-tip]:hover::after { opacity: 1; }
+
+    /* =============================================
+       MODAL
+    ============================================= */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 900;
+      backdrop-filter: blur(4px);
+      animation: fadeIn .2s;
+    }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      width: min(520px, 95vw);
+      box-shadow: var(--shadow-lg);
+      animation: slideUp .25s;
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .modal-title { font-size: 1.15rem; font-weight: 700; }
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.3rem;
+      line-height: 1;
+      padding: 4px;
+      border-radius: 6px;
+      transition: color var(--transition);
+    }
+    .modal-close:hover { color: var(--text); }
+
+    /* =============================================
+       TOAST
+    ============================================= */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 999;
+    }
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow);
+      font-size: .875rem;
+      min-width: 260px;
+      animation: slideLeft .25s ease;
+    }
+    .toast.success { border-left: 3px solid var(--success); }
+    .toast.error   { border-left: 3px solid var(--danger); }
+    .toast.info    { border-left: 3px solid var(--accent); }
+    .toast.warning { border-left: 3px solid var(--warning); }
+
+    /* =============================================
+       ANIMATIONS
+    ============================================= */
+    @keyframes fadeIn   { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp  { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes slideLeft{ from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes fadeOut  { from { opacity: 1; } to { opacity: 0; } }
+    @keyframes pulse    { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
+    @keyframes bounce   { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+    @keyframes spin     { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* =============================================
+       LANDING / JOIN SCREEN
+    ============================================= */
+    #landing {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: radial-gradient(ellipse at 30% 20%, rgba(79,70,229,.18) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 80%, rgba(6,182,212,.12) 0%, transparent 55%),
+                  var(--bg);
+      padding: 24px;
+      gap: 40px;
+    }
+    .landing-logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -.03em;
+    }
+    .landing-logo .icon-wrap {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      box-shadow: 0 0 40px rgba(79,70,229,.5);
+    }
+    .landing-tagline {
+      color: var(--text-muted);
+      font-size: 1rem;
+      text-align: center;
+      max-width: 400px;
+    }
+    .landing-cards {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .role-card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      width: 220px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .25s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .role-card:hover { border-color: var(--primary-light); transform: translateY(-4px); box-shadow: var(--shadow); }
+    .role-card .role-icon {
+      font-size: 2.8rem;
+      line-height: 1;
+    }
+    .role-card .role-title { font-size: 1.1rem; font-weight: 700; }
+    .role-card .role-desc  { font-size: .82rem; color: var(--text-muted); line-height: 1.5; }
+    .role-card.teacher-card:hover { border-color: var(--primary-light); }
+    .role-card.student-card:hover { border-color: var(--accent); }
+
+    .join-form {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      width: min(400px, 100%);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .join-form-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+    .form-label { font-size: .82rem; color: var(--text-muted); margin-bottom: 4px; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+
+    /* =============================================
+       APP LAYOUT
+    ============================================= */
+    #app {
+      display: grid;
+      grid-template-rows: 56px 1fr;
+      grid-template-columns: 260px 1fr 300px;
+      grid-template-areas:
+        "header  header  header"
+        "sidebar main    panel";
+      height: 100vh;
+    }
+
+    /* =============================================
+       HEADER
+    ============================================= */
+    #header {
+      grid-area: header;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+      z-index: 50;
+    }
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      flex-shrink: 0;
+      letter-spacing: -.02em;
+    }
+    .header-logo .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+    .header-divider { width: 1px; height: 24px; background: var(--border); }
+    .header-class-info { flex: 1; display: flex; align-items: center; gap: 10px; }
+    .class-name { font-weight: 700; font-size: 1rem; }
+    .class-code {
+      font-family: var(--mono);
+      font-size: .8rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 3px 8px;
+      border-radius: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .class-code:hover { border-color: var(--primary-light); color: var(--text); }
+    .header-controls { display: flex; align-items: center; gap: 8px; }
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .78rem;
+      color: var(--text-muted);
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--bg3);
+    }
+    .status-dot.online  { background: var(--success); animation: pulse 2s infinite; }
+    .status-dot.waiting { background: var(--warning); animation: pulse 1.2s infinite; }
+
+    /* =============================================
+       SIDEBAR
+    ============================================= */
+    #sidebar {
+      grid-area: sidebar;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .sidebar-section {
+      padding: 14px 16px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-section-title {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: .875rem;
+      color: var(--text-muted);
+      transition: all var(--transition);
+      user-select: none;
+      margin-bottom: 2px;
+    }
+    .nav-item:hover   { background: var(--bg3); color: var(--text); }
+    .nav-item.active  { background: rgba(79,70,229,.2); color: var(--primary-light); }
+    .nav-item .nav-icon { font-size: 1.1rem; width: 22px; text-align: center; flex-shrink: 0; }
+    .nav-item .nav-badge {
+      margin-left: auto;
+      background: var(--primary);
+      color: #fff;
+      font-size: .7rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 99px;
+    }
+
+    .participant-list { overflow-y: auto; flex: 1; padding: 8px 10px; }
+    .participant-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 8px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 4px;
+      transition: background var(--transition);
+      cursor: default;
+    }
+    .participant-item:hover { background: var(--bg3); }
+    .participant-info { flex: 1; min-width: 0; }
+    .participant-name { font-size: .875rem; font-weight: 600; }
+    .participant-role { font-size: .72rem; color: var(--text-muted); }
+    .participant-actions { display: flex; gap: 4px; opacity: 0; transition: opacity var(--transition); }
+    .participant-item:hover .participant-actions { opacity: 1; }
+    .icon-btn {
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: .9rem;
+      transition: all var(--transition);
+    }
+    .icon-btn:hover { background: var(--bg); color: var(--text); }
+
+    /* =============================================
+       MAIN CONTENT
+    ============================================= */
+    #main {
+      grid-area: main;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+    }
+    .tab-bar {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 8px 16px 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .tab {
+      padding: 8px 16px;
+      font-size: .875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      border-bottom: 2px solid transparent;
+      transition: all var(--transition);
+      user-select: none;
+    }
+    .tab:hover  { color: var(--text); }
+    .tab.active { color: var(--primary-light); border-bottom-color: var(--primary-light); }
+    .tab-content { flex: 1; overflow-y: auto; }
+
+    /* =============================================
+       CLASSROOM / STREAM AREA
+    ============================================= */
+    .stream-area {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .stream-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: box-shadow var(--transition);
+    }
+    .stream-card:hover { box-shadow: var(--shadow); }
+    .stream-card-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .stream-card-body { padding: 18px; }
+    .stream-card-title { font-size: 1rem; font-weight: 700; flex: 1; }
+
+    /* Announcement */
+    .announcement-form { display: flex; flex-direction: column; gap: 10px; }
+    .announcement-toolbar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .format-btn {
+      width: 30px;
+      height: 30px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text-muted);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: .85rem;
+      font-family: var(--mono);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+    }
+    .format-btn:hover { background: var(--bg3); color: var(--text); border-color: var(--primary-light); }
+    .editable {
+      min-height: 80px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: .875rem;
+      outline: none;
+      transition: border-color var(--transition);
+    }
+    .editable:focus { border-color: var(--primary-light); }
+    .editable:empty::before { content: attr(data-placeholder); color: var(--text-dim); pointer-events: none; }
+
+    /* Post */
+    .post {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+      overflow: hidden;
+      animation: fadeIn .3s;
+    }
+    .post-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+    }
+    .post-meta { flex: 1; min-width: 0; }
+    .post-author { font-weight: 700; font-size: .9rem; }
+    .post-time   { font-size: .75rem; color: var(--text-muted); }
+    .post-body   { padding: 0 16px 14px; font-size: .9rem; line-height: 1.7; }
+    .post-body p { margin-bottom: 8px; }
+    .post-body p:last-child { margin-bottom: 0; }
+    .post-footer {
+      padding: 10px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .post-type-banner {
+      padding: 6px 16px;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+    }
+    .post-type-assignment { background: rgba(79,70,229,.15); color: var(--primary-light); }
+    .post-type-quiz       { background: rgba(6,182,212,.15); color: #67e8f9; }
+    .post-type-material   { background: rgba(34,197,94,.15); color: #86efac; }
+
+    /* =============================================
+       WHITEBOARD
+    ============================================= */
+    .whiteboard-wrap {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      height: 100%;
+    }
+    .wb-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      background: var(--surface);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+    .wb-tool {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      transition: all var(--transition);
+    }
+    .wb-tool:hover  { background: var(--bg3); color: var(--text); }
+    .wb-tool.active { background: rgba(79,70,229,.25); border-color: var(--primary-light); color: var(--primary-light); }
+    .wb-separator { width: 1px; height: 22px; background: var(--border); }
+    .wb-size-wrap { display: flex; align-items: center; gap: 6px; font-size: .8rem; color: var(--text-muted); }
+    .wb-size { width: 80px; accent-color: var(--primary); }
+    .color-swatch {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform var(--transition);
+    }
+    .color-swatch:hover   { transform: scale(1.2); }
+    .color-swatch.active  { border-color: #fff; }
+    #wb-canvas {
+      flex: 1;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      cursor: crosshair;
+      background: #fff;
+      touch-action: none;
+    }
+    .wb-status { font-size: .78rem; color: var(--text-dim); }
+
+    /* =============================================
+       VIDEO GRID
+    ============================================= */
+    .video-area {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      height: 100%;
+    }
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+      flex: 1;
+    }
+    .video-tile {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      position: relative;
+      aspect-ratio: 16/9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .video-tile video { width: 100%; height: 100%; object-fit: cover; }
+    .video-tile .cam-off {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-dim);
+      font-size: .8rem;
+    }
+    .video-tile .cam-off .big-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    .video-tile-name {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,.7));
+      padding: 6px 8px;
+      font-size: .78rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .video-tile.speaking { border-color: var(--success); box-shadow: 0 0 0 2px var(--success); }
+    .video-controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .vc-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: all var(--transition);
+    }
+    .vc-btn.mic-on  { background: var(--bg3); color: var(--text); }
+    .vc-btn.mic-off { background: var(--danger); color: #fff; }
+    .vc-btn.cam-on  { background: var(--bg3); color: var(--text); }
+    .vc-btn.cam-off { background: var(--danger); color: #fff; }
+    .vc-btn.leave   { background: var(--danger); color: #fff; }
+    .vc-btn:hover   { transform: scale(1.1); }
+
+    /* =============================================
+       ASSIGNMENTS
+    ============================================= */
+    .assignment-grid {
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+      align-content: start;
+    }
+    .assignment-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: all var(--transition);
+      cursor: pointer;
+    }
+    .assignment-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--primary-light); }
+    .assignment-card-top {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .assignment-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .assignment-card-body { padding: 14px 16px; }
+    .assignment-title { font-size: .95rem; font-weight: 700; margin-bottom: 4px; }
+    .assignment-desc  { font-size: .82rem; color: var(--text-muted); line-height: 1.5; }
+    .assignment-card-footer {
+      padding: 10px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: .8rem;
+      color: var(--text-muted);
+    }
+    .due-date { display: flex; align-items: center; gap: 4px; }
+    .due-date.overdue { color: var(--danger); }
+    .due-date.soon    { color: var(--warning); }
+    .progress-bar-wrap {
+      height: 4px;
+      background: var(--bg3);
+      border-radius: 99px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transition: width .5s ease;
+    }
+
+    /* =============================================
+       QUIZ
+    ============================================= */
+    .quiz-area { padding: 20px; }
+    .quiz-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .quiz-progress {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .quiz-progress-text { font-size: .82rem; color: var(--text-muted); white-space: nowrap; }
+    .quiz-question { font-size: 1rem; font-weight: 700; margin-bottom: 20px; line-height: 1.6; }
+    .quiz-options  { display: flex; flex-direction: column; gap: 10px; }
+    .quiz-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition);
+      user-select: none;
+    }
+    .quiz-option:hover { border-color: var(--primary-light); background: rgba(79,70,229,.08); }
+    .quiz-option.selected { border-color: var(--primary); background: rgba(79,70,229,.18); }
+    .quiz-option.correct  { border-color: var(--success); background: rgba(34,197,94,.15); }
+    .quiz-option.wrong    { border-color: var(--danger);  background: rgba(239,68,68,.12); }
+    .quiz-option-letter {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .quiz-option.selected .quiz-option-letter { background: var(--primary); color: #fff; }
+    .quiz-timer {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .85rem;
+      font-weight: 700;
+      color: var(--warning);
+    }
+    .quiz-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+
+    /* =============================================
+       GRADES
+    ============================================= */
+    .grades-area { padding: 16px; }
+    .grades-table-wrap { overflow-x: auto; }
+    .grades-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .875rem;
+    }
+    .grades-table th {
+      background: var(--surface);
+      padding: 10px 14px;
+      text-align: left;
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .grades-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .grades-table tr:hover td { background: var(--surface2); }
+    .grade-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-weight: 700;
+      font-size: .8rem;
+    }
+    .grade-A { background: rgba(34,197,94,.2);  color: #86efac; }
+    .grade-B { background: rgba(6,182,212,.2);  color: #67e8f9; }
+    .grade-C { background: rgba(245,158,11,.2); color: #fcd34d; }
+    .grade-D { background: rgba(239,68,68,.2);  color: #fca5a5; }
+
+    /* =============================================
+       RIGHT PANEL (CHAT + HAND RAISE)
+    ============================================= */
+    #panel {
+      grid-area: panel;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .panel-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .panel-tab {
+      flex: 1;
+      padding: 12px 8px;
+      text-align: center;
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all var(--transition);
+      user-select: none;
+    }
+    .panel-tab:hover  { color: var(--text); }
+    .panel-tab.active { color: var(--primary-light); border-bottom-color: var(--primary-light); }
+
+    /* Chat */
+    .chat-area { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+    #chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .chat-msg {
+      display: flex;
+      gap: 8px;
+      animation: fadeIn .2s;
+    }
+    .chat-msg.own { flex-direction: row-reverse; }
+    .chat-bubble {
+      max-width: 75%;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: .855rem;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+    .chat-msg.own .chat-bubble   { background: var(--primary); color: #fff; border-bottom-right-radius: 4px; }
+    .chat-msg:not(.own) .chat-bubble { background: var(--bg2); border-bottom-left-radius: 4px; }
+    .chat-meta  { font-size: .7rem; color: var(--text-dim); margin-top: 3px; }
+    .own .chat-meta { text-align: right; }
+    .chat-author { font-size: .72rem; font-weight: 700; color: var(--text-muted); margin-bottom: 2px; }
+    .chat-system-msg {
+      text-align: center;
+      font-size: .75rem;
+      color: var(--text-dim);
+      padding: 4px;
+    }
+    .chat-input-area {
+      padding: 10px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+    #chat-input {
+      flex: 1;
+      resize: none;
+      min-height: 38px;
+      max-height: 120px;
+      padding: 8px 12px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: .875rem;
+      font-family: var(--font);
+      outline: none;
+      transition: border-color var(--transition);
+      overflow-y: auto;
+    }
+    #chat-input:focus { border-color: var(--primary-light); }
+
+    /* Hand Raise */
+    .hands-area { overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .hand-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      animation: bounceIn .3s;
+    }
+    .hand-item .hand-name { flex: 1; font-size: .875rem; font-weight: 600; }
+    .hand-item .hand-time { font-size: .75rem; color: var(--text-muted); }
+    @keyframes bounceIn {
+      0%   { transform: scale(.8); opacity: 0; }
+      60%  { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+
+    /* Q&A */
+    .qa-area { overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .qa-item {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+    }
+    .qa-question { font-size: .875rem; font-weight: 600; margin-bottom: 6px; }
+    .qa-meta     { font-size: .75rem; color: var(--text-muted); display: flex; gap: 10px; align-items: center; }
+    .qa-votes {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: background var(--transition);
+    }
+    .qa-votes:hover { background: var(--bg3); }
+    .qa-answer {
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: rgba(79,70,229,.1);
+      border-left: 3px solid var(--primary);
+      border-radius: 0 6px 6px 0;
+      font-size: .84rem;
+      color: var(--text-muted);
+    }
+
+    /* =============================================
+       TEACHER CONTROLS PANEL (bottom of sidebar)
+    ============================================= */
+    .teacher-controls {
+      padding: 12px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .teacher-controls-title {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+    }
+    .ctrl-row { display: flex; gap: 6px; }
+
+    /* =============================================
+       MATERIAL / FILE AREA
+    ============================================= */
+    .material-area { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .file-list { display: flex; flex-direction: column; gap: 8px; }
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .file-item:hover { border-color: var(--primary-light); background: var(--surface2); }
+    .file-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .file-info { flex: 1; min-width: 0; }
+    .file-name { font-size: .875rem; font-weight: 600; }
+    .file-meta { font-size: .75rem; color: var(--text-muted); }
+
+    /* =============================================
+       POLLS
+    ============================================= */
+    .poll-wrap { padding: 16px; max-width: 600px; }
+    .poll-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .poll-q   { font-size: 1rem; font-weight: 700; margin-bottom: 16px; }
+    .poll-opt { margin-bottom: 10px; }
+    .poll-opt-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    .poll-opt-label { font-size: .875rem; flex: 1; }
+    .poll-opt-pct   { font-size: .8rem; font-weight: 700; color: var(--primary-light); width: 34px; text-align: right; }
+    .poll-bar-bg {
+      height: 8px;
+      background: var(--bg3);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .poll-bar {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transition: width .6s ease;
+    }
+    .poll-choose-btn {
+      width: 100%;
+      padding: 10px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      cursor: pointer;
+      font-size: .875rem;
+      text-align: left;
+      transition: all var(--transition);
+      font-family: var(--font);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .poll-choose-btn:hover    { border-color: var(--primary-light); }
+    .poll-choose-btn.selected { background: rgba(79,70,229,.2); border-color: var(--primary); color: var(--primary-light); }
+
+    /* =============================================
+       RESPONSIVE
+    ============================================= */
+    @media (max-width: 900px) {
+      #app {
+        grid-template-columns: 200px 1fr 0;
+        grid-template-areas:
+          "header header header"
+          "sidebar main main";
+      }
+      #panel { display: none; }
+    }
+    @media (max-width: 600px) {
+      #app {
+        grid-template-columns: 1fr;
+        grid-template-rows: 56px 40px 1fr;
+        grid-template-areas:
+          "header"
+          "sidebar"
+          "main";
+      }
+      #sidebar { flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--border); }
+      .sidebar-section, .participant-list, .teacher-controls { display: none; }
+      .nav-item { border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- =============================================
+     TOAST
+============================================= -->
+<div id="toast-container"></div>
+
+<!-- =============================================
+     LANDING SCREEN
+============================================= -->
+<div id="landing">
+  <div class="landing-logo">
+    <div class="icon-wrap">🎓</div>
+    LocalClassroom
+  </div>
+  <p class="landing-tagline">브라우저만으로 완성되는 실시간 수업 – 선생님과 학생이 함께하는 피어 기반 교실</p>
+
+  <div id="landing-step1">
+    <div class="landing-cards">
+      <div class="role-card teacher-card" onclick="selectRole('teacher')">
+        <div class="role-icon">👩‍🏫</div>
+        <div class="role-title">선생님</div>
+        <div class="role-desc">수업을 개설하고 학생들을 초대해 수업을 이끌어갑니다</div>
+      </div>
+      <div class="role-card student-card" onclick="selectRole('student')">
+        <div class="role-icon">🙋</div>
+        <div class="role-title">학생</div>
+        <div class="role-desc">수업 코드를 입력해 선생님의 수업에 참여합니다</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="landing-step2" class="hidden">
+    <div class="join-form" id="join-form">
+      <div class="join-form-title" id="join-form-title">수업 개설하기</div>
+      <div class="form-group">
+        <div class="form-label">이름</div>
+        <input class="input" id="input-name" placeholder="홍길동" />
+      </div>
+      <div class="form-group" id="class-name-group">
+        <div class="form-label">수업 이름</div>
+        <input class="input" id="input-classname" placeholder="수학 – 1학년 2반" />
+      </div>
+      <div class="form-group hidden" id="class-code-group">
+        <div class="form-label">수업 코드</div>
+        <input class="input" id="input-classcode" placeholder="ABC123" maxlength="8" style="text-transform:uppercase;letter-spacing:.1em;font-family:var(--mono)" />
+      </div>
+      <div class="form-group">
+        <div class="form-label">아바타 색상</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div class="color-swatch active" style="background:#6366f1" data-color="#6366f1" onclick="pickAvatarColor(this)"></div>
+          <div class="color-swatch" style="background:#06b6d4" data-color="#06b6d4" onclick="pickAvatarColor(this)"></div>
+          <div class="color-swatch" style="background:#22c55e" data-color="#22c55e" onclick="pickAvatarColor(this)"></div>
+          <div class="color-swatch" style="background:#f59e0b" data-color="#f59e0b" onclick="pickAvatarColor(this)"></div>
+          <div class="color-swatch" style="background:#ef4444" data-color="#ef4444" onclick="pickAvatarColor(this)"></div>
+          <div class="color-swatch" style="background:#ec4899" data-color="#ec4899" onclick="pickAvatarColor(this)"></div>
+          <div class="color-swatch" style="background:#8b5cf6" data-color="#8b5cf6" onclick="pickAvatarColor(this)"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn btn-ghost" onclick="backToStep1()">← 뒤로</button>
+        <button class="btn btn-primary w-full" id="join-btn" onclick="joinClass()">수업 시작하기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =============================================
+     APP
+============================================= -->
+<div id="app" class="hidden">
+
+  <!-- HEADER -->
+  <header id="header">
+    <div class="header-logo">
+      <div class="logo-icon">🎓</div>
+      <span class="hidden" id="h-logo-text">LC</span>
+    </div>
+    <div class="header-divider"></div>
+    <div class="header-class-info">
+      <span class="class-name" id="h-class-name">수업명</span>
+      <span class="class-code" id="h-class-code" onclick="copyCode()" data-tip="클릭해서 복사">CODE</span>
+      <span class="badge badge-primary" id="h-role-badge">선생님</span>
+    </div>
+    <div class="header-controls">
+      <div class="connection-status">
+        <div class="status-dot online" id="status-dot"></div>
+        <span id="status-text">연결됨</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="openSettings()">⚙️ 설정</button>
+      <button class="btn btn-danger btn-sm" onclick="leaveClass()">나가기</button>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">메뉴</div>
+      <div class="nav-item active" onclick="switchTab('stream')" id="nav-stream">
+        <span class="nav-icon">📢</span> 수업 스트림
+      </div>
+      <div class="nav-item" onclick="switchTab('whiteboard')" id="nav-whiteboard">
+        <span class="nav-icon">🖊️</span> 화이트보드
+      </div>
+      <div class="nav-item" onclick="switchTab('video')" id="nav-video">
+        <span class="nav-icon">📹</span> 화상 수업
+      </div>
+      <div class="nav-item" onclick="switchTab('assignments')" id="nav-assignments">
+        <span class="nav-icon">📋</span> 과제
+        <span class="nav-badge" id="badge-assignments">3</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('quiz')" id="nav-quiz">
+        <span class="nav-icon">🧩</span> 퀴즈
+      </div>
+      <div class="nav-item" onclick="switchTab('poll')" id="nav-poll">
+        <span class="nav-icon">📊</span> 투표
+      </div>
+      <div class="nav-item" onclick="switchTab('material')" id="nav-material">
+        <span class="nav-icon">📁</span> 자료실
+      </div>
+      <div class="nav-item" onclick="switchTab('grades')" id="nav-grades">
+        <span class="nav-icon">🏆</span> 성적
+      </div>
+    </div>
+
+    <div class="sidebar-section" style="flex:1;overflow:hidden;display:flex;flex-direction:column;padding-bottom:0">
+      <div class="sidebar-section-title">참여자 (<span id="participant-count">1</span>)</div>
+      <div class="participant-list" id="participant-list"></div>
+    </div>
+
+    <div class="teacher-controls" id="teacher-controls">
+      <div class="teacher-controls-title">🎛️ 수업 관리</div>
+      <div class="ctrl-row">
+        <button class="btn btn-ghost btn-sm w-full" onclick="muteAll()">🔇 전체 음소거</button>
+        <button class="btn btn-ghost btn-sm w-full" onclick="lockClass()">🔒 잠금</button>
+      </div>
+      <div class="ctrl-row">
+        <button class="btn btn-accent btn-sm w-full" onclick="openAssignmentModal()">+ 과제 추가</button>
+        <button class="btn btn-warning btn-sm w-full" onclick="openQuizModal()">+ 퀴즈 추가</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main id="main">
+    <div class="tab-bar" id="tab-bar">
+      <!-- dynamically populated -->
+    </div>
+
+    <!-- STREAM -->
+    <div class="tab-content hidden" id="tab-stream">
+      <div class="stream-area">
+        <div class="stream-card" id="announcement-box">
+          <div class="stream-card-header">
+            <span style="font-size:1.2rem">📢</span>
+            <span class="stream-card-title">공지 및 자료 공유</span>
+          </div>
+          <div class="stream-card-body">
+            <div class="announcement-form">
+              <div class="announcement-toolbar">
+                <button class="format-btn" onclick="formatText('bold')" data-tip="굵게"><b>B</b></button>
+                <button class="format-btn" onclick="formatText('italic')" data-tip="기울임"><i>I</i></button>
+                <button class="format-btn" onclick="formatText('underline')" data-tip="밑줄"><u>U</u></button>
+                <button class="format-btn" onclick="insertEmoji('✅')">✅</button>
+                <button class="format-btn" onclick="insertEmoji('⚠️')">⚠️</button>
+                <button class="format-btn" onclick="insertEmoji('📌')">📌</button>
+                <button class="format-btn" onclick="insertEmoji('🔔')">🔔</button>
+              </div>
+              <div class="editable" id="announcement-editor" contenteditable="true"
+                   data-placeholder="학생들에게 공지할 내용을 입력하세요..."></div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn btn-primary" onclick="postAnnouncement('announcement')">📢 공지 게시</button>
+                <button class="btn btn-accent" onclick="postAnnouncement('material')">📎 자료 공유</button>
+                <button class="btn btn-warning btn-sm" onclick="postAnnouncement('assignment')">📋 과제 공유</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="posts-list"></div>
+      </div>
+    </div>
+
+    <!-- WHITEBOARD -->
+    <div class="tab-content hidden" id="tab-whiteboard">
+      <div class="whiteboard-wrap">
+        <div class="wb-toolbar">
+          <button class="wb-tool active" id="wbt-pen"    onclick="setWBTool('pen')"    data-tip="펜">✏️</button>
+          <button class="wb-tool"        id="wbt-eraser" onclick="setWBTool('eraser')" data-tip="지우개">🧹</button>
+          <button class="wb-tool"        id="wbt-line"   onclick="setWBTool('line')"   data-tip="선">➖</button>
+          <button class="wb-tool"        id="wbt-rect"   onclick="setWBTool('rect')"   data-tip="사각형">⬜</button>
+          <button class="wb-tool"        id="wbt-circle" onclick="setWBTool('circle')" data-tip="원">⭕</button>
+          <button class="wb-tool"        id="wbt-text"   onclick="setWBTool('text')"   data-tip="텍스트">T</button>
+          <div class="wb-separator"></div>
+          <div class="wb-size-wrap">
+            <span>두께</span>
+            <input type="range" class="wb-size" id="wb-size" min="1" max="30" value="4" oninput="updateWBSize(this.value)">
+            <span id="wb-size-val">4px</span>
+          </div>
+          <div class="wb-separator"></div>
+          <div id="wb-colors" style="display:flex;gap:6px">
+            <!-- colors injected by JS -->
+          </div>
+          <div class="wb-separator"></div>
+          <button class="btn btn-ghost btn-sm" onclick="clearWB()">🗑️ 지우기</button>
+          <button class="btn btn-ghost btn-sm" onclick="undoWB()">↩️ 실행취소</button>
+          <button class="btn btn-accent btn-sm" onclick="downloadWB()">💾 저장</button>
+          <span class="wb-status" id="wb-status"></span>
+        </div>
+        <canvas id="wb-canvas"></canvas>
+      </div>
+    </div>
+
+    <!-- VIDEO -->
+    <div class="tab-content hidden" id="tab-video">
+      <div class="video-area">
+        <div class="video-grid" id="video-grid">
+          <!-- tiles injected -->
+        </div>
+        <div class="video-controls">
+          <button class="vc-btn mic-on" id="btn-mic" onclick="toggleMic()" data-tip="마이크">🎤</button>
+          <button class="vc-btn cam-on" id="btn-cam" onclick="toggleCam()" data-tip="카메라">📷</button>
+          <button class="vc-btn" style="background:var(--bg3);color:var(--text)" onclick="toggleScreenShare()" data-tip="화면 공유">🖥️</button>
+          <button class="vc-btn leave" onclick="leaveClass()" data-tip="나가기">📵</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ASSIGNMENTS -->
+    <div class="tab-content hidden" id="tab-assignments">
+      <div class="assignment-grid" id="assignment-grid">
+        <!-- cards injected -->
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="tab-content hidden" id="tab-quiz">
+      <div class="quiz-area" id="quiz-area">
+        <div style="text-align:center;padding:40px 20px;color:var(--text-muted)">
+          <div style="font-size:3rem">🧩</div>
+          <p style="margin-top:12px">아직 활성화된 퀴즈가 없습니다</p>
+          <p style="font-size:.82rem;margin-top:4px">선생님이 퀴즈를 시작하면 여기에 표시됩니다</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- POLL -->
+    <div class="tab-content hidden" id="tab-poll">
+      <div class="poll-wrap" id="poll-wrap">
+        <div style="text-align:center;padding:40px 20px;color:var(--text-muted)">
+          <div style="font-size:3rem">📊</div>
+          <p style="margin-top:12px">활성화된 투표가 없습니다</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MATERIAL -->
+    <div class="tab-content hidden" id="tab-material">
+      <div class="material-area">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h3 style="font-size:1rem;font-weight:700">📁 수업 자료</h3>
+          <button class="btn btn-primary btn-sm" onclick="uploadFile()">+ 업로드</button>
+        </div>
+        <div class="file-list" id="file-list">
+          <!-- injected -->
+        </div>
+      </div>
+    </div>
+
+    <!-- GRADES -->
+    <div class="tab-content hidden" id="tab-grades">
+      <div class="grades-area">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <h3 style="font-size:1rem;font-weight:700">🏆 성적 현황</h3>
+          <button class="btn btn-ghost btn-sm" onclick="exportGrades()">📥 내보내기</button>
+        </div>
+        <div class="grades-table-wrap">
+          <table class="grades-table" id="grades-table">
+            <thead>
+              <tr>
+                <th>학생</th>
+                <th>과제1</th>
+                <th>과제2</th>
+                <th>퀴즈1</th>
+                <th>평균</th>
+                <th>등급</th>
+              </tr>
+            </thead>
+            <tbody id="grades-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT PANEL -->
+  <aside id="panel">
+    <div class="panel-tabs">
+      <div class="panel-tab active" onclick="switchPanelTab('chat')"  id="ptab-chat">💬 채팅</div>
+      <div class="panel-tab"       onclick="switchPanelTab('hands')" id="ptab-hands">✋ 손들기</div>
+      <div class="panel-tab"       onclick="switchPanelTab('qa')"    id="ptab-qa">❓ Q&amp;A</div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="chat-area" id="panel-chat">
+      <div id="chat-messages"></div>
+      <div class="chat-input-area">
+        <textarea id="chat-input" placeholder="메시지 입력..." rows="1"
+                  onkeydown="chatKeydown(event)" oninput="autoResizeChat(this)"></textarea>
+        <button class="btn btn-primary btn-sm" onclick="sendChatMsg()">전송</button>
+      </div>
+    </div>
+
+    <!-- HANDS -->
+    <div class="hidden" id="panel-hands" style="display:flex;flex-direction:column;height:100%;overflow:hidden">
+      <div style="padding:12px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;gap:8px">
+        <button class="btn btn-accent w-full" id="btn-raise-hand" onclick="raiseHand()">✋ 손 들기</button>
+        <button class="btn btn-ghost btn-sm" id="btn-lower-hand" onclick="lowerHand()">내리기</button>
+      </div>
+      <div class="hands-area" id="hands-area">
+        <div style="text-align:center;padding:30px;color:var(--text-dim);font-size:.85rem">손을 든 학생이 없습니다</div>
+      </div>
+    </div>
+
+    <!-- Q&A -->
+    <div class="hidden" id="panel-qa" style="display:flex;flex-direction:column;height:100%;overflow:hidden">
+      <div style="padding:10px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;gap:6px">
+        <input class="input" id="qa-input" placeholder="질문을 입력하세요..." style="flex:1" />
+        <button class="btn btn-primary btn-sm" onclick="submitQuestion()">질문</button>
+      </div>
+      <div class="qa-area" id="qa-area"></div>
+    </div>
+  </aside>
+</div>
+
+<!-- =============================================
+     MODALS
+============================================= -->
+
+<!-- Settings Modal -->
+<div class="modal-backdrop hidden" id="modal-settings">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">⚙️ 설정</span>
+      <button class="modal-close" onclick="closeModal('modal-settings')">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="form-group">
+        <div class="form-label">닉네임 변경</div>
+        <div style="display:flex;gap:8px">
+          <input class="input" id="setting-name" />
+          <button class="btn btn-primary btn-sm" onclick="saveName()">저장</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">알림 소리</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="checkbox" id="setting-sound" checked style="accent-color:var(--primary);width:16px;height:16px">
+          <label for="setting-sound" style="font-size:.875rem">메시지 도착 시 소리</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">테마</div>
+        <select class="select" onchange="changeTheme(this.value)">
+          <option value="dark">다크 모드</option>
+          <option value="darker">더 어둡게</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Assignment Modal -->
+<div class="modal-backdrop hidden" id="modal-assignment">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">📋 과제 추가</span>
+      <button class="modal-close" onclick="closeModal('modal-assignment')">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="form-group">
+        <div class="form-label">과제 제목</div>
+        <input class="input" id="asgn-title" placeholder="예: 1장 연습 문제" />
+      </div>
+      <div class="form-group">
+        <div class="form-label">설명</div>
+        <textarea class="textarea" id="asgn-desc" placeholder="과제 내용을 입력하세요"></textarea>
+      </div>
+      <div style="display:flex;gap:10px">
+        <div class="form-group" style="flex:1">
+          <div class="form-label">마감일</div>
+          <input class="input" type="date" id="asgn-due" />
+        </div>
+        <div class="form-group" style="flex:1">
+          <div class="form-label">배점</div>
+          <input class="input" type="number" id="asgn-points" placeholder="100" value="100" />
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+        <button class="btn btn-ghost" onclick="closeModal('modal-assignment')">취소</button>
+        <button class="btn btn-primary" onclick="createAssignment()">과제 추가</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quiz Modal -->
+<div class="modal-backdrop hidden" id="modal-quiz">
+  <div class="modal" style="width:min(600px,95vw)">
+    <div class="modal-header">
+      <span class="modal-title">🧩 퀴즈 만들기</span>
+      <button class="modal-close" onclick="closeModal('modal-quiz')">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="form-group">
+        <div class="form-label">퀴즈 제목</div>
+        <input class="input" id="quiz-title-input" placeholder="예: 1단원 확인 퀴즈" />
+      </div>
+      <div id="quiz-questions-builder" style="display:flex;flex-direction:column;gap:10px;max-height:320px;overflow-y:auto">
+        <!-- question blocks injected -->
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="addQuizQuestion()">+ 문제 추가</button>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+        <button class="btn btn-ghost" onclick="closeModal('modal-quiz')">취소</button>
+        <button class="btn btn-primary" onclick="launchQuiz()">퀴즈 시작</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Poll Modal -->
+<div class="modal-backdrop hidden" id="modal-poll">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">📊 투표 만들기</span>
+      <button class="modal-close" onclick="closeModal('modal-poll')">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="form-group">
+        <div class="form-label">질문</div>
+        <input class="input" id="poll-q-input" placeholder="오늘 수업 이해도는?" />
+      </div>
+      <div id="poll-options-builder" style="display:flex;flex-direction:column;gap:6px">
+        <input class="input" placeholder="선택지 1" />
+        <input class="input" placeholder="선택지 2" />
+        <input class="input" placeholder="선택지 3 (선택)" />
+        <input class="input" placeholder="선택지 4 (선택)" />
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+        <button class="btn btn-ghost" onclick="closeModal('modal-poll')">취소</button>
+        <button class="btn btn-primary" onclick="launchPoll()">투표 시작</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Assignment Detail Modal -->
+<div class="modal-backdrop hidden" id="modal-asgn-detail">
+  <div class="modal" style="width:min(560px,95vw)">
+    <div class="modal-header">
+      <span class="modal-title" id="asgn-detail-title">과제 제목</span>
+      <button class="modal-close" onclick="closeModal('modal-asgn-detail')">✕</button>
+    </div>
+    <div id="asgn-detail-body" style="display:flex;flex-direction:column;gap:14px">
+    </div>
+  </div>
+</div>
+
+<script>
+/* =============================================
+   STATE
+============================================= */
+const state = {
+  role: 'teacher',       // 'teacher' | 'student'
+  name: '',
+  avatarColor: '#6366f1',
+  className: '',
+  classCode: '',
+  currentTab: 'stream',
+  currentPanelTab: 'chat',
+  micOn: true,
+  camOn: true,
+  handRaised: false,
+  locked: false,
+  wbTool: 'pen',
+  wbColor: '#000000',
+  wbSize: 4,
+  participants: [],
+  posts: [],
+  assignments: [],
+  quizzes: [],
+  questions: [],
+  files: [],
+  grades: [],
+  activePoll: null,
+  activeQuiz: null,
+  chatMsgs: [],
+  handsList: [],
+};
+
+/* BroadcastChannel for same-origin tab communication */
+let channel;
+
+/* =============================================
+   LANDING
+============================================= */
+function selectRole(role) {
+  state.role = role;
+  document.getElementById('landing-step1').classList.add('hidden');
+  document.getElementById('landing-step2').classList.remove('hidden');
+  const isTeacher = role === 'teacher';
+  document.getElementById('join-form-title').textContent = isTeacher ? '수업 개설하기' : '수업 참여하기';
+  document.getElementById('class-name-group').classList.toggle('hidden', !isTeacher);
+  document.getElementById('class-code-group').classList.toggle('hidden', isTeacher);
+  document.getElementById('join-btn').textContent = isTeacher ? '수업 시작하기' : '입장하기';
+  if (!isTeacher) {
+    document.getElementById('input-classname').value = '';
+  }
+}
+
+function backToStep1() {
+  document.getElementById('landing-step1').classList.remove('hidden');
+  document.getElementById('landing-step2').classList.add('hidden');
+}
+
+function pickAvatarColor(el) {
+  document.querySelectorAll('#join-form .color-swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  state.avatarColor = el.dataset.color;
+}
+
+function generateCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+}
+
+function joinClass() {
+  const name = document.getElementById('input-name').value.trim();
+  if (!name) { showToast('이름을 입력해주세요', 'error'); return; }
+
+  if (state.role === 'teacher') {
+    const cn = document.getElementById('input-classname').value.trim() || '내 수업';
+    state.className = cn;
+    state.classCode = generateCode();
+  } else {
+    const code = document.getElementById('input-classcode').value.trim().toUpperCase();
+    if (!code) { showToast('수업 코드를 입력해주세요', 'error'); return; }
+    state.classCode = code;
+    state.className = '수업 참여 중';
+  }
+
+  state.name = name;
+  initApp();
+}
+
+/* =============================================
+   APP INIT
+============================================= */
+function initApp() {
+  document.getElementById('landing').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+
+  /* header */
+  document.getElementById('h-class-name').textContent = state.className;
+  document.getElementById('h-class-code').textContent = state.classCode;
+  document.getElementById('h-role-badge').textContent = state.role === 'teacher' ? '선생님' : '학생';
+  document.getElementById('h-role-badge').className = 'badge ' + (state.role === 'teacher' ? 'badge-primary' : 'badge-accent');
+
+  /* teacher vs student UI */
+  if (state.role !== 'teacher') {
+    document.getElementById('teacher-controls').classList.add('hidden');
+    document.getElementById('announcement-box').classList.add('hidden');
+  }
+
+  /* participants */
+  addParticipant({ id: uid(), name: state.name, role: state.role, color: state.avatarColor, self: true });
+  if (state.role === 'teacher') {
+    addFakeStudents();
+  }
+
+  /* channel */
+  channel = new BroadcastChannel('localclassroom_' + state.classCode);
+  channel.onmessage = handleChannelMsg;
+  broadcast({ type: 'join', name: state.name, role: state.role, color: state.avatarColor });
+
+  /* tabs */
+  switchTab('stream');
+  switchPanelTab('chat');
+
+  /* demo data */
+  populateDemoData();
+
+  /* whiteboard */
+  initWhiteboard();
+
+  /* video */
+  initVideoGrid();
+
+  /* grades */
+  renderGrades();
+
+  /* files */
+  renderFiles();
+
+  /* setting name */
+  document.getElementById('setting-name').value = state.name;
+
+  showToast(state.role === 'teacher' ? `수업 코드: ${state.classCode}` : `${state.className}에 참여했습니다`, 'success');
+}
+
+function uid() {
+  return Math.random().toString(36).slice(2, 10);
+}
+
+/* =============================================
+   BROADCAST / CHANNEL
+============================================= */
+function broadcast(msg) {
+  if (channel) channel.postMessage({ ...msg, sender: state.name, senderId: uid() });
+}
+
+function handleChannelMsg(e) {
+  const d = e.data;
+  if (!d) return;
+  switch (d.type) {
+    case 'join':
+      addParticipant({ id: uid(), name: d.name, role: d.role, color: d.color, self: false });
+      addChatSystemMsg(`${d.name}님이 입장했습니다`);
+      break;
+    case 'leave':
+      removeParticipant(d.name);
+      addChatSystemMsg(`${d.name}님이 퇴장했습니다`);
+      break;
+    case 'chat':
+      appendChatMsg({ author: d.sender, text: d.text, own: false });
+      break;
+    case 'post':
+      addPost(d.post);
+      break;
+    case 'quiz_launch':
+      state.activeQuiz = d.quiz;
+      renderQuiz();
+      switchTab('quiz');
+      showToast('퀴즈가 시작되었습니다!', 'info');
+      break;
+    case 'poll_launch':
+      state.activePoll = d.poll;
+      renderPoll();
+      switchTab('poll');
+      showToast('투표가 시작되었습니다!', 'info');
+      break;
+    case 'hand_raise':
+      addHandItem(d.sender, d.color);
+      break;
+    case 'hand_lower':
+      removeHandItem(d.sender);
+      break;
+    case 'question':
+      addQAItem(d.question, d.sender);
+      break;
+  }
+}
+
+/* =============================================
+   PARTICIPANTS
+============================================= */
+function addParticipant(p) {
+  if (state.participants.find(x => x.name === p.name)) return;
+  state.participants.push(p);
+  renderParticipants();
+}
+function removeParticipant(name) {
+  state.participants = state.participants.filter(p => p.name !== name);
+  renderParticipants();
+}
+function renderParticipants() {
+  const list = document.getElementById('participant-list');
+  document.getElementById('participant-count').textContent = state.participants.length;
+  list.innerHTML = state.participants.map(p => `
+    <div class="participant-item">
+      <div class="avatar" style="background:${p.color}">${initial(p.name)}</div>
+      <div class="participant-info">
+        <div class="participant-name">${esc(p.name)} ${p.self ? '<span style="color:var(--text-dim);font-size:.72rem">(나)</span>' : ''}</div>
+        <div class="participant-role">${p.role === 'teacher' ? '선생님' : '학생'}</div>
+      </div>
+      ${state.role === 'teacher' && !p.self ? `
+        <div class="participant-actions">
+          <button class="icon-btn" onclick="kickParticipant('${p.name}')" data-tip="내보내기">🚫</button>
+          <button class="icon-btn" onclick="muteParticipant('${p.name}')" data-tip="음소거">🔇</button>
+        </div>` : ''}
+    </div>
+  `).join('');
+}
+function addFakeStudents() {
+  const names = ['김민준', '이서연', '박지호', '최예린', '정우진'];
+  const colors = ['#06b6d4', '#22c55e', '#f59e0b', '#ec4899', '#8b5cf6'];
+  names.forEach((n, i) => {
+    addParticipant({ id: uid(), name: n, role: 'student', color: colors[i], self: false });
+  });
+}
+function kickParticipant(name) {
+  if (!confirm(`${name}님을 내보내시겠습니까?`)) return;
+  removeParticipant(name);
+  showToast(`${name}님을 내보냈습니다`, 'warning');
+}
+function muteParticipant(name) {
+  showToast(`${name}님을 음소거했습니다`, 'info');
+}
+
+/* =============================================
+   TABS
+============================================= */
+const TAB_LABELS = {
+  stream:      '📢 스트림',
+  whiteboard:  '🖊️ 화이트보드',
+  video:       '📹 화상',
+  assignments: '📋 과제',
+  quiz:        '🧩 퀴즈',
+  poll:        '📊 투표',
+  material:    '📁 자료',
+  grades:      '🏆 성적',
+};
+function switchTab(name) {
+  state.currentTab = name;
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+  document.getElementById('tab-' + name).classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const nav = document.getElementById('nav-' + name);
+  if (nav) nav.classList.add('active');
+  if (name === 'whiteboard') resizeWB();
+}
+function switchPanelTab(name) {
+  state.currentPanelTab = name;
+  ['chat','hands','qa'].forEach(t => {
+    const el = document.getElementById('panel-' + t);
+    const tab = document.getElementById('ptab-' + t);
+    if (el) el.classList.toggle('hidden', t !== name);
+    if (tab) tab.classList.toggle('active', t === name);
+  });
+  // fix display for hands/qa
+  const hp = document.getElementById('panel-hands');
+  const qp = document.getElementById('panel-qa');
+  if (hp) hp.style.display = name === 'hands' ? 'flex' : 'none';
+  if (qp) qp.style.display = name === 'qa'    ? 'flex' : 'none';
+}
+
+/* =============================================
+   STREAM / POSTS
+============================================= */
+function postAnnouncement(type) {
+  const editor = document.getElementById('announcement-editor');
+  const html = editor.innerHTML.trim();
+  if (!html || html === '') { showToast('내용을 입력해주세요', 'error'); return; }
+  const post = { id: uid(), type, author: state.name, color: state.avatarColor, content: html, time: new Date() };
+  addPost(post);
+  broadcast({ type: 'post', post });
+  editor.innerHTML = '';
+}
+function addPost(post) {
+  state.posts.unshift(post);
+  renderPosts();
+}
+function renderPosts() {
+  const list = document.getElementById('posts-list');
+  list.innerHTML = state.posts.map(p => {
+    const typeLabel = { announcement: '📢 공지', material: '📎 자료', assignment: '📋 과제' }[p.type] || '게시물';
+    const typeCls   = { announcement: '', material: 'post-type-material', assignment: 'post-type-assignment' }[p.type] || '';
+    return `
+    <div class="post" id="post-${p.id}">
+      ${typeCls ? `<div class="post-type-banner ${typeCls}">${typeLabel}</div>` : ''}
+      <div class="post-header">
+        <div class="avatar" style="background:${p.color}">${initial(p.author)}</div>
+        <div class="post-meta">
+          <div class="post-author">${esc(p.author)}</div>
+          <div class="post-time">${timeAgo(p.time)}</div>
+        </div>
+        ${state.role === 'teacher' ? `<button class="btn btn-ghost btn-sm" onclick="deletePost('${p.id}')">🗑️</button>` : ''}
+      </div>
+      <div class="post-body">${p.content}</div>
+      <div class="post-footer">
+        <button class="btn btn-ghost btn-sm" onclick="likePost('${p.id}')">👍 좋아요</button>
+        <button class="btn btn-ghost btn-sm">💬 댓글</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function deletePost(id) {
+  state.posts = state.posts.filter(p => p.id !== id);
+  renderPosts();
+}
+function likePost(id) {
+  showToast('좋아요를 눌렀습니다 👍', 'info');
+}
+function formatText(cmd) {
+  document.getElementById('announcement-editor').focus();
+  document.execCommand(cmd);
+}
+function insertEmoji(e) {
+  document.getElementById('announcement-editor').focus();
+  document.execCommand('insertText', false, e);
+}
+
+/* demo posts */
+function populateDemoData() {
+  const demoPosts = [
+    { id: uid(), type: 'announcement', author: state.role === 'teacher' ? state.name : '선생님', color: '#6366f1',
+      content: '📌 오늘 수업에 오신 것을 환영합니다! 교재 3장을 미리 읽어오세요.', time: new Date(Date.now() - 300000) },
+    { id: uid(), type: 'material', author: state.role === 'teacher' ? state.name : '선생님', color: '#6366f1',
+      content: '📎 <b>강의 슬라이드</b>를 공유합니다. 왼쪽 자료실에서 다운로드하세요.', time: new Date(Date.now() - 600000) },
+  ];
+  demoPosts.forEach(p => addPost(p));
+
+  /* demo assignments */
+  state.assignments = [
+    { id: uid(), title: '1단원 연습문제', desc: '교재 p.45 ~ p.52 연습문제를 풀어 제출하세요.', due: '2026-05-01', points: 30, icon: '📝', color: 'rgba(79,70,229,.3)', submissions: 3, total: 5 },
+    { id: uid(), title: '독후감 작성', desc: '지정 도서를 읽고 A4 2장 분량의 독후감을 작성하세요.', due: '2026-05-07', points: 50, icon: '📖', color: 'rgba(6,182,212,.3)', submissions: 1, total: 5 },
+    { id: uid(), title: '발표 준비', desc: '모둠별 주제를 선택하여 5분 발표를 준비하세요.', due: '2026-04-28', points: 20, icon: '🎤', color: 'rgba(245,158,11,.3)', submissions: 5, total: 5 },
+  ];
+  renderAssignments();
+
+  /* demo files */
+  state.files = [
+    { id: uid(), name: '1단원_강의슬라이드.pdf', size: '2.4 MB', type: 'pdf', date: '2026-04-25', icon: '📄' },
+    { id: uid(), name: '연습문제_정답지.xlsx',   size: '380 KB', type: 'xlsx', date: '2026-04-24', icon: '📊' },
+    { id: uid(), name: '참고자료_영상링크.txt',   size: '1 KB',  type: 'txt', date: '2026-04-23', icon: '📝' },
+    { id: uid(), name: '수업_녹화본_week1.mp4',  size: '145 MB', type: 'mp4', date: '2026-04-20', icon: '🎬' },
+  ];
+  renderFiles();
+
+  /* demo grades */
+  state.grades = state.participants.filter(p => p.role === 'student').map(p => ({
+    name: p.name, color: p.color,
+    scores: [Math.floor(Math.random()*40)+60, Math.floor(Math.random()*40)+60, Math.floor(Math.random()*40)+60],
+  }));
+  renderGrades();
+
+  /* demo chat */
+  const msgs = [
+    { author: '김민준', text: '선생님 안녕하세요!', own: false, color: '#06b6d4' },
+    { author: '이서연', text: '오늘 수업 기대돼요 😊', own: false, color: '#22c55e' },
+  ];
+  msgs.forEach(m => appendChatMsg(m));
+
+  /* demo QA */
+  const demoQs = [
+    { text: '3장 예제 2번이 잘 이해가 안됩니다. 다시 설명해주실 수 있나요?', author: '박지호', color: '#f59e0b', votes: 5, answered: false },
+    { text: '과제 제출 방식이 어떻게 되나요?', author: '최예린', color: '#ec4899', votes: 3, answered: true, answer: '자료실의 구글폼 링크로 제출해주세요!' },
+  ];
+  demoQs.forEach(q => addQAItem(q));
+}
+
+/* =============================================
+   ASSIGNMENTS
+============================================= */
+function renderAssignments() {
+  const grid = document.getElementById('assignment-grid');
+  const now = new Date();
+  grid.innerHTML = state.assignments.map(a => {
+    const due = new Date(a.due);
+    const diff = Math.ceil((due - now) / 86400000);
+    const dueCls = diff < 0 ? 'overdue' : diff < 2 ? 'soon' : '';
+    const dueText = diff < 0 ? `${-diff}일 지남` : diff === 0 ? '오늘 마감' : `${diff}일 남음`;
+    const pct = Math.round((a.submissions / a.total) * 100);
+    return `
+    <div class="assignment-card" onclick="openAssignmentDetail('${a.id}')">
+      <div class="assignment-card-top">
+        <div class="assignment-icon" style="background:${a.color}">${a.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div class="assignment-title">${esc(a.title)}</div>
+          <div class="assignment-desc">${esc(a.desc)}</div>
+        </div>
+      </div>
+      <div class="assignment-card-body">
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" style="width:${pct}%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--text-muted);margin-top:6px">
+          <span>제출 ${a.submissions}/${a.total}</span>
+          <span>${pct}%</span>
+        </div>
+      </div>
+      <div class="assignment-card-footer">
+        <div class="due-date ${dueCls}">⏰ ${dueText} (${a.due})</div>
+        <span class="badge badge-accent">${a.points}점</span>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('badge-assignments').textContent = state.assignments.length;
+}
+function openAssignmentDetail(id) {
+  const a = state.assignments.find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('asgn-detail-title').textContent = a.title;
+  document.getElementById('asgn-detail-body').innerHTML = `
+    <p style="font-size:.9rem;color:var(--text-muted)">${esc(a.desc)}</p>
+    <div style="display:flex;gap:16px;font-size:.85rem;flex-wrap:wrap">
+      <span>📅 마감: <b>${a.due}</b></span>
+      <span>🏅 배점: <b>${a.points}점</b></span>
+      <span>📤 제출: <b>${a.submissions}/${a.total}</b></span>
+    </div>
+    ${state.role === 'student' ? `
+      <div class="form-group">
+        <div class="form-label">과제 제출</div>
+        <textarea class="textarea" placeholder="과제 내용을 직접 입력하거나 파일을 첨부하세요..."></textarea>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="submitAssignment('${id}')">제출하기</button>
+        <button class="btn btn-ghost" onclick="closeModal('modal-asgn-detail')">닫기</button>
+      </div>` : `
+      <div style="font-weight:700;margin-bottom:6px">제출 현황</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${state.participants.filter(p=>p.role==='student').map(p=>`
+          <div style="display:flex;align-items:center;gap:8px;font-size:.875rem">
+            <div class="avatar" style="background:${p.color};width:28px;height:28px;font-size:.75rem">${initial(p.name)}</div>
+            <span>${esc(p.name)}</span>
+            <span style="margin-left:auto" class="badge badge-success">제출완료</span>
+          </div>`).join('')}
+      </div>
+      <button class="btn btn-ghost" onclick="closeModal('modal-asgn-detail')">닫기</button>`}
+  `;
+  document.getElementById('modal-asgn-detail').classList.remove('hidden');
+}
+function submitAssignment(id) {
+  closeModal('modal-asgn-detail');
+  showToast('과제를 제출했습니다! ✅', 'success');
+}
+function openAssignmentModal() {
+  const d = new Date(); d.setDate(d.getDate() + 7);
+  document.getElementById('asgn-due').value = d.toISOString().split('T')[0];
+  document.getElementById('modal-assignment').classList.remove('hidden');
+}
+function createAssignment() {
+  const title  = document.getElementById('asgn-title').value.trim();
+  const desc   = document.getElementById('asgn-desc').value.trim();
+  const due    = document.getElementById('asgn-due').value;
+  const points = parseInt(document.getElementById('asgn-points').value) || 100;
+  if (!title) { showToast('제목을 입력해주세요', 'error'); return; }
+  const icons = ['📝','📖','🎨','🔬','💡','🎤'];
+  const colors = ['rgba(79,70,229,.3)','rgba(6,182,212,.3)','rgba(34,197,94,.3)','rgba(245,158,11,.3)'];
+  const a = { id: uid(), title, desc, due, points, icon: icons[Math.floor(Math.random()*icons.length)], color: colors[Math.floor(Math.random()*colors.length)], submissions: 0, total: state.participants.filter(p=>p.role==='student').length || 5 };
+  state.assignments.push(a);
+  renderAssignments();
+  closeModal('modal-assignment');
+  document.getElementById('asgn-title').value = '';
+  document.getElementById('asgn-desc').value = '';
+  showToast('과제가 추가되었습니다', 'success');
+  broadcast({ type: 'post', post: { id: uid(), type: 'assignment', author: state.name, color: state.avatarColor, content: `📋 <b>${title}</b> 과제가 추가되었습니다. 마감: ${due}`, time: new Date() }});
+}
+
+/* =============================================
+   QUIZ
+============================================= */
+let quizQuestionIdx = 0;
+let quizAnswered = false;
+let quizTimer;
+
+function openQuizModal() {
+  document.getElementById('quiz-questions-builder').innerHTML = '';
+  document.getElementById('quiz-title-input').value = '';
+  addQuizQuestion();
+  document.getElementById('modal-quiz').classList.remove('hidden');
+}
+function addQuizQuestion() {
+  const qb = document.getElementById('quiz-questions-builder');
+  const n = qb.children.length + 1;
+  const div = document.createElement('div');
+  div.style.cssText = 'background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;';
+  div.innerHTML = `
+    <div style="font-size:.8rem;font-weight:700;color:var(--text-muted);margin-bottom:6px">문제 ${n}</div>
+    <input class="input" placeholder="문제 내용" style="margin-bottom:6px" />
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+      <input class="input" placeholder="① 선택지 1" />
+      <input class="input" placeholder="② 선택지 2" />
+      <input class="input" placeholder="③ 선택지 3" />
+      <input class="input" placeholder="④ 선택지 4" />
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:.82rem">
+      <span>정답:</span>
+      <select class="select" style="width:80px">
+        <option>①</option><option>②</option><option>③</option><option>④</option>
+      </select>
+      <span style="margin-left:auto;color:var(--text-dim)">제한시간:
+        <select class="select" style="width:80px;display:inline-block">
+          <option>30초</option><option>60초</option><option>90초</option><option>120초</option>
+        </select>
+      </span>
+    </div>`;
+  qb.appendChild(div);
+}
+function launchQuiz() {
+  const title  = document.getElementById('quiz-title-input').value.trim() || '퀴즈';
+  const blocks = document.querySelectorAll('#quiz-questions-builder > div');
+  const questions = [];
+  blocks.forEach(b => {
+    const inputs  = b.querySelectorAll('input');
+    const selects = b.querySelectorAll('select');
+    const q = inputs[0].value.trim() || '(문제 없음)';
+    const opts = [inputs[1], inputs[2], inputs[3], inputs[4]].map((i, idx) => i?.value.trim() || `선택지 ${idx + 1}`);
+    const ans  = ['①','②','③','④'].indexOf(selects[0].value);
+    const time = [30,60,90,120][ ['30초','60초','90초','120초'].indexOf(selects[1].value) ] || 60;
+    questions.push({ q, opts, ans, time });
+  });
+  const quiz = { id: uid(), title, questions };
+  state.activeQuiz = quiz;
+  state.quizzes.push(quiz);
+  renderQuiz();
+  switchTab('quiz');
+  closeModal('modal-quiz');
+  broadcast({ type: 'quiz_launch', quiz });
+  showToast(`퀴즈 "${title}" 를 시작했습니다`, 'success');
+}
+function renderQuiz() {
+  const quiz = state.activeQuiz;
+  if (!quiz) return;
+  quizQuestionIdx = 0;
+  quizAnswered = false;
+  showQuizQuestion();
+}
+function showQuizQuestion() {
+  const quiz = state.activeQuiz;
+  if (!quiz) return;
+  const q    = quiz.questions[quizQuestionIdx];
+  const total = quiz.questions.length;
+  const pct   = Math.round(((quizQuestionIdx) / total) * 100);
+  let timeLeft = q.time;
+
+  document.getElementById('quiz-area').innerHTML = `
+    <div class="quiz-card">
+      <div class="quiz-progress">
+        <span class="quiz-progress-text">${quizQuestionIdx + 1} / ${total}</span>
+        <div class="progress-bar-wrap" style="flex:1">
+          <div class="progress-bar" style="width:${pct}%"></div>
+        </div>
+        <div class="quiz-timer" id="quiz-timer">⏱ ${timeLeft}s</div>
+      </div>
+      <div class="quiz-question">${esc(q.q)}</div>
+      <div class="quiz-options" id="quiz-options">
+        ${q.opts.map((opt, i) => `
+          <div class="quiz-option" id="qopt-${i}" onclick="selectQuizOpt(${i}, ${q.ans})">
+            <div class="quiz-option-letter">${['①','②','③','④'][i]}</div>
+            <span>${esc(opt)}</span>
+          </div>`).join('')}
+      </div>
+      <div class="quiz-actions">
+        <span id="quiz-feedback" style="font-size:.875rem;font-weight:700"></span>
+        <button class="btn btn-primary" id="quiz-next-btn" onclick="nextQuizQuestion()" disabled>
+          ${quizQuestionIdx + 1 < total ? '다음 문제 →' : '결과 보기'}
+        </button>
+      </div>
+    </div>`;
+
+  clearInterval(quizTimer);
+  quizTimer = setInterval(() => {
+    timeLeft--;
+    const el = document.getElementById('quiz-timer');
+    if (el) el.textContent = `⏱ ${timeLeft}s`;
+    if (timeLeft <= 0) {
+      clearInterval(quizTimer);
+      revealQuizAnswer(q.ans);
+    }
+  }, 1000);
+}
+function selectQuizOpt(idx, correct) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  clearInterval(quizTimer);
+  revealQuizAnswer(correct, idx);
+}
+function revealQuizAnswer(correct, selected = -1) {
+  quizAnswered = true;
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach((el, i) => {
+    if (i === correct) el.classList.add('correct');
+    else if (i === selected) el.classList.add('wrong');
+  });
+  const fb = document.getElementById('quiz-feedback');
+  if (fb) fb.textContent = selected === correct ? '✅ 정답!' : selected === -1 ? '⏰ 시간 초과' : '❌ 오답';
+  if (fb) fb.style.color = selected === correct ? 'var(--success)' : selected === -1 ? 'var(--warning)' : 'var(--danger)';
+  const btn = document.getElementById('quiz-next-btn');
+  if (btn) btn.disabled = false;
+}
+function nextQuizQuestion() {
+  quizQuestionIdx++;
+  quizAnswered = false;
+  if (quizQuestionIdx >= state.activeQuiz.questions.length) {
+    document.getElementById('quiz-area').innerHTML = `
+      <div class="quiz-card" style="text-align:center">
+        <div style="font-size:3rem;margin-bottom:12px">🎉</div>
+        <div style="font-size:1.2rem;font-weight:700;margin-bottom:8px">퀴즈 완료!</div>
+        <p style="color:var(--text-muted);margin-bottom:20px">모든 문제를 풀었습니다</p>
+        <button class="btn btn-primary" onclick="state.activeQuiz=null;renderQuizEmpty()">퀴즈 닫기</button>
+      </div>`;
+    return;
+  }
+  showQuizQuestion();
+}
+function renderQuizEmpty() {
+  document.getElementById('quiz-area').innerHTML = `
+    <div style="text-align:center;padding:40px 20px;color:var(--text-muted)">
+      <div style="font-size:3rem">🧩</div>
+      <p style="margin-top:12px">퀴즈가 종료되었습니다</p>
+    </div>`;
+}
+
+/* =============================================
+   POLL
+============================================= */
+function openPollModal() {
+  document.getElementById('modal-poll').classList.remove('hidden');
+}
+function launchPoll() {
+  const q    = document.getElementById('poll-q-input').value.trim() || '투표';
+  const opts = Array.from(document.querySelectorAll('#poll-options-builder input'))
+                    .map(i => i.value.trim())
+                    .filter(Boolean);
+  if (opts.length < 2) { showToast('선택지를 2개 이상 입력하세요', 'error'); return; }
+  const poll = { id: uid(), question: q, options: opts, votes: new Array(opts.length).fill(0), voted: false, total: 0 };
+  state.activePoll = poll;
+  renderPoll();
+  switchTab('poll');
+  closeModal('modal-poll');
+  broadcast({ type: 'poll_launch', poll });
+  showToast('투표가 시작되었습니다', 'success');
+}
+function renderPoll() {
+  const poll = state.activePoll;
+  const wrap = document.getElementById('poll-wrap');
+  if (!poll) { wrap.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)"><div style="font-size:3rem">📊</div><p style="margin-top:12px">활성화된 투표가 없습니다</p></div>'; return; }
+  const total = poll.votes.reduce((a, b) => a + b, 0);
+  wrap.innerHTML = `
+    <div class="poll-card">
+      <div class="poll-q">${esc(poll.question)}</div>
+      ${poll.voted ? `
+        <div style="display:flex;flex-direction:column;gap:10px">
+          ${poll.options.map((opt, i) => {
+            const pct = total ? Math.round((poll.votes[i] / total) * 100) : 0;
+            return `
+            <div class="poll-opt">
+              <div class="poll-opt-row">
+                <span class="poll-opt-label">${esc(opt)}</span>
+                <span class="poll-opt-pct">${pct}%</span>
+              </div>
+              <div class="poll-bar-bg"><div class="poll-bar" style="width:${pct}%"></div></div>
+            </div>`;
+          }).join('')}
+          <div style="font-size:.8rem;color:var(--text-muted);margin-top:6px">총 ${total}명 참여</div>
+        </div>` : `
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${poll.options.map((opt, i) => `
+            <button class="poll-choose-btn" onclick="votePoll(${i})">
+              <span>${['①','②','③','④','⑤'][i] || (i+1)}</span>
+              <span>${esc(opt)}</span>
+            </button>`).join('')}
+        </div>`}
+    </div>`;
+}
+function votePoll(idx) {
+  if (!state.activePoll || state.activePoll.voted) return;
+  state.activePoll.votes[idx]++;
+  state.activePoll.total++;
+  state.activePoll.voted = true;
+  renderPoll();
+  showToast('투표 완료!', 'success');
+}
+
+/* =============================================
+   CHAT
+============================================= */
+function sendChatMsg() {
+  const inp = document.getElementById('chat-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  appendChatMsg({ author: state.name, text, own: true, color: state.avatarColor });
+  broadcast({ type: 'chat', text });
+  inp.value = '';
+  inp.style.height = 'auto';
+}
+function chatKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMsg(); }
+}
+function autoResizeChat(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+function appendChatMsg({ author, text, own, color }) {
+  const msgs = document.getElementById('chat-messages');
+  const div  = document.createElement('div');
+  div.className = 'chat-msg' + (own ? ' own' : '');
+  div.innerHTML = `
+    <div class="avatar" style="background:${color || '#6366f1'};width:28px;height:28px;font-size:.75rem;align-self:flex-end">${initial(author)}</div>
+    <div>
+      ${!own ? `<div class="chat-author">${esc(author)}</div>` : ''}
+      <div class="chat-bubble">${esc(text)}</div>
+      <div class="chat-meta">${now()}</div>
+    </div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+function addChatSystemMsg(text) {
+  const msgs = document.getElementById('chat-messages');
+  const div  = document.createElement('div');
+  div.className = 'chat-system-msg';
+  div.textContent = text;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+/* =============================================
+   HAND RAISE
+============================================= */
+function raiseHand() {
+  if (state.handRaised) { lowerHand(); return; }
+  state.handRaised = true;
+  document.getElementById('btn-raise-hand').textContent = '✋ 손 내리기';
+  document.getElementById('btn-raise-hand').className = 'btn btn-danger w-full';
+  addHandItem(state.name, state.avatarColor);
+  broadcast({ type: 'hand_raise' });
+  showToast('손을 들었습니다 ✋', 'info');
+}
+function lowerHand() {
+  state.handRaised = false;
+  document.getElementById('btn-raise-hand').textContent = '✋ 손 들기';
+  document.getElementById('btn-raise-hand').className = 'btn btn-accent w-full';
+  removeHandItem(state.name);
+  broadcast({ type: 'hand_lower' });
+}
+function addHandItem(name, color) {
+  const area = document.getElementById('hands-area');
+  const existing = area.querySelector(`[data-name="${name}"]`);
+  if (existing) return;
+  // clear placeholder
+  const ph = area.querySelector('div[style]');
+  if (ph && ph.textContent.includes('없습니다')) ph.remove();
+  const div = document.createElement('div');
+  div.className = 'hand-item';
+  div.dataset.name = name;
+  div.innerHTML = `
+    <div class="avatar" style="background:${color};width:32px;height:32px;font-size:.8rem">${initial(name)}</div>
+    <span class="hand-name">${esc(name)}</span>
+    <span class="hand-time">${now()}</span>
+    ${state.role === 'teacher' ? `<button class="btn btn-ghost btn-sm" onclick="dismissHand('${name}')">확인</button>` : ''}`;
+  area.appendChild(div);
+  const badge = document.getElementById('ptab-hands');
+  badge.textContent = '✋ 손들기 🔴';
+}
+function removeHandItem(name) {
+  const el = document.getElementById('hands-area').querySelector(`[data-name="${name}"]`);
+  if (el) el.remove();
+}
+function dismissHand(name) {
+  removeHandItem(name);
+  showToast(`${name}님 손 내렸음 처리`, 'info');
+}
+
+/* =============================================
+   Q&A
+============================================= */
+function submitQuestion() {
+  const inp = document.getElementById('qa-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  const q = { text, author: state.name, color: state.avatarColor, votes: 0, answered: false };
+  addQAItem(q);
+  broadcast({ type: 'question', question: q });
+  inp.value = '';
+  showToast('질문을 등록했습니다', 'success');
+}
+function addQAItem(q) {
+  state.questions.push(q);
+  renderQA();
+}
+function renderQA() {
+  const area = document.getElementById('qa-area');
+  area.innerHTML = state.questions.map((q, idx) => `
+    <div class="qa-item">
+      <div class="qa-question">Q. ${esc(q.text)}</div>
+      <div class="qa-meta">
+        <div class="avatar" style="background:${q.color};width:20px;height:20px;font-size:.6rem;flex-shrink:0">${initial(q.author)}</div>
+        <span>${esc(q.author)}</span>
+        <div class="qa-votes" onclick="upvoteQ(${idx})">👍 ${q.votes}</div>
+        ${q.answered ? '<span class="badge badge-success">답변완료</span>' : '<span class="badge badge-muted">미답변</span>'}
+        ${state.role === 'teacher' && !q.answered ? `<button class="btn btn-ghost btn-sm" onclick="answerQ(${idx})">답변하기</button>` : ''}
+      </div>
+      ${q.answer ? `<div class="qa-answer">💬 ${esc(q.answer)}</div>` : ''}
+    </div>`).join('');
+}
+function upvoteQ(idx) { state.questions[idx].votes++; renderQA(); }
+function answerQ(idx) {
+  const ans = prompt('답변을 입력하세요:');
+  if (!ans) return;
+  state.questions[idx].answer = ans;
+  state.questions[idx].answered = true;
+  renderQA();
+  showToast('답변이 등록되었습니다', 'success');
+}
+
+/* =============================================
+   WHITEBOARD
+============================================= */
+let wbCtx, wbDrawing = false, wbSnapshot, wbHistory = [];
+const WB_COLORS = ['#000000','#ef4444','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#8b5cf6','#ffffff'];
+
+function initWhiteboard() {
+  const canvas = document.getElementById('wb-canvas');
+  const colors = document.getElementById('wb-colors');
+  colors.innerHTML = WB_COLORS.map((c, i) =>
+    `<div class="color-swatch ${i===0?'active':''}" style="background:${c}" data-color="${c}" onclick="pickWBColor(this)"></div>`
+  ).join('');
+  wbCtx = canvas.getContext('2d');
+  resizeWB();
+  canvas.addEventListener('pointerdown', wbStart);
+  canvas.addEventListener('pointermove', wbMove);
+  canvas.addEventListener('pointerup',   wbEnd);
+  canvas.addEventListener('pointerout',  wbEnd);
+  window.addEventListener('resize', () => { if (state.currentTab === 'whiteboard') resizeWB(); });
+}
+function resizeWB() {
+  const canvas = document.getElementById('wb-canvas');
+  const wrap   = document.getElementById('tab-whiteboard');
+  if (!wrap) return;
+  const r = canvas.getBoundingClientRect();
+  const img = wbCtx ? wbCtx.getImageData(0, 0, canvas.width, canvas.height) : null;
+  canvas.width  = canvas.offsetWidth  || 800;
+  canvas.height = canvas.offsetHeight || 500;
+  if (img) wbCtx.putImageData(img, 0, 0);
+  wbCtx.lineCap  = 'round';
+  wbCtx.lineJoin = 'round';
+}
+function setWBTool(t) {
+  state.wbTool = t;
+  document.querySelectorAll('.wb-tool').forEach(b => b.classList.remove('active'));
+  const el = document.getElementById('wbt-' + t);
+  if (el) el.classList.add('active');
+  document.getElementById('wb-canvas').style.cursor = t === 'eraser' ? 'cell' : t === 'text' ? 'text' : 'crosshair';
+}
+function pickWBColor(el) {
+  document.querySelectorAll('#wb-colors .color-swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  state.wbColor = el.dataset.color;
+}
+function updateWBSize(v) {
+  state.wbSize = parseInt(v);
+  document.getElementById('wb-size-val').textContent = v + 'px';
+}
+let wbStartX, wbStartY;
+function wbStart(e) {
+  wbDrawing = true;
+  const {x, y} = wbPos(e);
+  wbStartX = x; wbStartY = y;
+  wbCtx.beginPath();
+  wbCtx.moveTo(x, y);
+  if (state.wbTool === 'pen' || state.wbTool === 'eraser') {
+    wbCtx.strokeStyle = state.wbTool === 'eraser' ? '#ffffff' : state.wbColor;
+    wbCtx.lineWidth   = state.wbTool === 'eraser' ? state.wbSize * 3 : state.wbSize;
+  } else if (state.wbTool === 'text') {
+    const t = prompt('텍스트 입력:');
+    if (t) {
+      wbCtx.font = `${Math.max(state.wbSize * 4, 16)}px sans-serif`;
+      wbCtx.fillStyle = state.wbColor;
+      wbCtx.fillText(t, x, y);
+      pushWBHistory();
+    }
+    wbDrawing = false;
+  }
+  wbSnapshot = wbCtx.getImageData(0, 0, wbCtx.canvas.width, wbCtx.canvas.height);
+}
+function wbMove(e) {
+  if (!wbDrawing) return;
+  const {x, y} = wbPos(e);
+  if (state.wbTool === 'pen' || state.wbTool === 'eraser') {
+    wbCtx.lineTo(x, y);
+    wbCtx.stroke();
+  } else {
+    wbCtx.putImageData(wbSnapshot, 0, 0);
+    wbCtx.strokeStyle = state.wbColor;
+    wbCtx.lineWidth   = state.wbSize;
+    if (state.wbTool === 'line') {
+      wbCtx.beginPath(); wbCtx.moveTo(wbStartX, wbStartY); wbCtx.lineTo(x, y); wbCtx.stroke();
+    } else if (state.wbTool === 'rect') {
+      wbCtx.strokeRect(wbStartX, wbStartY, x - wbStartX, y - wbStartY);
+    } else if (state.wbTool === 'circle') {
+      const r = Math.hypot(x - wbStartX, y - wbStartY);
+      wbCtx.beginPath(); wbCtx.arc(wbStartX, wbStartY, r, 0, Math.PI * 2); wbCtx.stroke();
+    }
+  }
+  broadcast({ type: 'wb_draw', tool: state.wbTool, x, y, sx: wbStartX, sy: wbStartY, color: state.wbColor, size: state.wbSize });
+}
+function wbEnd() {
+  if (!wbDrawing) return;
+  wbDrawing = false;
+  pushWBHistory();
+  document.getElementById('wb-status').textContent = '변경사항 저장됨 ✓';
+  setTimeout(() => { document.getElementById('wb-status').textContent = ''; }, 2000);
+}
+function wbPos(e) {
+  const rect = document.getElementById('wb-canvas').getBoundingClientRect();
+  return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+}
+function pushWBHistory() {
+  wbHistory.push(wbCtx.getImageData(0, 0, wbCtx.canvas.width, wbCtx.canvas.height));
+  if (wbHistory.length > 30) wbHistory.shift();
+}
+function undoWB() {
+  if (wbHistory.length > 1) {
+    wbHistory.pop();
+    wbCtx.putImageData(wbHistory[wbHistory.length - 1], 0, 0);
+  } else {
+    clearWB();
+  }
+}
+function clearWB() {
+  wbCtx.clearRect(0, 0, wbCtx.canvas.width, wbCtx.canvas.height);
+  wbCtx.fillStyle = '#ffffff';
+  wbCtx.fillRect(0, 0, wbCtx.canvas.width, wbCtx.canvas.height);
+  wbHistory = [];
+  showToast('화이트보드를 지웠습니다', 'info');
+}
+function downloadWB() {
+  const link = document.createElement('a');
+  link.download = 'whiteboard.png';
+  link.href = document.getElementById('wb-canvas').toDataURL();
+  link.click();
+}
+
+/* =============================================
+   VIDEO
+============================================= */
+let localStream = null;
+function initVideoGrid() {
+  const grid = document.getElementById('video-grid');
+  // my tile
+  grid.innerHTML = `
+    <div class="video-tile" id="tile-self">
+      <div class="cam-off">
+        <div class="big-avatar" style="background:${state.avatarColor}">${initial(state.name)}</div>
+        <span>카메라 꺼짐</span>
+      </div>
+      <div class="video-tile-name">
+        <span>${esc(state.name)}</span>
+        <span class="badge badge-primary" style="font-size:.65rem">${state.role==='teacher'?'선생님':'학생'}</span>
+      </div>
+    </div>`;
+  // fake student tiles
+  state.participants.filter(p => !p.self).forEach(p => {
+    const tile = document.createElement('div');
+    tile.className = 'video-tile';
+    tile.id = 'tile-' + p.name;
+    tile.innerHTML = `
+      <div class="cam-off">
+        <div class="big-avatar" style="background:${p.color}">${initial(p.name)}</div>
+        <span>카메라 꺼짐</span>
+      </div>
+      <div class="video-tile-name"><span>${esc(p.name)}</span></div>`;
+    grid.appendChild(tile);
+  });
+}
+function toggleMic() {
+  state.micOn = !state.micOn;
+  const btn = document.getElementById('btn-mic');
+  btn.className = 'vc-btn ' + (state.micOn ? 'mic-on' : 'mic-off');
+  btn.textContent = state.micOn ? '🎤' : '🔇';
+  showToast(state.micOn ? '마이크 켜짐' : '마이크 꺼짐', 'info');
+}
+function toggleCam() {
+  state.camOn = !state.camOn;
+  const btn = document.getElementById('btn-cam');
+  btn.className = 'vc-btn ' + (state.camOn ? 'cam-on' : 'cam-off');
+  btn.textContent = state.camOn ? '📷' : '🚫';
+
+  if (state.camOn) {
+    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+      .then(stream => {
+        localStream = stream;
+        const tile = document.getElementById('tile-self');
+        tile.innerHTML = `<video autoplay muted playsinline></video><div class="video-tile-name"><span>${esc(state.name)}</span></div>`;
+        tile.querySelector('video').srcObject = stream;
+      })
+      .catch(() => { showToast('카메라 접근 권한이 없습니다', 'error'); state.camOn = false; btn.className = 'vc-btn cam-off'; btn.textContent = '🚫'; });
+  } else {
+    if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+    const tile = document.getElementById('tile-self');
+    tile.innerHTML = `<div class="cam-off"><div class="big-avatar" style="background:${state.avatarColor}">${initial(state.name)}</div><span>카메라 꺼짐</span></div><div class="video-tile-name"><span>${esc(state.name)}</span></div>`;
+  }
+}
+function toggleScreenShare() {
+  if (!navigator.mediaDevices.getDisplayMedia) { showToast('이 브라우저는 화면 공유를 지원하지 않습니다', 'error'); return; }
+  navigator.mediaDevices.getDisplayMedia({ video: true })
+    .then(stream => {
+      const tile = document.getElementById('tile-self');
+      tile.innerHTML = `<video autoplay muted playsinline></video><div class="video-tile-name">🖥️ <span>${esc(state.name)} (화면 공유)</span></div>`;
+      const v = tile.querySelector('video');
+      v.srcObject = stream;
+      stream.getVideoTracks()[0].onended = () => {
+        tile.innerHTML = `<div class="cam-off"><div class="big-avatar" style="background:${state.avatarColor}">${initial(state.name)}</div><span>카메라 꺼짐</span></div><div class="video-tile-name"><span>${esc(state.name)}</span></div>`;
+      };
+      showToast('화면 공유 시작', 'success');
+    })
+    .catch(() => showToast('화면 공유가 취소되었습니다', 'warning'));
+}
+
+/* =============================================
+   GRADES
+============================================= */
+function renderGrades() {
+  const tbody = document.getElementById('grades-tbody');
+  const students = state.participants.filter(p => p.role === 'student');
+  tbody.innerHTML = students.map(p => {
+    const s1 = Math.floor(Math.random() * 30) + 70;
+    const s2 = Math.floor(Math.random() * 30) + 65;
+    const s3 = Math.floor(Math.random() * 30) + 60;
+    const avg = Math.round((s1 + s2 + s3) / 3);
+    const grade = avg >= 90 ? 'A' : avg >= 80 ? 'B' : avg >= 70 ? 'C' : 'D';
+    return `
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="avatar" style="background:${p.color};width:28px;height:28px;font-size:.75rem">${initial(p.name)}</div>
+            ${esc(p.name)}
+          </div>
+        </td>
+        <td>${s1}</td>
+        <td>${s2}</td>
+        <td>${s3}</td>
+        <td><b>${avg}</b></td>
+        <td><span class="grade-pill grade-${grade}">${grade}</span></td>
+      </tr>`;
+  }).join('');
+}
+function exportGrades() {
+  showToast('성적 파일을 내보내는 중... (데모)', 'info');
+}
+
+/* =============================================
+   FILES
+============================================= */
+function renderFiles() {
+  document.getElementById('file-list').innerHTML = state.files.map(f => `
+    <div class="file-item" onclick="downloadFileDemo('${f.name}')">
+      <div class="file-icon">${f.icon}</div>
+      <div class="file-info">
+        <div class="file-name">${esc(f.name)}</div>
+        <div class="file-meta">${f.size} · ${f.date}</div>
+      </div>
+      <button class="btn btn-ghost btn-sm">⬇️</button>
+    </div>`).join('');
+}
+function uploadFile() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const ext = file.name.split('.').pop().toLowerCase();
+    const icon = { pdf:'📄', xlsx:'📊', xls:'📊', doc:'📝', docx:'📝', ppt:'📊', mp4:'🎬', jpg:'🖼️', png:'🖼️', txt:'📝' }[ext] || '📎';
+    state.files.unshift({ id: uid(), name: file.name, size: formatBytes(file.size), type: ext, date: new Date().toISOString().split('T')[0], icon });
+    renderFiles();
+    showToast(`"${file.name}" 업로드 완료`, 'success');
+  };
+  input.click();
+}
+function downloadFileDemo(name) { showToast(`"${name}" 다운로드 시작 (데모)`, 'info'); }
+function formatBytes(b) { if (b < 1024) return b + ' B'; if (b < 1048576) return Math.round(b/1024) + ' KB'; return (b/1048576).toFixed(1) + ' MB'; }
+
+/* =============================================
+   TEACHER CONTROLS
+============================================= */
+function muteAll() {
+  showToast('모든 학생 마이크를 음소거했습니다', 'warning');
+}
+function lockClass() {
+  state.locked = !state.locked;
+  showToast(state.locked ? '🔒 수업이 잠겼습니다' : '🔓 수업 잠금 해제', state.locked ? 'warning' : 'success');
+}
+
+/* =============================================
+   HEADER ACTIONS
+============================================= */
+function copyCode() {
+  navigator.clipboard.writeText(state.classCode).then(() => {
+    showToast(`수업 코드 "${state.classCode}" 복사됨`, 'success');
+  }).catch(() => showToast('복사 실패', 'error'));
+}
+function openSettings() { document.getElementById('modal-settings').classList.remove('hidden'); }
+function saveName() {
+  const n = document.getElementById('setting-name').value.trim();
+  if (!n) return;
+  state.name = n;
+  showToast('이름이 변경되었습니다', 'success');
+}
+function changeTheme(t) { showToast('테마 변경 (데모)', 'info'); }
+function leaveClass() {
+  if (!confirm('수업을 나가시겠습니까?')) return;
+  broadcast({ type: 'leave' });
+  if (localStream) localStream.getTracks().forEach(t => t.stop());
+  if (channel) channel.close();
+  location.reload();
+}
+
+/* =============================================
+   MODALS
+============================================= */
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+document.querySelectorAll('.modal-backdrop').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
+});
+
+/* =============================================
+   TOAST
+============================================= */
+function showToast(msg, type = 'info') {
+  const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
+  const container = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${icons[type] || ''}</span><span>${esc(msg)}</span>`;
+  container.appendChild(t);
+  setTimeout(() => {
+    t.style.animation = 'fadeOut .3s forwards';
+    setTimeout(() => t.remove(), 300);
+  }, 3000);
+}
+
+/* =============================================
+   HELPERS
+============================================= */
+function initial(name) { return name ? name.charAt(0).toUpperCase() : '?'; }
+function esc(str)       { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function now()          { return new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }); }
+function timeAgo(date) {
+  const diff = Math.floor((Date.now() - new Date(date)) / 60000);
+  if (diff < 1)  return '방금 전';
+  if (diff < 60) return `${diff}분 전`;
+  return `${Math.floor(diff / 60)}시간 전`;
+}
+
+/* =============================================
+   KEYBOARD SHORTCUTS
+============================================= */
+document.addEventListener('keydown', e => {
+  if (e.altKey) {
+    const map = { '1':'stream','2':'whiteboard','3':'video','4':'assignments','5':'quiz','6':'poll','7':'material','8':'grades' };
+    if (map[e.key]) { e.preventDefault(); switchTab(map[e.key]); }
+  }
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-backdrop:not(.hidden)').forEach(m => closeModal(m.id));
+  }
+});
+
+/* =============================================
+   POLL BUTTON in sidebar (teacher)
+============================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  const tc = document.getElementById('teacher-controls');
+  if (tc) {
+    const row = document.createElement('div');
+    row.className = 'ctrl-row';
+    row.innerHTML = `<button class="btn btn-ghost btn-sm w-full" onclick="openPollModal()">📊 투표 만들기</button>`;
+    tc.appendChild(row);
+  }
+});
+</script>
+</body>
+</html>
