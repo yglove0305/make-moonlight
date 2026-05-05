@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ultimate Canvas Timer Pro</title>
+    <!-- PWA 관련 메타 태그 및 매니페스트 (가상) -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="data:application/manifest+json,{'name':'TimerPro','short_name':'TimerPro','start_url':'.','display':'standalone','background_color':'#0f172a','theme_color':'#2563eb'}">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Pretendard:wght@300;400;600;800&display=swap');
+
+        :root {
+            --primary: #2563eb;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f1f5f9;
+            --accent-neon: #38bdf8;
+        }
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: 0 auto;
+        }
+
+        #timerCanvas {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 15px rgba(37, 99, 235, 0.3));
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+        }
+
+        .digital-font {
+            font-family: 'JetBrains+Mono', monospace;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 10px;
+        }
+
+        .btn-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+        .btn-hover:active {
+            transform: scale(0.95);
+        }
+
+        /* PWA Install Promotion Overlay */
+        #pwaOverlay {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+        }
+
+        /* Animation Keyframes */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 1; }
+            100% { transform: scale(1.1); opacity: 0; }
+        }
+
+        .pulse-active {
+            animation: pulse-ring 2s infinite;
+        }
+
+        /* 탭 전환 효과 */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 하단 네비게이션 액티브 효과 */
+        .nav-item.active {
+            color: var(--primary);
+        }
+        .nav-item.active i {
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 8px var(--primary));
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center pb-24">
+
+    <!-- Background Particle Canvas -->
+    <canvas id="bgCanvas" class="fixed top-0 left-0 -z-10 w-full h-full opacity-30"></canvas>
+
+    <!-- Header Section -->
+    <header class="w-full max-w-lg px-6 pt-8 pb-4 flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-extrabold tracking-tight text-white">Timer <span class="text-blue-500">Pro</span></h1>
+            <p id="currentDateDisplay" class="text-sm text-slate-400 mt-1"></p>
+        </div>
+        <button id="settingsBtn" class="w-12 h-12 glass-panel flex items-center justify-center text-xl text-slate-300 btn-hover">
+            <i class="fa-solid fa-gear"></i>
+        </button>
+    </header>
+
+    <!-- Main Container -->
+    <main class="w-full max-w-lg px-4 flex-grow space-y-6">
+        
+        <!-- Tab: Timer (Default) -->
+        <section id="timerTab" class="tab-content active space-y-6">
+            <div class="glass-panel p-8 text-center relative overflow-hidden">
+                <div class="canvas-container mb-6">
+                    <canvas id="timerCanvas"></canvas>
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+                        <span id="timerDisplay" class="text-5xl font-bold digital-font text-white mb-1">00:00</span>
+                        <span id="timerStatus" class="text-xs uppercase tracking-widest text-slate-400">READY</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-4 mb-8">
+                    <button id="resetTimer" class="w-14 h-14 rounded-full bg-slate-700 text-white flex items-center justify-center text-lg btn-hover">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+                    <button id="toggleTimer" class="w-20 h-20 rounded-full bg-blue-600 text-white flex items-center justify-center text-3xl shadow-lg shadow-blue-500/30 btn-hover">
+                        <i class="fa-solid fa-play" id="playIcon"></i>
+                    </button>
+                    <button id="stopTimer" class="w-14 h-14 rounded-full bg-red-600/80 text-white flex items-center justify-center text-lg btn-hover">
+                        <i class="fa-solid fa-stop"></i>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <button onclick="addTime(60)" class="glass-panel py-3 text-sm font-semibold hover:bg-white/5">+1 min</button>
+                    <button onclick="addTime(300)" class="glass-panel py-3 text-sm font-semibold hover:bg-white/5">+5 min</button>
+                    <button onclick="addTime(600)" class="glass-panel py-3 text-sm font-semibold hover:bg-white/5">+10 min</button>
+                </div>
+            </div>
+
+            <!-- Focus Mode (Pomodoro) -->
+            <div class="glass-panel p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-brain text-purple-400"></i> FOCUS MODE (POMODORO)
+                    </h3>
+                    <div class="flex gap-2" id="pomoDots">
+                        <span class="w-2 h-2 rounded-full bg-slate-600"></span>
+                        <span class="w-2 h-2 rounded-full bg-slate-600"></span>
+                        <span class="w-2 h-2 rounded-full bg-slate-600"></span>
+                        <span class="w-2 h-2 rounded-full bg-slate-600"></span>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button id="pomoWork" class="flex-1 py-4 rounded-xl bg-purple-600/30 border border-purple-500/30 text-purple-200 text-sm font-bold btn-hover">Work (25m)</button>
+                    <button id="pomoRest" class="flex-1 py-4 rounded-xl bg-emerald-600/30 border border-emerald-500/30 text-emerald-200 text-sm font-bold btn-hover">Rest (5m)</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab: Stopwatch -->
+        <section id="stopwatchTab" class="tab-content space-y-6">
+            <div class="glass-panel p-8 text-center">
+                <div class="mb-6">
+                    <span id="stopwatchDisplay" class="text-6xl font-bold digital-font text-white block mb-2">00:00:00</span>
+                    <span id="stopwatchMs" class="text-2xl text-blue-400 digital-font">.00</span>
+                </div>
+
+                <div class="flex justify-center gap-4 mb-8">
+                    <button id="lapStopwatch" class="w-14 h-14 rounded-full bg-slate-700 text-white flex items-center justify-center text-lg btn-hover">
+                        <i class="fa-solid fa-flag"></i>
+                    </button>
+                    <button id="toggleStopwatch" class="w-20 h-20 rounded-full bg-emerald-600 text-white flex items-center justify-center text-3xl shadow-lg shadow-emerald-500/30 btn-hover">
+                        <i class="fa-solid fa-play" id="stopwatchPlayIcon"></i>
+                    </button>
+                    <button id="resetStopwatch" class="w-14 h-14 rounded-full bg-slate-700 text-white flex items-center justify-center text-lg btn-hover">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+
+                <div class="max-h-60 overflow-y-auto w-full space-y-2 mt-4" id="lapList">
+                    <!-- Lap items will appear here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab: World Clock -->
+        <section id="worldClockTab" class="tab-content space-y-4">
+            <div class="glass-panel p-6 space-y-4" id="worldClockContainer">
+                <!-- Clocks generated by JS -->
+            </div>
+            <button id="addCityBtn" class="w-full glass-panel py-4 text-slate-400 flex items-center justify-center gap-2 btn-hover">
+                <i class="fa-solid fa-plus"></i> Add New City
+            </button>
+        </section>
+
+        <!-- Tab: History & Stats -->
+        <section id="statsTab" class="tab-content space-y-6">
+            <div class="glass-panel p-6">
+                <h3 class="font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-simple text-blue-400"></i> USAGE STATISTICS</h3>
+                <canvas id="statsCanvas" class="w-full h-40"></canvas>
+                <div class="grid grid-cols-2 gap-4 mt-6">
+                    <div class="bg-white/5 rounded-xl p-4">
+                        <span class="text-xs text-slate-400 block mb-1 uppercase">Total Focus</span>
+                        <span id="totalFocusTime" class="text-xl font-bold">0h 0m</span>
+                    </div>
+                    <div class="bg-white/5 rounded-xl p-4">
+                        <span class="text-xs text-slate-400 block mb-1 uppercase">Completed</span>
+                        <span id="completedSessions" class="text-xl font-bold">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-6">
+                <h3 class="font-bold mb-4 flex items-center justify-between">
+                    <span>RECENT ACTIVITIES</span>
+                    <button id="clearHistory" class="text-xs text-red-400 hover:underline">Clear all</button>
+                </h3>
+                <div id="historyList" class="space-y-3 text-sm">
+                    <!-- History items -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 w-full glass-panel rounded-t-[2rem] rounded-b-none border-t border-white/10 px-8 py-4 flex justify-between items-center z-50">
+        <button onclick="switchTab('timer')" id="nav-timer" class="nav-item active flex flex-col items-center gap-1 transition-all">
+            <i class="fa-solid fa-clock text-xl"></i>
+            <span class="text-[10px] font-bold uppercase tracking-tighter">Timer</span>
+        </button>
+        <button onclick="switchTab('stopwatch')" id="nav-stopwatch" class="nav-item flex flex-col items-center gap-1 transition-all">
+            <i class="fa-solid fa-stopwatch text-xl"></i>
+            <span class="text-[10px] font-bold uppercase tracking-tighter">Watch</span>
+        </button>
+        <div class="relative -top-10">
+            <button id="quickAction" class="w-16 h-16 bg-blue-600 rounded-full border-4 border-[#0f172a] flex items-center justify-center text-white text-2xl shadow-xl shadow-blue-500/20 btn-hover">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+        </div>
+        <button onclick="switchTab('worldClock')" id="nav-worldClock" class="nav-item flex flex-col items-center gap-1 transition-all">
+            <i class="fa-solid fa-globe text-xl"></i>
+            <span class="text-[10px] font-bold uppercase tracking-tighter">World</span>
+        </button>
+        <button onclick="switchTab('stats')" id="nav-stats" class="nav-item flex flex-col items-center gap-1 transition-all">
+            <i class="fa-solid fa-chart-line text-xl"></i>
+            <span class="text-[10px] font-bold uppercase tracking-tighter">Stats</span>
+        </button>
+    </nav>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] hidden flex items-center justify-center p-6">
+        <div class="glass-panel w-full max-w-sm p-8 space-y-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold">SETTINGS</h2>
+                <button id="closeSettings" class="text-2xl text-slate-400">&times;</button>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <label class="text-sm font-medium">Tick Sound</label>
+                    <input type="checkbox" id="tickSoundToggle" class="w-10 h-5 bg-slate-700 rounded-full appearance-none checked:bg-blue-600 transition-colors cursor-pointer relative after:content-[''] after:absolute after:top-1 after:left-1 after:w-3 after:h-3 after:bg-white after:rounded-full after:transition-transform checked:after:translate-x-5">
+                </div>
+                <div class="flex justify-between items-center">
+                    <label class="text-sm font-medium">Particle Background</label>
+                    <input type="checkbox" id="particleToggle" checked class="w-10 h-5 bg-slate-700 rounded-full appearance-none checked:bg-blue-600 transition-colors cursor-pointer relative after:content-[''] after:absolute after:top-1 after:left-1 after:w-3 after:h-3 after:bg-white after:rounded-full after:transition-transform checked:after:translate-x-5">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs text-slate-400 uppercase">Accent Color</label>
+                    <div class="flex gap-3">
+                        <button onclick="setTheme('#2563eb')" class="w-8 h-8 rounded-full bg-blue-600"></button>
+                        <button onclick="setTheme('#10b981')" class="w-8 h-8 rounded-full bg-emerald-500"></button>
+                        <button onclick="setTheme('#8b5cf6')" class="w-8 h-8 rounded-full bg-purple-500"></button>
+                        <button onclick="setTheme('#f43f5e')" class="w-8 h-8 rounded-full bg-rose-500"></button>
+                    </div>
+                </div>
+            </div>
+
+            <button class="w-full py-4 bg-slate-800 rounded-xl text-sm font-bold btn-hover" id="pwaInstallBtn">Install on Home Screen</button>
+        </div>
+    </div>
+
+    <!-- PWA Install Tip -->
+    <div id="pwaOverlay" class="glass-panel px-6 py-4 flex items-center gap-4 border-blue-500/30">
+        <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-xl">
+            <i class="fa-solid fa-mobile-screen-button"></i>
+        </div>
+        <div class="flex-1">
+            <p class="text-xs font-bold">Install App</p>
+            <p class="text-[10px] text-slate-400 leading-tight">Add to home screen for full experience</p>
+        </div>
+        <button id="closePwaTip" class="text-slate-400">&times;</button>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        /**
+         * GLOBAL STATE & INITIALIZATION
+         */
+        const state = {
+            activeTab: 'timer',
+            timer: {
+                totalSeconds: 1500,
+                remainingSeconds: 1500,
+                isRunning: false,
+                interval: null,
+                pomoCycle: 0
+            },
+            stopwatch: {
+                startTime: null,
+                elapsed: 0,
+                isRunning: false,
+                interval: null,
+                laps: []
+            },
+            settings: {
+                tickSound: false,
+                accentColor: '#2563eb',
+                particles: true
+            },
+            history: JSON.parse(localStorage.getItem('timerHistory') || '[]'),
+            stats: JSON.parse(localStorage.getItem('timerStats') || '{"focus": 0, "sessions": 0}')
+        };
+
+        // Canvas Setup
+        const timerCanvas = document.getElementById('timerCanvas');
+        const ctx = timerCanvas.getContext('2d');
+        const bgCanvas = document.getElementById('bgCanvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        const statsCanvas = document.getElementById('statsCanvas');
+        const sCtx = statsCanvas.getContext('2d');
+
+        // Scale Canvas for Retina Displays
+        function setupCanvas(canvas) {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            const ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+            return ctx;
+        }
+
+        /**
+         * TIMER LOGIC
+         */
+        function updateTimerDisplay() {
+            const m = Math.floor(state.timer.remainingSeconds / 60);
+            const s = state.timer.remainingSeconds % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            drawTimerCanvas();
+        }
+
+        function drawTimerCanvas() {
+            const size = 320;
+            const center = size / 2;
+            const radius = 140;
+            const startAngle = -Math.PI / 2;
+            const progress = (state.timer.totalSeconds - state.timer.remainingSeconds) / state.timer.totalSeconds;
+            const endAngle = startAngle + (Math.PI * 2 * (1 - progress));
+
+            ctx.clearRect(0, 0, size, size);
+
+            // Background Circle
+            ctx.beginPath();
+            ctx.arc(center, center, radius, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 12;
+            ctx.stroke();
+
+            // Progress Arc
+            ctx.beginPath();
+            ctx.arc(center, center, radius, startAngle, endAngle);
+            ctx.strokeStyle = state.settings.accentColor;
+            ctx.lineWidth = 12;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            // Glow Effect
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = state.settings.accentColor;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            // Indicator Dots
+            for (let i = 0; i < 60; i++) {
+                const angle = (i * 6 * Math.PI) / 180 - Math.PI / 2;
+                const innerR = radius - 25;
+                const outerR = radius - 15;
+                const x1 = center + innerR * Math.cos(angle);
+                const y1 = center + innerR * Math.sin(angle);
+                const x2 = center + outerR * Math.cos(angle);
+                const y2 = center + outerR * Math.sin(angle);
+
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.strokeStyle = i % 5 === 0 ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.1)';
+                ctx.lineWidth = i % 5 === 0 ? 3 : 1;
+                ctx.stroke();
+            }
+        }
+
+        function toggleTimer() {
+            if (state.timer.isRunning) {
+                clearInterval(state.timer.interval);
+                state.timer.isRunning = false;
+                document.getElementById('playIcon').className = 'fa-solid fa-play';
+                document.getElementById('timerStatus').textContent = 'PAUSED';
+            } else {
+                if (state.timer.remainingSeconds <= 0) return;
+                state.timer.isRunning = true;
+                document.getElementById('playIcon').className = 'fa-solid fa-pause';
+                document.getElementById('timerStatus').textContent = 'FOCUSING';
+                state.timer.interval = setInterval(() => {
+                    if (state.timer.remainingSeconds > 0) {
+                        state.timer.remainingSeconds--;
+                        updateTimerDisplay();
+                        if (state.settings.tickSound) playTick();
+                    } else {
+                        completeTimer();
+                    }
+                }, 1000);
+            }
+        }
+
+        function completeTimer() {
+            clearInterval(state.timer.interval);
+            state.timer.isRunning = false;
+            document.getElementById('playIcon').className = 'fa-solid fa-play';
+            document.getElementById('timerStatus').textContent = 'FINISHED';
+            playAlarm();
+            saveHistory('Timer Task', state.timer.totalSeconds);
+            updateStats(state.timer.totalSeconds);
+            triggerHaptic();
+        }
+
+        function addTime(sec) {
+            state.timer.remainingSeconds += sec;
+            state.timer.totalSeconds = Math.max(state.timer.remainingSeconds, state.timer.totalSeconds);
+            updateTimerDisplay();
+        }
+
+        function resetTimer() {
+            clearInterval(state.timer.interval);
+            state.timer.isRunning = false;
+            state.timer.remainingSeconds = 1500;
+            state.timer.totalSeconds = 1500;
+            document.getElementById('playIcon').className = 'fa-solid fa-play';
+            document.getElementById('timerStatus').textContent = 'READY';
+            updateTimerDisplay();
+        }
+
+        /**
+         * STOPWATCH LOGIC
+         */
+        function toggleStopwatch() {
+            const display = document.getElementById('stopwatchDisplay');
+            const msDisplay = document.getElementById('stopwatchMs');
+            const icon = document.getElementById('stopwatchPlayIcon');
+
+            if (state.stopwatch.isRunning) {
+                clearInterval(state.stopwatch.interval);
+                state.stopwatch.isRunning = false;
+                icon.className = 'fa-solid fa-play';
+            } else {
+                state.stopwatch.isRunning = true;
+                icon.className = 'fa-solid fa-pause';
+                state.stopwatch.startTime = Date.now() - state.stopwatch.elapsed;
+                state.stopwatch.interval = setInterval(() => {
+                    state.stopwatch.elapsed = Date.now() - state.stopwatch.startTime;
+                    const d = new Date(state.stopwatch.elapsed);
+                    const h = String(d.getUTCHours()).padStart(2, '0');
+                    const m = String(d.getUTCMinutes()).padStart(2, '0');
+                    const s = String(d.getUTCSeconds()).padStart(2, '0');
+                    const ms = String(Math.floor(d.getUTCMilliseconds() / 10)).padStart(2, '0');
+                    display.textContent = `${h}:${m}:${s}`;
+                    msDisplay.textContent = `.${ms}`;
+                }, 41);
+            }
+        }
+
+        function resetStopwatch() {
+            clearInterval(state.stopwatch.interval);
+            state.stopwatch.isRunning = false;
+            state.stopwatch.elapsed = 0;
+            state.stopwatch.laps = [];
+            document.getElementById('stopwatchDisplay').textContent = '00:00:00';
+            document.getElementById('stopwatchMs').textContent = '.00';
+            document.getElementById('stopwatchPlayIcon').className = 'fa-solid fa-play';
+            document.getElementById('lapList').innerHTML = '';
+        }
+
+        function addLap() {
+            if (state.stopwatch.elapsed === 0) return;
+            const time = document.getElementById('stopwatchDisplay').textContent + document.getElementById('stopwatchMs').textContent;
+            state.stopwatch.laps.push(time);
+            const lapDiv = document.createElement('div');
+            lapDiv.className = 'flex justify-between items-center p-3 bg-white/5 rounded-lg text-sm';
+            lapDiv.innerHTML = `
+                <span class="text-slate-400">Lap ${state.stopwatch.laps.length}</span>
+                <span class="font-bold digital-font text-white">${time}</span>
+            `;
+            const container = document.getElementById('lapList');
+            container.prepend(lapDiv);
+        }
+
+        /**
+         * WORLD CLOCK LOGIC
+         */
+        const cities = [
+            { name: 'Seoul', tz: 'Asia/Seoul' },
+            { name: 'New York', tz: 'America/New_York' },
+            { name: 'London', tz: 'Europe/London' },
+            { name: 'Tokyo', tz: 'Asia/Tokyo' }
+        ];
+
+        function updateWorldClocks() {
+            const container = document.getElementById('worldClockContainer');
+            if (state.activeTab !== 'worldClock') return;
+            
+            container.innerHTML = '';
+            cities.forEach(city => {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('en-US', { 
+                    timeZone: city.tz, 
+                    hour12: true, 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                const dateStr = now.toLocaleDateString('en-US', { 
+                    timeZone: city.tz,
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center p-4 bg-white/5 rounded-2xl';
+                div.innerHTML = `
+                    <div>
+                        <h4 class="font-bold text-white">${city.name}</h4>
+                        <span class="text-xs text-slate-400">${dateStr}</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-2xl font-bold digital-font text-blue-400">${timeStr.split(' ')[0]}</span>
+                        <span class="text-[10px] text-slate-500 block uppercase font-bold">${timeStr.split(' ')[1]}</span>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        /**
+         * STATS & HISTORY LOGIC
+         */
+        function saveHistory(type, duration) {
+            const entry = {
+                id: Date.now(),
+                type: type,
+                duration: duration,
+                timestamp: new Date().toISOString()
+            };
+            state.history.unshift(entry);
+            if (state.history.length > 50) state.history.pop();
+            localStorage.setItem('timerHistory', JSON.stringify(state.history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            if (state.history.length === 0) {
+                list.innerHTML = '<p class="text-slate-500 text-center py-4">No recent history.</p>';
+                return;
+            }
+            list.innerHTML = state.history.slice(0, 5).map(h => `
+                <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-xs">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-slate-200">${h.type}</p>
+                            <p class="text-[10px] text-slate-500">${new Date(h.timestamp).toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold text-slate-400">${Math.floor(h.duration / 60)}m</span>
+                </div>
+            `).join('');
+        }
+
+        function updateStats(duration) {
+            state.stats.focus += duration;
+            state.stats.sessions += 1;
+            localStorage.setItem('timerStats', JSON.stringify(state.stats));
+            renderStats();
+        }
+
+        function renderStats() {
+            const h = Math.floor(state.stats.focus / 3600);
+            const m = Math.floor((state.stats.focus % 3600) / 60);
+            document.getElementById('totalFocusTime').textContent = `${h}h ${m}m`;
+            document.getElementById('completedSessions').textContent = state.stats.sessions;
+            drawStatsChart();
+        }
+
+        function drawStatsChart() {
+            if (state.activeTab !== 'stats') return;
+            const w = statsCanvas.parentElement.clientWidth - 48;
+            const h = 160;
+            statsCanvas.width = w;
+            statsCanvas.height = h;
+            
+            sCtx.clearRect(0, 0, w, h);
+            
+            // Mock Daily Stats Drawing
+            const data = [10, 45, 20, 80, 50, 100, 40];
+            const barWidth = (w - 40) / data.length;
+            const max = Math.max(...data);
+
+            data.forEach((val, i) => {
+                const barHeight = (val / max) * (h - 40);
+                const x = 20 + i * barWidth;
+                const y = h - 20 - barHeight;
+
+                // Gradient
+                const grad = sCtx.createLinearGradient(0, y, 0, h - 20);
+                grad.addColorStop(0, state.settings.accentColor);
+                grad.addColorStop(1, 'rgba(37, 99, 235, 0.1)');
+
+                sCtx.fillStyle = grad;
+                sCtx.beginPath();
+                sCtx.roundRect(x + 5, y, barWidth - 10, barHeight, [8, 8, 0, 0]);
+                sCtx.fill();
+
+                // Labels
+                sCtx.fillStyle = '#64748b';
+                sCtx.font = '10px Pretendard';
+                sCtx.textAlign = 'center';
+                sCtx.fillText(['M', 'T', 'W', 'T', 'F', 'S', 'S'][i], x + barWidth / 2, h - 5);
+            });
+        }
+
+        /**
+         * BACKGROUND & UX
+         */
+        let particles = [];
+        function initParticles() {
+            particles = [];
+            const count = 30;
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: Math.random() * bgCanvas.width,
+                    y: Math.random() * bgCanvas.height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    size: Math.random() * 2 + 1
+                });
+            }
+        }
+
+        function animate() {
+            if (state.settings.particles) {
+                bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+                bgCtx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    if (p.x < 0 || p.x > bgCanvas.width) p.vx *= -1;
+                    if (p.y < 0 || p.y > bgCanvas.height) p.vy *= -1;
+                    bgCtx.beginPath();
+                    bgCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    bgCtx.fill();
+                });
+            }
+            
+            if (state.activeTab === 'worldClock') {
+                updateWorldClocks();
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        function playTick() {
+            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = context.createOscillator();
+            const gain = context.createGain();
+            osc.connect(gain);
+            gain.connect(context.destination);
+            osc.frequency.value = 800;
+            gain.gain.setValueAtTime(0.05, context.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.1);
+            osc.start();
+            osc.stop(context.currentTime + 0.1);
+        }
+
+        function playAlarm() {
+            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, i) => {
+                const osc = context.createOscillator();
+                const gain = context.createGain();
+                osc.connect(gain);
+                gain.connect(context.destination);
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0, context.currentTime + i * 0.2);
+                gain.gain.linearRampToValueAtTime(0.2, context.currentTime + i * 0.2 + 0.05);
+                gain.gain.linearRampToValueAtTime(0, context.currentTime + i * 0.2 + 0.4);
+                osc.start(context.currentTime + i * 0.2);
+                osc.stop(context.currentTime + i * 0.2 + 0.5);
+            });
+        }
+
+        function triggerHaptic() {
+            if ("vibrate" in navigator) {
+                navigator.vibrate([100, 30, 100, 30, 200]);
+            }
+        }
+
+        /**
+         * UI CONTROL
+         */
+        function switchTab(tabId) {
+            state.activeTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(`${tabId}Tab`).classList.add('active');
+            document.getElementById(`nav-${tabId}`).classList.add('active');
+
+            if (tabId === 'timer') drawTimerCanvas();
+            if (tabId === 'stats') renderStats();
+            if (tabId === 'worldClock') updateWorldClocks();
+        }
+
+        function setTheme(color) {
+            state.settings.accentColor = color;
+            document.documentElement.style.setProperty('--primary', color);
+            document.getElementById('playIcon').parentElement.style.backgroundColor = color;
+            document.getElementById('quickAction').style.backgroundColor = color;
+            drawTimerCanvas();
+            if (state.activeTab === 'stats') drawStatsChart();
+        }
+
+        /**
+         * EVENT LISTENERS
+         */
+        window.addEventListener('load', () => {
+            setupCanvas(timerCanvas);
+            setupCanvas(bgCanvas);
+            initParticles();
+            updateTimerDisplay();
+            renderHistory();
+            renderStats();
+            
+            document.getElementById('currentDateDisplay').textContent = new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', month: 'long', day: 'numeric' 
+            });
+
+            animate();
+        });
+
+        document.getElementById('toggleTimer').addEventListener('click', toggleTimer);
+        document.getElementById('resetTimer').addEventListener('click', resetTimer);
+        document.getElementById('stopTimer').addEventListener('click', () => {
+            clearInterval(state.timer.interval);
+            state.timer.isRunning = false;
+            state.timer.remainingSeconds = 0;
+            completeTimer();
+        });
+
+        document.getElementById('toggleStopwatch').addEventListener('click', toggleStopwatch);
+        document.getElementById('resetStopwatch').addEventListener('click', resetStopwatch);
+        document.getElementById('lapStopwatch').addEventListener('click', addLap);
+
+        document.getElementById('pomoWork').addEventListener('click', () => {
+            state.timer.remainingSeconds = 1500;
+            state.timer.totalSeconds = 1500;
+            updateTimerDisplay();
+            document.getElementById('timerStatus').textContent = 'READY FOR WORK';
+        });
+
+        document.getElementById('pomoRest').addEventListener('click', () => {
+            state.timer.remainingSeconds = 300;
+            state.timer.totalSeconds = 300;
+            updateTimerDisplay();
+            document.getElementById('timerStatus').textContent = 'REST TIME';
+        });
+
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+            document.getElementById('settingsModal').classList.remove('hidden');
+        });
+
+        document.getElementById('closeSettings').addEventListener('click', () => {
+            document.getElementById('settingsModal').classList.add('hidden');
+        });
+
+        document.getElementById('tickSoundToggle').addEventListener('change', (e) => {
+            state.settings.tickSound = e.target.checked;
+        });
+
+        document.getElementById('particleToggle').addEventListener('change', (e) => {
+            state.settings.particles = e.target.checked;
+        });
+
+        document.getElementById('clearHistory').addEventListener('click', () => {
+            state.history = [];
+            localStorage.setItem('timerHistory', '[]');
+            renderHistory();
+        });
+
+        // PWA Installation Mockup Logic
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('pwaOverlay').style.display = 'flex';
+        });
+
+        document.getElementById('pwaInstallBtn').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+            } else {
+                alert("이 브라우저는 이미 설치되었거나 지원하지 않습니다. 브라우저 메뉴에서 '홈 화면에 추가'를 눌러주세요.");
+            }
+        });
+
+        document.getElementById('closePwaTip').addEventListener('click', () => {
+            document.getElementById('pwaOverlay').style.display = 'none';
+        });
+
+        // Quick Action (Random Focus)
+        document.getElementById('quickAction').addEventListener('click', () => {
+            const times = [300, 600, 1500, 3000];
+            const randomTime = times[Math.floor(Math.random() * times.length)];
+            state.timer.remainingSeconds = randomTime;
+            state.timer.totalSeconds = randomTime;
+            updateTimerDisplay();
+            switchTab('timer');
+        });
+
+        // Window Resize Handling
+        window.addEventListener('resize', () => {
+            setupCanvas(timerCanvas);
+            setupCanvas(bgCanvas);
+            initParticles();
+            drawTimerCanvas();
+        });
+    </script>
+</body>
+</html>
